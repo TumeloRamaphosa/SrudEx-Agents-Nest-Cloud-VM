@@ -50,6 +50,29 @@ services:
     command: node index.js
     env_file: ../.env
 
+  discord-bot:
+    image: node:22-alpine
+    container_name: adam-discord-bot
+    restart: always
+    working_dir: /app
+    volumes:
+      - ./agents/discord-bot:/app
+      - shared-data:/data
+    command: >
+      sh -c "npm install discord.js dotenv && node index.js"
+    env_file: ../.env
+    environment:
+      - DISCORD_BOT_TOKEN=\${DISCORD_BOT_TOKEN}
+      - DISCORD_CLIENT_ID=\${DISCORD_CLIENT_ID}
+      - DISCORD_GUILD_ID=\${DISCORD_GUILD_ID:-}
+      - DISCORD_LOG_CHANNEL_ID=\${DISCORD_LOG_CHANNEL_ID:-}
+      - WAR_ROOM_URL=\${WAR_ROOM_URL}
+      - APPROVAL_HOOK=http://approval-bot:3002/webhook
+      - ALLOWED_USER_IDS=\${ALLOWED_USER_IDS}
+    depends_on:
+      - approval-bot
+      - war-room-ui
+
   nginx:
     image: nginx:alpine
     container_name: robusca-nginx
