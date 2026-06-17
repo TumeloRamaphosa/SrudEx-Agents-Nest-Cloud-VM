@@ -1,0 +1,64 @@
+version: '3.9'
+name: studex-agents-nest
+
+services:
+  war-room-ui:
+    build: ../war-room
+    container_name: war-room
+    restart: always
+    ports:
+      - "5000:5000"
+    env_file: ../.env
+    volumes:
+      - war-room-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  shopify-agent:
+    image: node:22-alpine
+    container_name: shopify-agent
+    restart: always
+    working_dir: /app
+    volumes:
+      - ./agents/shopify-agent:/app
+      - shared-data:/data
+    command: node index.js
+    env_file: ../.env
+
+  content-pipeline:
+    image: node:22-alpine
+    container_name: content-pipeline
+    restart: always
+    working_dir: /app
+    volumes:
+      - ./agents/content-pipeline:/app
+      - shared-data:/data
+    command: node index.js
+    env_file: ../.env
+
+  approval-bot:
+    image: node:22-alpine
+    container_name: approval-bot
+    restart: always
+    working_dir: /app
+    volumes:
+      - ./agents/approval-bot:/app
+      - shared-data:/data
+    command: node index.js
+    env_file: ../.env
+
+  nginx:
+    image: nginx:alpine
+    container_name: robusca-nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+
+volumes:
+  war-room-data:
+  shared-data:
