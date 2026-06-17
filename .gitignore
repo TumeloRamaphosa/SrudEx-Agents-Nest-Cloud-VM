@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/
+
+# Cache
+.cache/
+.temp/
+tmp/
+
+# Credentials (never commit)
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# Nested git repos (keep source but ignore their git dirs)
+robusca-brain/.git/
+robusca-brain/.github/
+etb-cashclaw/.git/
+skills/
+node_modules/
+*.log
+.env
+.env.local
