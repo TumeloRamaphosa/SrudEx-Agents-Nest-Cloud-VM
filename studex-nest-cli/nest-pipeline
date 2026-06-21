@@ -1,0 +1,27 @@
+#!/bin/bash
+# nest-pipeline — List active deal pipeline
+
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+echo -e "${BLUE}=== Deal Pipeline ===${NC}"
+echo ""
+
+# Placeholder deal data (replace with actual database/API call)
+DEALS=(
+    "ADAM SMASHER AI - Enterprise License | Stage: Negotiation | Value: R500K"
+    "StudEx Global Markets - Platform MVP | Stage: Development | Value: R200K"
+    "NtTechLab Integration - API Contract | Stage: Proposal | Value: R150K"
+    "War Room Analytics - Dashboard | Stage: Scoping | Value: R80K"
+)
+
+for deal in "${DEALS[@]}"; do
+    echo -e "${GREEN}• $deal${NC}"
+done
+
+echo ""
+TOTAL=930000
+echo -e "${YELLOW}Pipeline Total: R$${TOTAL}K${NC}"
