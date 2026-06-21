@@ -1,0 +1,35 @@
+#!/bin/bash
+# nest-restart — Safe service restart via docker-compose
+
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# Check ~/nest exists
+if [ ! -d "$HOME/nest" ]; then
+    echo -e "${RED}Error: ~/nest not found${NC}"
+    echo "Run: git clone https://github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM ~/nest"
+    exit 1
+fi
+
+if ! command -v docker-compose &> /dev/null; then
+    echo -e "${RED}Error: docker-compose not found${NC}"
+    exit 1
+fi
+
+cd ~/nest || exit 1
+
+echo -e "${YELLOW}Stopping services...${NC}"
+docker-compose down
+
+echo -e "${BLUE}Starting services...${NC}"
+docker-compose up -d
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}Services restarted successfully${NC}"
+else
+    echo -e "${RED}Failed to restart services${NC}"
+    exit 1
+fi
