@@ -1,0 +1,26 @@
+#!/bin/bash
+# nest-pull — Git pull latest from ~/nest
+
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+# Check ~/nest exists
+if [ ! -d "$HOME/nest" ]; then
+    echo -e "${RED}Error: ~/nest not found${NC}"
+    echo "Run: git clone https://github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM ~/nest"
+    exit 1
+fi
+
+cd ~/nest || exit 1
+
+echo -e "${BLUE}Pulling latest from GitHub...${NC}"
+git pull
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}Updated${NC}"
+else
+    echo -e "${RED}Git pull failed${NC}"
+    exit 1
+fi
