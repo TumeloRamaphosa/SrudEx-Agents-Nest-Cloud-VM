@@ -443,5 +443,64 @@ Write ONLY the caption. No intro, no explanation.`;
     res.json([]);
   });
 
+  // ── AI Chat Streaming Route ──
+  app.post("/api/chat/stream", async (req, res) => {
+    const { prompt, systemPrompt, model, agentId } = req.body as {
+      prompt: string;
+      systemPrompt: string;
+      model: string;
+      agentId: string;
+    };
+
+    if (!prompt) {
+      return res.status(400).json({ error: "prompt is required" });
+    }
+
+    // Route to appropriate model based on selection
+    const modelMap: Record<string, { provider: string; model: string }> = {
+      "gpt-4o": { provider: "openai", model: "gpt-4o" },
+      "claude-sonnet-4-5": { provider: "anthropic", model: "claude-sonnet-4-5" },
+      "gemini-2.0-flash": { provider: "google", model: "gemini-2.0-flash" },
+      "perplexity": { provider: "perplexity", model: "sonar" },
+    };
+
+    const selected = modelMap[model] || modelMap["gpt-4o"];
+
+    const openai = getOpenAI();
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    try {
+      const stream = await openai.chat.completions.create({
+        model: selected.model,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt },
+        ],
+        stream: true,
+        max_tokens: 2000,
+        temperature: 0.7,
+      });
+
+      for await (const chunk of stream) {
+        const text = chunk.choices[0]?.delta?.content || "";
+        if (text) {
+          res.write(`data: ${JSON.stringify({ text })}\n\n`);
+        }
+      }
+      res.write("data: [DONE]\n\n");
+      res.end();
+    } catch (err: any) {
+      if (!res.headersSent) {
+        res.status(500).json({ error: err.message });
+      } else {
+        res.write(`data: ${JSON.stringify({ text: `\n\n⚠️ Error: ${err.message}` })}\n\n`);
+        res.end();
+      }
+    }
+  });
+
   return httpServer;
 }

@@ -19,14 +19,16 @@ import GlobalMarkets from "@/pages/GlobalMarkets";
 import SuperAgents from "@/pages/SuperAgents";
 import Payments from "@/pages/Payments";
 import RevenueEngine from "@/pages/RevenueEngine";
+import NalediAI from "@/pages/NalediAI";
 import NotFound from "@/pages/not-found";
 import { useState } from "react";
-import { LayoutGrid, Calendar, Sparkles, TrendingUp, ShoppingBag, CheckSquare, Bot, Megaphone, Truck, MessageSquare, Globe, Cpu, CreditCard } from "lucide-react";
+import { LayoutGrid, Calendar, Sparkles, TrendingUp, ShoppingBag, CheckSquare, Bot, Megaphone, Truck, MessageSquare, Globe, Cpu, CreditCard, MessageCircle } from "lucide-react";
 
 const TABS = [
   { id: "queue", label: "Queue", icon: LayoutGrid },
   { id: "calendar", label: "Calendar", icon: Calendar },
   { id: "generate", label: "Generate", icon: Sparkles },
+  { id: "naledi-ai", label: "AI Chat", icon: MessageCircle },
   { id: "analytics", label: "Analytics", icon: TrendingUp },
   { id: "shopify", label: "Shopify", icon: ShoppingBag },
   { id: "approvals", label: "Approvals", icon: CheckSquare },
@@ -137,6 +139,7 @@ function MainLayout() {
         {activeTab === "queue" && <ContentQueue />}
         {activeTab === "calendar" && <ContentCalendar />}
         {activeTab === "generate" && <GenerateContent />}
+        {activeTab === "naledi-ai" && <NalediAI />}
         {activeTab === "analytics" && <Analytics />}
         {activeTab === "shopify" && <ShopifyStore />}
         {activeTab === "approvals" && <ComingSoonPage title="Approvals Centre" />}
