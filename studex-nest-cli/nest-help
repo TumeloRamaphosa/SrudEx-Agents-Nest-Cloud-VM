@@ -1,0 +1,45 @@
+#!/bin/bash
+# nest-help — Print all StudEx Nest CLI commands with descriptions
+
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+echo -e "${BLUE}╔═══════════════════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║       StudEx Nest CLI — VM Management Toolkit            ║${NC}"
+echo -e "${BLUE}║       ADAM SMASHER AI CEO — Tumelo Ramaphosa             ║${NC}"
+echo -e "${BLUE}╚═══════════════════════════════════════════════════════════╝${NC}"
+echo ""
+
+echo -e "${GREEN}COMMANDS:${NC}"
+echo ""
+echo -e "${GREEN}nest${NC}              Main launcher (alias for all commands)"
+echo -e "${GREEN}nest pull${NC}         Git pull latest from ~/nest"
+echo -e "${GREEN}nest logs${NC}         Tail PM2/Docker logs"
+echo -e "${GREEN}nest status${NC}       Full VM health check"
+echo -e "${GREEN}nest restart${NC}      Restart services via docker-compose"
+echo -e "${GREEN}nest market${NC}       USD/ZAR forex + grain market"
+echo -e "${GREEN}nest pipeline${NC}     Active deal pipeline"
+echo -e "${GREEN}nest discord${NC}      Discord bot status"
+echo -e "${GREEN}nest today${NC}        Today's date + SA time"
+echo -e "${GREEN}nest help${NC}         Show this help"
+echo ""
+
+echo -e "${BLUE}EXAMPLES:${NC}"
+echo ""
+echo "  nest status         # Check VM health"
+echo "  nest pull           # Update from GitHub"
+echo "  nest logs           # View application logs"
+echo "  nest market         # Check forex rates"
+echo ""
+
+echo -e "${YELLOW}QUICK START:${NC}"
+echo ""
+echo "  cd ~/nest"
+echo "  ./install.sh       # Install toolkit"
+echo "  nest help           # Show commands"
+echo ""
+
+echo -e "${GREEN}For more: github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM${NC}"
