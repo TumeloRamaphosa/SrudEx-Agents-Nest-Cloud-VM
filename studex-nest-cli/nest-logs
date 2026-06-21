@@ -1,0 +1,37 @@
+#!/bin/bash
+# nest-logs — Tail PM2 logs, fallback to Docker logs
+
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+NC='\033[0m'
+
+# Check ~/nest exists
+if [ ! -d "$HOME/nest" ]; then
+    echo -e "${RED}Error: ~/nest not found${NC}"
+    echo "Run: git clone https://github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM ~/nest"
+    exit 1
+fi
+
+echo -e "${BLUE}Checking logs...${NC}"
+
+# Try PM2 logs first
+if command -v pm2 &> /dev/null; then
+    pm2 logs --nostream --lines 50
+    if [ $? -eq 0 ]; then
+        exit 0
+    fi
+fi
+
+# Fallback: Docker logs
+if command -v docker &> /dev/null; then
+    echo -e "${YELLOW}Falling back to Docker logs...${NC}"
+    docker ps --format "{{.Names}}" | while read -r container; do
+        echo -e "${GREEN}=== $container ===${NC}"
+        docker logs --tail 20 "$container" 2>&1
+    done
+    exit 0
+fi
+
+echo -e "${RED}No logs found (PM2/Docker not available)${NC}"
+exit 1
