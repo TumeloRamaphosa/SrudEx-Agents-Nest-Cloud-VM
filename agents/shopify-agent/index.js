@@ -7,12 +7,25 @@ const SHOPIFY_STORE = process.env.SHOPIFY_STORE || 'studexmeat.myshopify.com';
 const SHOPIFY_TOKEN = process.env.SHOPIFY_ACCESS_TOKEN;
 const WAR_ROOM_URL = process.env.WAR_ROOM_URL || 'http://war-room:5000';
 
+if (!SHOPIFY_TOKEN) {
+  console.error('[shopify-agent] SHOPIFY_ACCESS_TOKEN is not set — agent cannot authenticate with Shopify');
+  process.exit(1);
+}
+
 async function checkOrders() {
   const res = await fetch(
     `https://${SHOPIFY_STORE}/admin/api/2024-01/orders.json?financial_status=paid&fulfillment_status=unfulfilled&limit=50`,
     { headers: { 'X-Shopify-Access-Token': SHOPIFY_TOKEN } }
   );
-  const { orders } = await res.json();
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Shopify API returned ${res.status}: ${body}`);
+  }
+  const data = await res.json();
+  const orders = data.orders;
+  if (!Array.isArray(orders)) {
+    throw new Error(`Unexpected Shopify response shape: missing 'orders' array`);
+  }
   console.log(`[shopify-agent] ${orders.length} unfulfilled paid orders`);
 
   // Flag oldest and highest value

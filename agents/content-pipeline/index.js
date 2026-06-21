@@ -10,14 +10,24 @@ const POLL_INTERVAL = 5 * 60 * 1000; // 5 min
 async function pollApprovals() {
   try {
     const res = await fetch(`${WAR_ROOM_URL}/api/content?status=approved`);
+    if (!res.ok) {
+      console.error(`[content-pipeline] War Room returned ${res.status}: ${await res.text()}`);
+      return;
+    }
     const items = await res.json();
-    if (items.length === 0) return;
+    if (!Array.isArray(items) || items.length === 0) return;
 
     console.log(`[content-pipeline] ${items.length} approved items ready`);
     for (const item of items) {
       console.log(`[content-pipeline] Processing: ${item.title} (${item.platform})`);
-      // Mark as processing
-      await fetch(`${WAR_ROOM_URL}/api/content/${item.id}/process`, { method: 'POST' });
+      try {
+        const processRes = await fetch(`${WAR_ROOM_URL}/api/content/${item.id}/process`, { method: 'POST' });
+        if (!processRes.ok) {
+          console.error(`[content-pipeline] Failed to mark item ${item.id} as processing: ${processRes.status}`);
+        }
+      } catch (itemErr) {
+        console.error(`[content-pipeline] Error marking item ${item.id} as processing:`, itemErr.message);
+      }
       // TODO: dispatch to Higgsfield / platform APIs
     }
   } catch (e) {
