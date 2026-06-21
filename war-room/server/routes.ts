@@ -1,11 +1,26 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer } from 'node:http';
 import type { Server } from 'node:http';
 import { storage } from "./storage";
 import OpenAI from "openai";
 
 function getOpenAI() {
-  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "no-key" });
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("OPENAI_API_KEY not configured");
+  return new OpenAI({ apiKey });
+}
+
+/**
+ * Middleware: require a valid API key for mutating/sensitive endpoints.
+ * Checks the X-API-Key header against the WAR_ROOM_API_KEY env var.
+ * If WAR_ROOM_API_KEY is not set, all requests are allowed (dev mode).
+ */
+function requireApiKey(req: Request, res: Response, next: NextFunction) {
+  const expected = process.env.WAR_ROOM_API_KEY;
+  if (!expected) return next(); // no key configured = dev mode
+  const provided = req.headers["x-api-key"];
+  if (provided === expected) return next();
+  return res.status(401).json({ error: "Unauthorized: invalid or missing API key" });
 }
 
 export async function registerRoutes(
@@ -24,13 +39,17 @@ export async function registerRoutes(
   });
 
   // PATCH content status (approve / reject)
-  app.patch("/api/content/:id/status", (req, res) => {
+  app.patch("/api/content/:id/status", requireApiKey, (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid content ID" });
       const { status, note } = req.body as { status: string; note?: string };
-      if (!status) return res.status(400).json({ error: "status is required" });
+      if (!status || typeof status !== "string") return res.status(400).json({ error: "status is required" });
+      const allowedStatuses = ["approved", "rejected", "draft", "posted"];
+      if (!allowedStatuses.includes(status)) return res.status(400).json({ error: "Invalid status value" });
       storage.updateContentStatus(id, status, note);
       const updated = storage.getContentById(id);
+      if (!updated) return res.status(404).json({ error: "Content not found" });
       res.json(updated);
     } catch (err) {
       res.status(500).json({ error: "Failed to update status" });
@@ -38,9 +57,12 @@ export async function registerRoutes(
   });
 
   // POST post now (stub)
-  app.post("/api/content/:id/post", (req, res) => {
+  app.post("/api/content/:id/post", requireApiKey, (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid content ID" });
+      const item = storage.getContentById(id);
+      if (!item) return res.status(404).json({ error: "Content not found" });
       storage.markPosted(id, null, null);
       const updated = storage.getContentById(id);
       res.json({ success: true, message: "Queued for posting", item: updated });
@@ -96,7 +118,7 @@ export async function registerRoutes(
   });
 
   // POST generate caption
-  app.post("/api/generate/caption", async (req, res) => {
+  app.post("/api/generate/caption", requireApiKey, async (req, res) => {
     try {
       const { title, caption, campaign, tone } = req.body as {
         title: string;
@@ -104,6 +126,13 @@ export async function registerRoutes(
         campaign?: string;
         tone: string;
       };
+
+      if (!title || typeof title !== "string" || title.trim().length === 0) {
+        return res.status(400).json({ error: "title is required" });
+      }
+      if (title.length > 500) {
+        return res.status(400).json({ error: "title exceeds maximum length" });
+      }
 
       const toneInstructions: Record<string, string> = {
         Premium: "sophisticated, refined, luxury brand voice — think high-end editorial",
@@ -156,7 +185,8 @@ Write ONLY the caption. No intro, no explanation.`;
       res.write("data: [DONE]\n\n");
       res.end();
     } catch (err: any) {
-      res.status(500).json({ error: err.message || "Failed to generate caption" });
+      console.error("Caption generation error:", err);
+      res.status(500).json({ error: "Failed to generate caption" });
     }
   });
 
@@ -223,9 +253,14 @@ Write ONLY the caption. No intro, no explanation.`;
 
 
   // ── Higgsfield Generation Route ──
-  // ── Higgsfield Generation Route ──
-  app.post("/api/higgsfield/generate", async (req, res) => {
+  app.post("/api/higgsfield/generate", requireApiKey, async (req, res) => {
     const { prompt, aspect = "1024x1024", mode = "image" } = req.body;
+    if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
+      return res.status(400).json({ error: "prompt is required" });
+    }
+    if (prompt.length > 2000) {
+      return res.status(400).json({ error: "prompt exceeds maximum length (2000 chars)" });
+    }
 
     const keyId = process.env.HIGGSFIELD_KEY_ID;
     const keySecret = process.env.HIGGSFIELD_KEY_SECRET;
@@ -334,12 +369,13 @@ Write ONLY the caption. No intro, no explanation.`;
 
       return res.json({ url: imageUrl, type: "image" });
     } catch (err: any) {
-      return res.status(500).json({ error: err.message });
+      console.error("Higgsfield generation error:", err);
+      return res.status(500).json({ error: "Generation failed" });
     }
   });
 
   // ── POST /api/messages/sync — Perplexity Computer pushes Gmail + AgentMail here ──
-  app.post("/api/messages/sync", (req, res) => {
+  app.post("/api/messages/sync", requireApiKey, (req, res) => {
     try {
       const { messages } = req.body as { messages: any[] };
       if (!Array.isArray(messages)) return res.status(400).json({ error: "messages must be an array" });
@@ -359,7 +395,8 @@ Write ONLY the caption. No intro, no explanation.`;
       storage.upsertMessages(normalised);
       res.json({ ok: true, synced: normalised.length });
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error("Message sync error:", err);
+      res.status(500).json({ error: "Failed to sync messages" });
     }
   });
 
@@ -370,14 +407,17 @@ Write ONLY the caption. No intro, no explanation.`;
       const msgs = storage.getMessages(source);
       res.json(msgs);
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error("Messages fetch error:", err);
+      res.status(500).json({ error: "Failed to fetch messages" });
     }
   });
 
   // ── AgentMail Proxy — fetch messages from all 3 real inboxes ──
   app.get("/api/agentmail/messages", async (_req, res) => {
-    const AGENTMAIL_TOKEN = process.env.AGENTMAIL_TOKEN ||
-      "am_us_057fa690742140538d210a530fdfc0018f21c61e08b691d2fddcee0152b60005";
+    const AGENTMAIL_TOKEN = process.env.AGENTMAIL_TOKEN;
+    if (!AGENTMAIL_TOKEN) {
+      return res.status(503).json({ error: "AgentMail not configured" });
+    }
     const INBOXES = [
       "t.rama.studexgroup.cto@agentmail.to",
       "studexgroup@agentmail.to",
@@ -432,7 +472,8 @@ Write ONLY the caption. No intro, no explanation.`;
 
       res.json(allMessages);
     } catch (err: any) {
-      res.status(500).json({ error: err.message });
+      console.error("AgentMail proxy error:", err);
+      res.status(500).json({ error: "Failed to fetch AgentMail messages" });
     }
   });
 
