@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Globe, TrendingUp, Users, Package, ArrowRight, ShieldCheck, Zap, Building2, Map, DollarSign } from "lucide-react";
+import { TabSwitcher } from "@/components/war-room";
 
 const PARTNERS = [
   { name: "NtechLab", country: "Russia", flag: "🇷🇺", sector: "AI & Biometrics", status: "active", deal: "Facial recognition for premium logistics" },
@@ -91,34 +92,17 @@ export default function GlobalMarkets() {
           </p>
         </div>
 
-        {/* Section tabs */}
-        <div className="flex gap-1 mb-6 flex-wrap">
-          {[
+        <TabSwitcher
+          tabs={[
             { id: "overview", label: "Overview" },
             { id: "partners", label: "Partners" },
             { id: "products", label: "Export Products" },
             { id: "trade", label: "Trade Routes" },
-          ].map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setActiveSection(s.id as any)}
-              style={{
-                fontSize: "9px",
-                letterSpacing: "3px",
-                textTransform: "uppercase",
-                fontFamily: "'Helvetica Neue', sans-serif",
-                padding: "6px 14px",
-                background: activeSection === s.id ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.04)",
-                border: `1px solid ${activeSection === s.id ? "rgba(201,168,76,0.5)" : "rgba(201,168,76,0.1)"}`,
-                color: activeSection === s.id ? "#C9A84C" : "#9a8a5a",
-                cursor: "pointer",
-                transition: "all 0.2s",
-              }}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
+          ]}
+          activeId={activeSection}
+          onTabChange={(id) => setActiveSection(id as typeof activeSection)}
+          className="mb-6 flex-wrap"
+        />
 
         {/* OVERVIEW */}
         {activeSection === "overview" && (

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Cpu, Globe, Building2, Users, TrendingUp, CheckCircle, ArrowRight, Zap, Shield, BarChart3 } from "lucide-react";
+import { TabSwitcher } from "@/components/war-room";
 
 const TIERS = [
   {
@@ -133,32 +134,15 @@ export default function SuperAgents() {
         ))}
       </div>
 
-      {/* View tabs */}
-      <div className="flex gap-1">
-        {[
+      <TabSwitcher
+        tabs={[
           { id: "pricing", label: "Pricing Tiers" },
           { id: "pipeline", label: "Client Pipeline" },
           { id: "roadmap", label: "Roadmap" },
-        ].map((v) => (
-          <button
-            key={v.id}
-            onClick={() => setView(v.id as any)}
-            style={{
-              fontSize: "9px",
-              letterSpacing: "3px",
-              textTransform: "uppercase",
-              fontFamily: "'Helvetica Neue', sans-serif",
-              padding: "6px 14px",
-              background: view === v.id ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.04)",
-              border: `1px solid ${view === v.id ? "rgba(201,168,76,0.5)" : "rgba(201,168,76,0.1)"}`,
-              color: view === v.id ? "#C9A84C" : "#9a8a5a",
-              cursor: "pointer",
-            }}
-          >
-            {v.label}
-          </button>
-        ))}
-      </div>
+        ]}
+        activeId={view}
+        onTabChange={(id) => setView(id as typeof view)}
+      />
 
       {/* PRICING */}
       {view === "pricing" && (

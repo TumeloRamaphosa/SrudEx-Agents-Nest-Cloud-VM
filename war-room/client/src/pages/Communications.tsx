@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { PageHeader } from "@/components/war-room";
 
 interface MockMessage {
   platform: "discord" | "slack";
@@ -496,35 +497,10 @@ function GmailWidget() {
 export default function Communications() {
   return (
     <div style={{ position: "relative", minHeight: "100vh" }}>
-      {/* Page header */}
-      <div style={{ marginBottom: "32px" }}>
-        <h1
-          style={{
-            fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-            fontSize: "36px",
-            fontWeight: 700,
-            letterSpacing: "8px",
-            textTransform: "uppercase" as const,
-            color: "#C9A84C",
-            margin: 0,
-            lineHeight: 1,
-          }}
-        >
-          COMMUNICATIONS HUB
-        </h1>
-        <p
-          style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-            fontStyle: "italic",
-            fontSize: "12px",
-            color: "#9a8a5a",
-            marginTop: "6px",
-            letterSpacing: "1px",
-          }}
-        >
-          Slack · Discord · Gmail · AgentMail · info@studexmeat.com
-        </p>
-      </div>
+      <PageHeader
+        title="COMMUNICATIONS HUB"
+        subtitle="Slack · Discord · Gmail · AgentMail · info@studexmeat.com"
+      />
 
       {/* ── Three-panel layout ── */}
       <div

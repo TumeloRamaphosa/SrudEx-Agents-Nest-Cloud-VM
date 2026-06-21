@@ -3,28 +3,28 @@
  * Polls War Room approvals queue — executes approved content jobs
  * Integrates Higgsfield for video generation
  */
-const WAR_ROOM_URL = process.env.WAR_ROOM_URL || 'http://war-room:5000';
+const { warRoomGet, warRoomPost, createAgentLogger } = require('../shared/api-client');
+
+const log = createAgentLogger('content-pipeline');
 const HIGGSFIELD_KEY = process.env.HIGGSFIELD_API_KEY;
 const POLL_INTERVAL = 5 * 60 * 1000; // 5 min
 
 async function pollApprovals() {
   try {
-    const res = await fetch(`${WAR_ROOM_URL}/api/content?status=approved`);
-    const items = await res.json();
+    const items = await warRoomGet('/api/content?status=approved');
     if (items.length === 0) return;
 
-    console.log(`[content-pipeline] ${items.length} approved items ready`);
+    log.info(`${items.length} approved items ready`);
     for (const item of items) {
-      console.log(`[content-pipeline] Processing: ${item.title} (${item.platform})`);
-      // Mark as processing
-      await fetch(`${WAR_ROOM_URL}/api/content/${item.id}/process`, { method: 'POST' });
+      log.info(`Processing: ${item.title} (${item.platform})`);
+      await warRoomPost(`/api/content/${item.id}/process`, {});
       // TODO: dispatch to Higgsfield / platform APIs
     }
   } catch (e) {
-    console.error('[content-pipeline] Error:', e.message);
+    log.error('Poll failed', e);
   }
 }
 
-console.log('[content-pipeline] Agent started');
+log.info('Agent started');
 pollApprovals();
 setInterval(pollApprovals, POLL_INTERVAL);

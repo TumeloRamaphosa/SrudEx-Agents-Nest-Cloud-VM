@@ -18,17 +18,19 @@
 require('dotenv').config();
 
 const { Client, GatewayIntentBits, REST, Routes } = require('discord.js');
+const { warRoomPost, createAgentLogger, WAR_ROOM_URL } = require('../shared/api-client');
+
+const log = createAgentLogger('ADAM');
 
 const BOT_TOKEN      = process.env.DISCORD_BOT_TOKEN;
 const CLIENT_ID      = process.env.DISCORD_CLIENT_ID;
-const GUILD_ID       = process.env.DISCORD_GUILD_ID;         // optional: for guild commands
-const WAR_ROOM_URL   = process.env.WAR_ROOM_URL   || 'http://localhost:5000';
+const GUILD_ID       = process.env.DISCORD_GUILD_ID;
 const APPROVAL_HOOK  = process.env.APPROVAL_HOOK  || 'http://localhost:3002/webhook';
 const ALLOWED_USERS  = (process.env.ALLOWED_USER_IDS || '').split(',').filter(Boolean);
 const LOG_CHANNEL    = process.env.DISCORD_LOG_CHANNEL_ID;
 
 if (!BOT_TOKEN || !CLIENT_ID) {
-  console.error('[ADAM] ERROR: DISCORD_BOT_TOKEN and DISCORD_CLIENT_ID are required in .env');
+  log.error('DISCORD_BOT_TOKEN and DISCORD_CLIENT_ID are required in .env');
   process.exit(1);
 }
 
@@ -160,11 +162,7 @@ async function handleCommand(message, args) {
     case 'deal': {
       if (!body) return message.reply('Usage: `@ADAM deal [deal name]`\nExample: `@ADAM deal NTechLab × Anglo American FindFace pilot`');
       try {
-        await fetch(`${WAR_ROOM_URL}/api/deals`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: body, created_by: message.author.username, discord_id: message.author.id }),
-        });
+        await warRoomPost('/api/deals', { name: body, created_by: message.author.username, discord_id: message.author.id });
       } catch (_) {}
       return message.reply(`Deal logged: **${body}**\n\nAdded to pipeline as LEAD.\nView in War Room: ${WAR_ROOM_URL}/deals`);
     }
@@ -173,11 +171,7 @@ async function handleCommand(message, args) {
     case 'meeting': {
       if (!body) return message.reply('Usage: `@ADAM meeting [title]`\nExample: `@ADAM meeting NTechLab Q3 strategy review`');
       try {
-        await fetch(`${WAR_ROOM_URL}/api/meetings`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title: body, created_by: message.author.username, status: 'scheduled' }),
-        });
+        await warRoomPost('/api/meetings', { title: body, created_by: message.author.username, status: 'scheduled' });
       } catch (_) {}
       return message.reply(`Meeting scheduled: **${body}**\n\n5-agent boardroom will be notified.\nWar Room: ${WAR_ROOM_URL}/meetings`);
     }
@@ -277,11 +271,7 @@ async function handleCommand(message, args) {
     case 'trade': {
       if (!body) return message.reply('Usage: `@ADAM trade [idea]`\nExample: `@ADAM trade Long USD/ZAR targeting 18.80`');
       try {
-        await fetch(`${WAR_ROOM_URL}/api/trades`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ idea: body, trader: message.author.username, usdzar: 18.42 }),
-        });
+        await warRoomPost('/api/trades', { idea: body, trader: message.author.username, usdzar: 18.42 });
       } catch (_) {}
       return message.reply(`Trade idea logged: **${body}**\nUSD/ZAR context: 18.42\nWar Room: ${WAR_ROOM_URL}/trades`);
     }
@@ -300,8 +290,8 @@ async function handleCommand(message, args) {
 
 // ─── Discord Event Handlers ────────────────────────────────────────────────
 client.once('ready', () => {
-  console.log(`[ADAM] Bot online as ${client.user.tag}`);
-  console.log(`[ADAM] Connected to ${client.guilds.cache.size} server(s)`);
+  log.info(`Bot online as ${client.user.tag}`);
+  log.info(`Connected to ${client.guilds.cache.size} server(s)`);
   client.user.setActivity('StudEx Global Markets | @ADAM help');
 });
 
@@ -331,11 +321,11 @@ client.on('messageCreate', async (message) => {
 });
 
 client.on('error', (err) => {
-  console.error('[ADAM] Discord error:', err.message);
+  log.error('Discord error', err);
 });
 
 // ─── Login ──────────────────────────────────────────────────────────────────
 client.login(BOT_TOKEN).catch((err) => {
-  console.error('[ADAM] Login failed:', err.message);
+  log.error('Login failed', err);
   process.exit(1);
 });

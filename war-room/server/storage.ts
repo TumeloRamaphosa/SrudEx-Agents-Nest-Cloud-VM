@@ -6,6 +6,15 @@ import { contentItems, calendarEvents, analyticsCache, cachedMessages, type Cont
 const sqlite = new Database("data.db");
 export const db = drizzle(sqlite);
 
+function upsertRow(table: any, column: any, matchValue: any, data: any) {
+  const existing = db.select().from(table).where(eq(column, matchValue)).get();
+  if (existing) {
+    db.update(table).set(data).where(eq(column, matchValue)).run();
+  } else {
+    db.insert(table).values(data).run();
+  }
+}
+
 // Create tables
 sqlite.exec(`
   CREATE TABLE IF NOT EXISTS content_items (
@@ -212,32 +221,17 @@ export const storage = {
     return db.select().from(cachedMessages).all();
   },
   upsertMessage: (msg: InsertCachedMessage) => {
-    const existing = db.select().from(cachedMessages).where(eq(cachedMessages.messageId, msg.messageId)).get();
-    if (existing) {
-      db.update(cachedMessages).set(msg).where(eq(cachedMessages.messageId, msg.messageId)).run();
-    } else {
-      db.insert(cachedMessages).values(msg).run();
-    }
+    upsertRow(cachedMessages, cachedMessages.messageId, msg.messageId, msg);
   },
   upsertMessages: (msgs: InsertCachedMessage[]) => {
     for (const msg of msgs) {
-      const existing = db.select().from(cachedMessages).where(eq(cachedMessages.messageId, msg.messageId)).get();
-      if (existing) {
-        db.update(cachedMessages).set(msg).where(eq(cachedMessages.messageId, msg.messageId)).run();
-      } else {
-        db.insert(cachedMessages).values(msg).run();
-      }
+      upsertRow(cachedMessages, cachedMessages.messageId, msg.messageId, msg);
     }
   },
 
   // Analytics cache
   getCache: (key: string) => db.select().from(analyticsCache).where(eq(analyticsCache.key, key)).get(),
   setCache: (key: string, value: string) => {
-    const existing = db.select().from(analyticsCache).where(eq(analyticsCache.key, key)).get();
-    if (existing) {
-      db.update(analyticsCache).set({ value, updatedAt: new Date().toISOString() }).where(eq(analyticsCache.key, key)).run();
-    } else {
-      db.insert(analyticsCache).values({ key, value, updatedAt: new Date().toISOString() }).run();
-    }
+    upsertRow(analyticsCache, analyticsCache.key, key, { key, value, updatedAt: new Date().toISOString() });
   },
 };
