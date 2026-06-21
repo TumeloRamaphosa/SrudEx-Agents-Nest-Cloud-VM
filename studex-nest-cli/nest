@@ -1,0 +1,46 @@
+#!/bin/bash
+# nest — Main launcher for StudEx Nest CLI toolkit
+# Routes to subcommands: pull, logs, status, restart, market, pipeline, discord, today, help
+
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+RED='\033[0;31m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+CMD="${1:-help}"
+
+case "$CMD" in
+    pull)
+        exec "$(dirname "$0")/nest-pull"
+        ;;
+    logs)
+        exec "$(dirname "$0")/nest-logs"
+        ;;
+    status)
+        exec "$(dirname "$0")/nest-status"
+        ;;
+    restart)
+        exec "$(dirname "$0")/nest-restart"
+        ;;
+    market)
+        exec "$(dirname "$0")/nest-market"
+        ;;
+    pipeline)
+        exec "$(dirname "$0")/nest-pipeline"
+        ;;
+    discord)
+        exec "$(dirname "$0")/nest-discord"
+        ;;
+    today)
+        exec "$(dirname "$0")/nest-today"
+        ;;
+    help|--help|-h)
+        exec "$(dirname "$0")/nest-help"
+        ;;
+    *)
+        echo -e "${RED}Error: Unknown command '$CMD'${NC}"
+        echo "Run 'nest help' for usage"
+        exit 1
+        ;;
+esac
