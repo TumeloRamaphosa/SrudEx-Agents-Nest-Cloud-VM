@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudEx Agent OS - ADAM SMASHER</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0e17;
+            color: #e0e6ed;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #0f1923 0%, #1a2332 100%);
+            padding: 20px 40px;
+            border-bottom: 1px solid #1e3a5f;
+        }
+        .header h1 {
+            color: #00d4ff;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        .header p {
+            color: #6b7c93;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 20px 40px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .panel {
+            background: #111827;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #1e3a5f;
+        }
+        .panel h2 {
+            color: #00d4ff;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #1e3a5f;
+        }
+        .agent-card {
+            background: #0f1923;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s;
+        }
+        .agent-card:hover {
+            background: #1a2332;
+            transform: translateX(5px);
+        }
+        .agent-info h3 {
+            color: #fff;
+            font-size: 16px;
+        }
+        .agent-info p {
+            color: #6b7c93;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        .status-green { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
+        .status-amber { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
+        .status-red { background: #ff4444; box-shadow: 0 0 10px #ff4444; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .metric {
+            margin-bottom: 20px;
+        }
+        .metric-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #6b7c93;
+        }
+        .metric-bar {
+            height: 8px;
+            background: #1e3a5f;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .metric-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .metric-cpu .metric-fill { background: linear-gradient(90deg, #00d4ff, #00ff88); }
+        .metric-ram .metric-fill { background: linear-gradient(90deg, #ffaa00, #ff6b6b); }
+        .metric-disk .metric-fill { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+        .market-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #0f1923;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .market-symbol {
+            color: #00d4ff;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .market-value {
+            color: #fff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .bottom-section {
+            grid-column: 1 / -1;
+            background: #111827;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #1e3a5f;
+        }
+        .bottom-section h2 {
+            color: #00d4ff;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+        .pipeline-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .deal-card {
+            background: #0f1923;
+            border-radius: 8px;
+            padding: 15px;
+            border-left: 3px solid #00d4ff;
+        }
+        .deal-name {
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .deal-stage {
+            color: #00d4ff;
+            font-size: 12px;
+            margin: 5px 0;
+        }
+        .deal-value {
+            color: #00ff88;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .deal-prob {
+            color: #6b7c93;
+            font-size: 11px;
+        }
+        .uptime {
+            color: #6b7c93;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        .task-input {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .task-input select, .task-input input {
+            background: #0f1923;
+            border: 1px solid #1e3a5f;
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .task-input select { flex: 0 0 150px; }
+        .task-input input { flex: 1; }
+        .task-input button {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border: none;
+            color: #fff;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .task-input button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+        }
+        .timestamp {
+            text-align: center;
+            color: #6b7c93;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>ADAM SMASHER</h1>
+        <p>StudEx Agent OS v1.0 | Orgo.ai Ubuntu VM</p>
+    </div>
+    
+    <div class="container">
+        <!-- Left Panel: Agents -->
+        <div class="panel">
+            <h2>Agent Fleet</h2>
+            <div id="agents"></div>
+        </div>
+        
+        <!-- Center Panel: VM Metrics -->
+        <div class="panel">
+            <h2>VM Health</h2>
+            <div class="metric metric-cpu">
+                <div class="metric-label">
+                    <span>CPU</span>
+                    <span id="cpu-value">0%</span>
+                </div>
+                <div class="metric-bar">
+                    <div class="metric-fill" id="cpu-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="metric metric-ram">
+                <div class="metric-label">
+                    <span>RAM</span>
+                    <span id="ram-value">0%</span>
+                </div>
+                <div class="metric-bar">
+                    <div class="metric-fill" id="ram-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="metric metric-disk">
+                <div class="metric-label">
+                    <span>Disk</span>
+                    <span id="disk-value">0%</span>
+                </div>
+                <div class="metric-bar">
+                    <div class="metric-fill" id="disk-bar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="uptime">System Uptime: <span id="sys-uptime">--</span></div>
+        </div>
+        
+        <!-- Right Panel: Market Data -->
+        <div class="panel">
+            <h2>Market Data</h2>
+            <div class="market-item">
+                <span class="market-symbol">USD/ZAR</span>
+                <span class="market-value" id="usdzar">--</span>
+            </div>
+            <div class="market-item">
+                <span class="market-symbol">BRENT</span>
+                <span class="market-value" id="brent">--</span>
+            </div>
+            <div class="market-item">
+                <span class="market-symbol">GOLD</span>
+                <span class="market-value" id="gold">--</span>
+            </div>
+        </div>
+        
+        <!-- Task Input -->
+        <div class="task-input" style="grid-column: 1 / -1;">
+            <select id="agent-select">
+                <option value="research">Research</option>
+                <option value="markets">Markets</option>
+                <option value="ops">Ops</option>
+                <option value="comms">Comms</option>
+                <option value="deals">Deals</option>
+            </select>
+            <input type="text" id="task-input" placeholder="Enter task for agent...">
+            <button onclick="sendTask()">EXECUTE</button>
+        </div>
+        
+        <!-- Bottom: Pipeline -->
+        <div class="bottom-section">
+            <h2>Deal Pipeline | Total Value: R <span id="pipeline-value">0</span></h2>
+            <div class="pipeline-grid" id="pipeline"></div>
+        </div>
+    </div>
+    
+    <div class="timestamp">Last updated: <span id="last-update">--</span></div>
+
+    <script>
+        const API_BASE = '';
+        
+        async function fetchStatus() {
+            try {
+                const res = await fetch(`${API_BASE}/api/status`);
+                const data = await res.json();
+                updateDashboard(data);
+            } catch (e) {
+                console.error('Status fetch error:', e);
+            }
+        }
+        
+        function updateDashboard(data) {
+            // Update agents
+            const agentsDiv = document.getElementById('agents');
+            agentsDiv.innerHTML = data.agents.map(agent => `
+                <div class="agent-card">
+                    <div class="agent-info">
+                        <h3>${agent.name}</h3>
+                        <p>${agent.last_task || 'Idle'}</p>
+                        <div class="uptime">Uptime: ${Math.floor(agent.uptime)}s</div>
+                    </div>
+                    <div class="status-dot status-${agent.status}"></div>
+                </div>
+            `).join('');
+            
+            // Update VM metrics
+            document.getElementById('cpu-value').textContent = data.vm.cpu.toFixed(1) + '%';
+            document.getElementById('cpu-bar').style.width = data.vm.cpu + '%';
+            document.getElementById('ram-value').textContent = data.vm.ram.toFixed(1) + '%';
+            document.getElementById('ram-bar').style.width = data.vm.ram + '%';
+            document.getElementById('disk-value').textContent = data.vm.disk.toFixed(1) + '%';
+            document.getElementById('disk-bar').style.width = data.vm.disk + '%';
+            
+            // Update market data
+            document.getElementById('usdzar').textContent = data.market.usdzar.toFixed(2);
+            document.getElementById('brent').textContent = '$' + data.market.brent.toFixed(2);
+            document.getElementById('gold').textContent = '$' + data.market.gold.toFixed(2);
+            
+            // Update pipeline
+            document.getElementById('pipeline-value').textContent = data.pipeline.total_value.toLocaleString();
+            
+            // Update timestamp
+            document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
+        }
+        
+        async function fetchPipeline() {
+            try {
+                const res = await fetch(`${API_BASE}/api/pipeline`);
+                const data = await res.json();
+                const pipelineDiv = document.getElementById('pipeline');
+                pipelineDiv.innerHTML = data.deals.map(deal => `
+                    <div class="deal-card">
+                        <div class="deal-name">${deal.name}</div>
+                        <div class="deal-stage">${deal.stage}</div>
+                        <div class="deal-value">R ${deal.value.toLocaleString()}</div>
+                        <div class="deal-prob">${deal.probability}% probability</div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Pipeline fetch error:', e);
+            }
+        }
+        
+        async function sendTask() {
+            const agent = document.getElementById('agent-select').value;
+            const task = document.getElementById('task-input').value;
+            if (!task) return;
+            
+            try {
+                await fetch(`${API_BASE}/api/agent/${agent}/task`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ task: task })
+                });
+                document.getElementById('task-input').value = '';
+                // Refresh status after task
+                setTimeout(fetchStatus, 500);
+            } catch (e) {
+                console.error('Task submission error:', e);
+            }
+        }
+        
+        // Initial load
+        fetchStatus();
+        fetchPipeline();
+        
+        // Poll every 5 seconds
+        setInterval(fetchStatus, 5000);
+        setInterval(fetchPipeline, 30000);
+        
+        // Enter key to submit task
+        document.getElementById('task-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendTask();
+        });
+    </script>
+</body>
+</html>
