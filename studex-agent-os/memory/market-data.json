@@ -1,0 +1,9 @@
+{
+  "prices": {
+    "usdzar": 18.75,
+    "brent": 82.50,
+    "gold": 2340.00
+  },
+  "alerts": [],
+  "last_updated": "2026-06-22T09:00:00"
+}
