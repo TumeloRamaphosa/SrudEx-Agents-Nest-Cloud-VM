@@ -20,11 +20,17 @@ const server = http.createServer(async (req, res) => {
         }
 
         // Record in War Room
-        await fetch(`${WAR_ROOM_URL}/api/content/${content_id}/${action}`, {
+        const wrRes = await fetch(`${WAR_ROOM_URL}/api/content/${content_id}/${action}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ approved_by, timestamp: new Date().toISOString() })
         });
+
+        if (!wrRes.ok) {
+          const detail = await wrRes.text();
+          console.error(`[approval-bot] War Room returned ${wrRes.status}: ${detail}`);
+          res.writeHead(502); res.end(`War Room error: ${wrRes.status}`); return;
+        }
 
         console.log(`[approval-bot] ${action} recorded for content ${content_id} by ${approved_by}`);
         res.writeHead(200); res.end('OK');
