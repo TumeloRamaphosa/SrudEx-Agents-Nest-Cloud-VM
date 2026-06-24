@@ -253,7 +253,7 @@ export default function SuperAgents() {
               marginTop: "16px",
             }}
           >
-            <p style={{ fontSize: "11px", color: "#9a8a5a", fontStyle: "italic", fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "15px" }}>
+            <p style={{ color: "#9a8a5a", fontStyle: "italic", fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "15px" }}>
               Pipeline is empty — StudEx is the first client. Phase 2 targets 3 pilot brands in Q3 2026.
             </p>
             <p style={{ fontSize: "10px", color: "#9a8a5a", marginTop: "8px" }}>
