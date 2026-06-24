@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADAM SMASHER — Agent OS</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #060b14;
+  color: #e2e8f0;
+  font-family: 'Courier New', monospace;
+  min-height: 100vh;
+}
+.header {
+  background: #0d1525;
+  border-bottom: 1px solid #1e3a5f;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: #38bdf8;
+  letter-spacing: 2px;
+}
+.logo span { color: #fbbf24; }
+.badge {
+  background: #1e3a5f;
+  color: #38bdf8;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #38bdf844;
+}
+.status-bar {
+  margin-left: auto;
+  display: flex;
+  gap: 20px;
+  font-size: 12px;
+  color: #64748b;
+}
+.status-bar .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+}
+.dot.green { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+.dot.amber { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; }
+.dot.red { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 280px;
+  grid-template-rows: auto auto;
+  gap: 12px;
+  padding: 16px;
+  height: calc(100vh - 60px);
+}
+.panel {
+  background: #0d1525;
+  border: 1px solid #1e3a5f;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.panel-header {
+  background: #111d35;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: bold;
+  color: #38bdf8;
+  letter-spacing: 1px;
+  border-bottom: 1px solid #1e3a5f;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.panel-body { padding: 12px 14px; overflow-y: auto; height: calc(100% - 38px); }
+
+/* Agents Panel */
+.agent-card {
+  background: #111d35;
+  border: 1px solid #1e3a5f;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: border-color 0.3s;
+}
+.agent-card:hover { border-color: #38bdf844; }
+.agent-avatar {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.avatar-research { background: #1e3a5f; }
+.avatar-markets { background: #1a2e1a; }
+.avatar-ops { background: #2e1a2e; }
+.avatar-comms { background: #1a2e3a; }
+.avatar-deals { background: #2e2a1a; }
+.agent-info { flex: 1; min-width: 0; }
+.agent-name { font-size: 12px; font-weight: bold; color: #e2e8f0; }
+.agent-task { font-size: 10px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.agent-status { font-size: 10px; padding: 2px 8px; border-radius: 4px; text-align: center; }
+.status-online { background: #22c55e22; color: #22c55e; border: 1px solid #22c55e44; }
+.status-busy { background: #fbbf2422; color: #fbbf24; border: 1px solid #fbbf2444; }
+.status-idle { background: #64748b22; color: #64748b; border: 1px solid #64748b44; }
+
+/* VM Metrics */
+.metric-row { margin-bottom: 12px; }
+.metric-label { font-size: 10px; color: #64748b; margin-bottom: 4px; display: flex; justify-content: space-between; }
+.metric-value { font-size: 11px; color: #94a3b8; }
+.bar-track { height: 6px; background: #1e3a5f; border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+.bar-cpu { background: linear-gradient(90deg, #38bdf8, #818cf8); }
+.bar-ram { background: linear-gradient(90deg, #22c55e, #4ade80); }
+.bar-disk { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+.uptime { font-size: 10px; color: #64748b; margin-top: 4px; }
+
+/* Market Data */
+.ticker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: #111d35;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  border: 1px solid #1e3a5f;
+}
+.ticker-symbol { font-size: 12px; font-weight: bold; color: #38bdf8; }
+.ticker-pair { font-size: 10px; color: #64748b; }
+.ticker-price { font-size: 14px; font-weight: bold; color: #e2e8f0; }
+.ticker-change { font-size: 10px; padding: 1px 5px; border-radius: 3px; }
+.change-up { background: #22c55e22; color: #22c55e; }
+.change-down { background: #ef444422; color: #ef4444; }
+
+/* Deal Pipeline */
+.deal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: #111d35;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  border: 1px solid #1e3a5f;
+}
+.deal-name { font-size: 11px; color: #e2e8f0; }
+.deal-value { font-size: 11px; color: #fbbf24; font-weight: bold; }
+.deal-priority { font-size: 9px; padding: 1px 6px; border-radius: 3px; }
+.priority-hot { background: #ef444422; color: #ef4444; }
+.priority-high { background: #f9731622; color: #f97316; }
+.priority-med { background: #fbbf2422; color: #fbbf24; }
+.priority-low { background: #64748b22; color: #64748b; }
+
+/* Footer */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #0d1525;
+  border-top: 1px solid #1e3a5f;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 11px;
+  color: #64748b;
+}
+.footer .dot.green { margin-right: 4px; }
+.cmd-input {
+  flex: 1;
+  background: #111d35;
+  border: 1px solid #1e3a5f;
+  border-radius: 4px;
+  padding: 4px 10px;
+  color: #38bdf8;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+}
+.cmd-input:focus { outline: none; border-color: #38bdf8; }
+.loading { color: #64748b; font-size: 11px; }
+.error { color: #ef4444; font-size: 11px; }
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr 1fr; }
+  .grid > .panel:last-child { grid-column: span 2; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">ADAM<span>SMASHER</span></div>
+  <div class="badge">AGENT OS v1.0</div>
+  <div class="status-bar">
+    <span><span class="dot green"></span>SYSTEM ONLINE</span>
+    <span id="vm-status">VM: LOADING...</span>
+    <span id="clock"></span>
+  </div>
+</div>
+
+<div class="grid">
+
+  <!-- AGENTS -->
+  <div class="panel">
+    <div class="panel-header">
+      <span>ACTIVE AGENTS</span>
+      <span id="agent-count">0 ONLINE</span>
+    </div>
+    <div class="panel-body" id="agent-list">
+      <div class="loading">Loading agents...</div>
+    </div>
+  </div>
+
+  <!-- PIPELINE + METRICS -->
+  <div class="panel">
+    <div class="panel-header">
+      <span>DEAL PIPELINE</span>
+      <span id="pipeline-total">R0M TOTAL</span>
+    </div>
+    <div class="panel-body" id="pipeline-list">
+      <div class="loading">Loading pipeline...</div>
+    </div>
+    <div class="panel-header" style="border-top:1px solid #1e3a5f">
+      <span>VM METRICS</span>
+      <span id="vm-load">LOAD: --</span>
+    </div>
+    <div class="panel-body" style="padding:14px">
+      <div class="metric-row">
+        <div class="metric-label"><span>CPU</span><span id="cpu-pct">--</span></div>
+        <div class="bar-track"><div class="bar-fill bar-cpu" id="cpu-bar" style="width:0%"></div></div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-label"><span>RAM</span><span id="ram-pct">--</span></div>
+        <div class="bar-track"><div class="bar-fill bar-ram" id="ram-bar" style="width:0%"></div></div>
+      </div>
+      <div class="metric-row">
+        <div class="metric-label"><span>DISK</span><span id="disk-pct">--</span></div>
+        <div class="bar-track"><div class="bar-fill bar-disk" id="disk-bar" style="width:0%"></div></div>
+      </div>
+      <div class="uptime" id="uptime">Uptime: --</div>
+    </div>
+  </div>
+
+  <!-- MARKET DATA -->
+  <div class="panel">
+    <div class="panel-header">
+      <span>MARKET DATA</span>
+      <span>USDZAR / BRENT / GOLD</span>
+    </div>
+    <div class="panel-body">
+      <div class="loading">Loading market data...</div>
+      <div id="market-data" style="display:none">
+        <div class="ticker">
+          <div><div class="ticker-symbol">USD/ZAR</div><div class="ticker-pair">US Dollar / SA Rand</div></div>
+          <div style="text-align:right">
+            <div class="ticker-price" id="usdzar-price">--</div>
+            <div class="ticker-change" id="usdzar-change">--</div>
+          </div>
+        </div>
+        <div class="ticker">
+          <div><div class="ticker-symbol">BRENT</div><div class="ticker-pair"> Crude Oil (USD/BL)</div></div>
+          <div style="text-align:right">
+            <div class="ticker-price" id="brent-price">--</div>
+            <div class="ticker-change" id="brent-change">--</div>
+          </div>
+        </div>
+        <div class="ticker">
+          <div><div class="ticker-symbol">GOLD</div><div class="ticker-pair"> Gold (USD/oz)</div></div>
+          <div style="text-align:right">
+            <div class="ticker-price" id="gold-price">--</div>
+            <div class="ticker-change" id="gold-change">--</div>
+          </div>
+        </div>
+        <div style="margin-top:16px;border-top:1px solid #1e3a5f;padding-top:12px">
+          <div class="metric-label" style="margin-bottom:6px"><span>SA GRAIN PRICES</span></div>
+          <div class="ticker"><div><div class="ticker-symbol">WHEAT</div><div class="ticker-pair">SA Wheat (R/MT)</div></div><div class="ticker-price" style="color:#fbbf24" id="wheat-price">R5,200</div></div>
+          <div class="ticker"><div><div class="ticker-symbol">MAIZE</div><div class="ticker-pair">SA Maize (R/MT)</div></div><div class="ticker-price" style="color:#fbbf24" id="maize-price">R3,100</div></div>
+        </div>
+        <div style="margin-top:12px;background:#111d35;border:1px solid #1e3a5f;border-radius:6px;padding:10px">
+          <div style="font-size:10px;color:#64748b;margin-bottom:6px">UVELKA DEAL STATUS</div>
+          <div style="font-size:12px;color:#e2e8f0;margin-bottom:2px">OOO MK "Yuvelka" — Moscow</div>
+          <div style="font-size:11px;color:#38bdf8">Need: 200–500 MT/month SA grain</div>
+          <div style="font-size:11px;color:#64748b">Status: <span style="color:#fbbf24">CONTACTING 20 FIRMS</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span class="dot green"></span>
+  <input class="cmd-input" id="cmd" placeholder="ADAM> Type a command... (e.g. status, market, deals, help)" onkeydown="handleCmd(event)">
+  <span id="footer-status">READY</span>
+</div>
+
+<script>
+// ---- LIVE DATA ----
+async function fetchStatus() {
+  try {
+    const r = await fetch('/api/status');
+    const d = await r.json();
+    renderStatus(d);
+  } catch(e) {
+    // Fallback: show static demo data
+    renderDemoData();
+  }
+}
+
+function renderStatus(d) {
+  // Agents
+  const list = document.getElementById('agent-list');
+  const agents = d.agents || getDemoAgents();
+  document.getElementById('agent-count').textContent = agents.filter(a=>a.status==='online').length + ' ONLINE';
+  list.innerHTML = agents.map(a => `
+    <div class="agent-card">
+      <div class="agent-avatar avatar-${a.name.toLowerCase()}">${a.emoji}</div>
+      <div class="agent-info">
+        <div class="agent-name">${a.name}</div>
+        <div class="agent-task">${a.last_task || 'Idle — awaiting task'}</div>
+      </div>
+      <div class="agent-status status-${a.status}">${a.status.toUpperCase()}</div>
+    </div>
+  `).join('');
+
+  // VM
+  const vm = d.vm || {};
+  document.getElementById('cpu-pct').textContent = vm.cpu_pct ? vm.cpu_pct + '%' : '--';
+  document.getElementById('cpu-bar').style.width = (vm.cpu_pct || 0) + '%';
+  document.getElementById('ram-pct').textContent = vm.ram_pct ? vm.ram_pct + '%' : '--';
+  document.getElementById('ram-bar').style.width = (vm.ram_pct || 0) + '%';
+  document.getElementById('disk-pct').textContent = vm.disk_pct ? vm.disk_pct + '%' : '--';
+  document.getElementById('disk-bar').style.width = (vm.disk_pct || 0) + '%';
+  document.getElementById('uptime').textContent = 'Uptime: ' + (vm.uptime || '--');
+  document.getElementById('vm-status').textContent = 'VM: ' + (vm.status || 'ONLINE');
+  document.getElementById('vm-load').textContent = 'LOAD: ' + (vm.cpu_pct ? vm.cpu_pct + '%' : '--');
+
+  // Market
+  const mkt = d.market || {};
+  if (mkt.usdzar) {
+    document.getElementById('market-data').style.display = 'block';
+    document.querySelector('.panel-body .loading')?.remove();
+    document.getElementById('usdzar-price').textContent = mkt.usdzar.price || '--';
+    renderChange('usdzar-change', mkt.usdzar.change);
+    document.getElementById('brent-price').textContent = mkt.brent?.price || '--';
+    renderChange('brent-change', mkt.brent?.change);
+    document.getElementById('gold-price').textContent = mkt.gold?.price || '--';
+    renderChange('gold-change', mkt.gold?.change);
+    if (mkt.wheat) document.getElementById('wheat-price').textContent = mkt.wheat;
+    if (mkt.maize) document.getElementById('maize-price').textContent = mkt.maize;
+  }
+
+  // Pipeline
+  const pipe = d.pipeline || {};
+  document.getElementById('pipeline-total').textContent = 'R' + (pipe.total_value || 0) + 'M TOTAL';
+  const pList = document.getElementById('pipeline-list');
+  const deals = pipe.deals || getDemoPipeline();
+  pList.innerHTML = deals.slice(0,6).map(deal => `
+    <div class="deal-row">
+      <div class="deal-name">${deal.name}</div>
+      <div>
+        <span class="deal-priority priority-${deal.priority}">${deal.priority.toUpperCase()}</span>
+        <span class="deal-value">${deal.value}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderChange(id, val) {
+  if (!val) return;
+  const el = document.getElementById(id);
+  el.textContent = (val > 0 ? '+' : '') + val + '%';
+  el.className = 'ticker-change ' + (val > 0 ? 'change-up' : 'change-down');
+}
+
+function getDemoAgents() {
+  return [
+    {name:'Research', emoji:'🔬', status:'online', last_task:'Scanning NTechLab Kenya contact list'},
+    {name:'Markets', emoji:'📊', status:'busy', last_task:'Fetching USDZAR + BRENT live prices'},
+    {name:'Ops', emoji:'⚙️', status:'online', last_task:'PM2: 4 services running healthy'},
+    {name:'Comms', emoji:'📧', status:'idle', last_task:'Drafting Uvelka intro email (paused)'},
+    {name:'Deals', emoji:'💼', status:'busy', last_task:'Preparing MEATSA-05 contact package'},
+  ];
+}
+
+function getDemoPipeline() {
+  return [
+    {name:'Uvelka x MEATSA', value:'TBD', priority:'hot'},
+    {name:'NTechLab Kenya NHIS', value:'$50K', priority:'hot'},
+    {name:'Art Engineer x Airtel', value:'$200K+', priority:'high'},
+    {name:'PharmaSyntez SA', value:'$26K/q', priority:'high'},
+    {name:'FindFace SA Enterprise', value:'$200K+', priority:'med'},
+    {name:'VIDIA x Uvelka', value:'TBD', priority:'high'},
+    {name:'RCL Foods import', value:'R5M+', priority:'med'},
+    {name:'VKB partnership', value:'R2M+', priority:'low'},
+  ];
+}
+
+function renderDemoData() {
+  renderStatus({
+    agents: getDemoAgents(),
+    vm: {cpu_pct: 12, ram_pct: 34, disk_pct: 45, uptime: '14d 6h', status: 'ONLINE'},
+    market: {
+      usdzar: {price: '18.42', change: '+0.12'},
+      brent: {price: '$83.40', change: '-1.20'},
+      gold: {price: '$2,641', change: '+18'},
+      wheat: 'R5,200/MT', maize: 'R3,100/MT'
+    },
+    pipeline: {deals: getDemoPipeline(), total_value: 85}
+  });
+}
+
+// ---- COMMAND HANDLER ----
+async function handleCmd(e) {
+  if (e.key !== 'Enter') return;
+  const input = document.getElementById('cmd');
+  const cmd = input.value.trim().toLowerCase();
+  input.value = '';
+  document.getElementById('footer-status').textContent = 'EXECUTING: ' + cmd;
+
+  if (cmd === 'help' || cmd === '?') {
+    alert('ADAM OS Commands:\n\nstatus   — Full system status\nmarket   — Live USDZAR, BRENT, GOLD\ndeals    — Deal pipeline\nagents   — List all agents\nvm       — VM health metrics\npipeline — Active deals\nhelp     — This menu');
+  } else if (cmd === 'status') {
+    try {
+      const r = await fetch('/api/status');
+      const d = await r.json();
+      alert(JSON.stringify(d, null, 2));
+    } catch { alert('API offline — demo mode active'); }
+  } else if (cmd === 'market') {
+    document.getElementById('footer-status').textContent = 'Market: USDZAR 18.42 | BRENT $83.40 | GOLD $2,641';
+  } else if (cmd === 'deals' || cmd === 'pipeline') {
+    document.getElementById('footer-status').textContent = 'Pipeline: R85M | 8 active deals | HOT: Uvelka x MEATSA';
+  } else if (cmd === 'agents') {
+    document.getElementById('footer-status').textContent = '5 agents: Research ONLINE | Markets BUSY | Ops ONLINE | Comms IDLE | Deals BUSY';
+  } else if (cmd === 'vm') {
+    document.getElementById('footer-status').textContent = 'VM: 2CPU/8GB | CPU 12% | RAM 34% | DISK 45% | Uptime 14d';
+  } else {
+    document.getElementById('footer-status').textContent = 'Unknown: ' + cmd + ' — type "help" for commands';
+  }
+  setTimeout(() => {
+    document.getElementById('footer-status').textContent = 'READY';
+  }, 4000);
+}
+
+// ---- CLOCK ----
+function tick() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toUTCString().split(' ')[4] + ' UTC';
+}
+tick();
+setInterval(tick, 1000);
+
+// ---- INIT ----
+fetchStatus();
+setInterval(fetchStatus, 10000);
+</script>
+</body>
+</html>
