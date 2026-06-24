@@ -22,11 +22,11 @@ import { ModelSelector } from "@/components/cult-ai/ai-elements/model-selector";
 import { ChainOfThought } from "@/components/cult-ai/ai-elements/chain-of-thought";
 
 // ── Studex Brand Colors ────────────────────────────────────────────
-const GOLD = "#C9A84C";
-const GOLD_DIM = "#9a8a5a";
-const OBSIDIAN = "#0A0A0F";
-const CARD = "#1a1a14";
-const CARD_BORDER = "rgba(201,168,76,0.15)";
+const GOLD = "#a68a2e";
+const GOLD_DIM = "#7a6e52";
+const OBSIDIAN = "#faf8f4";
+const CARD = "#ffffff";
+const CARD_BORDER = "rgba(166,138,46,0.12)";
 
 // ── Agent Personas ─────────────────────────────────────────────────
 const AGENTS = [
@@ -310,7 +310,7 @@ export default function NalediAI() {
         className="flex flex-col border-r shrink-0 overflow-y-auto"
         style={{
           width: sidebarOpen ? "240px" : "0px",
-          background: "#111827",
+          background: "#f2efe8",
           borderColor: CARD_BORDER,
           transition: "width 0.2s ease",
         }}
@@ -409,7 +409,7 @@ export default function NalediAI() {
         {/* Header */}
         <div
           className="flex items-center gap-3 px-6 py-4 border-b shrink-0"
-          style={{ borderColor: CARD_BORDER, background: "#111827" }}
+          style={{ borderColor: CARD_BORDER, background: "#f2efe8" }}
         >
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -540,7 +540,7 @@ export default function NalediAI() {
         {/* Quick Actions */}
         <div
           className="px-6 py-3 border-t space-y-2 shrink-0"
-          style={{ borderColor: CARD_BORDER, background: "#111827" }}
+          style={{ borderColor: CARD_BORDER, background: "#f2efe8" }}
         >
           <p className="text-[10px] uppercase tracking-widest mb-2" style={{ color: GOLD_DIM }}>
             Quick Actions
@@ -567,7 +567,7 @@ export default function NalediAI() {
         {/* Input */}
         <div
           className="px-6 py-4 border-t shrink-0"
-          style={{ borderColor: CARD_BORDER, background: "#111827" }}
+          style={{ borderColor: CARD_BORDER, background: "#f2efe8" }}
         >
           <div
             className="flex items-end gap-3 rounded-xl px-4 py-3"

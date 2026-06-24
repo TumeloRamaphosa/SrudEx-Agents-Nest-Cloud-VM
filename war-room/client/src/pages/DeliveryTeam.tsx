@@ -52,8 +52,8 @@ function PriorityBadge({ priority }: { priority: Order["priority"] }) {
           fontWeight: 700,
           letterSpacing: "2px",
           textTransform: "uppercase" as const,
-          color: "#C9A84C",
-          background: "rgba(201,168,76,0.1)",
+          color: "#a68a2e",
+          background: "rgba(166,138,46,0.10)",
           border: "1px solid rgba(201,168,76,0.35)",
           padding: "2px 7px",
           borderRadius: "2px",
@@ -91,7 +91,7 @@ function AgeBadge({ age }: { age: string }) {
       style={{
         fontFamily: "'Menlo', monospace",
         fontSize: "9px",
-        color: isOld ? "#ff6666" : "#9a8a5a",
+        color: isOld ? "#ff6666" : "#7a6e52",
         background: isOld ? "rgba(255,102,102,0.08)" : "rgba(154,138,90,0.08)",
         border: `1px solid ${isOld ? "rgba(255,102,102,0.25)" : "rgba(154,138,90,0.15)"}`,
         padding: "2px 6px",
@@ -108,8 +108,8 @@ function OrderCard({ order }: { order: Order }) {
     <div
       style={{
         background: "#0e0d10",
-        border: "1px solid rgba(201,168,76,0.1)",
-        borderLeft: `3px solid ${order.priority === "critical" ? "#ff4444" : "#C9A84C"}`,
+        border: "1px solid rgba(166,138,46,0.10)",
+        borderLeft: `3px solid ${order.priority === "critical" ? "#ff4444" : "#a68a2e"}`,
         padding: "14px 16px",
         marginBottom: "10px",
         boxShadow:
@@ -133,7 +133,7 @@ function OrderCard({ order }: { order: Order }) {
             fontFamily: "'Menlo', monospace",
             fontSize: "13px",
             fontWeight: 700,
-            color: "#C9A84C",
+            color: "#a68a2e",
             letterSpacing: "1px",
           }}
         >
@@ -148,7 +148,7 @@ function OrderCard({ order }: { order: Order }) {
           fontFamily: "'Cormorant Garamond', Georgia, serif",
           fontStyle: "italic",
           fontSize: "15px",
-          color: "#f5ecd0",
+          color: "#1a1710",
           marginBottom: "10px",
         }}
       >
@@ -162,7 +162,7 @@ function OrderCard({ order }: { order: Order }) {
             fontFamily: "'Menlo', monospace",
             fontSize: "14px",
             fontWeight: 700,
-            color: "#f5ecd0",
+            color: "#1a1710",
           }}
         >
           {formatCurrency(order.value)}
@@ -246,7 +246,7 @@ function KanbanColumn({
       {orders.length === 0 && (
         <div
           style={{
-            border: "1px dashed rgba(201,168,76,0.12)",
+            border: "1px dashed rgba(166,138,46,0.10)",
             padding: "24px",
             textAlign: "center" as const,
           }}
@@ -280,7 +280,7 @@ export default function DeliveryTeam() {
             fontWeight: 700,
             letterSpacing: "8px",
             textTransform: "uppercase" as const,
-            color: "#C9A84C",
+            color: "#a68a2e",
             margin: 0,
             lineHeight: 1,
           }}
@@ -292,7 +292,7 @@ export default function DeliveryTeam() {
             fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontStyle: "italic",
             fontSize: "12px",
-            color: "#9a8a5a",
+            color: "#7a6e52",
             marginTop: "6px",
             letterSpacing: "1px",
           }}
@@ -311,7 +311,7 @@ export default function DeliveryTeam() {
               fontWeight: 700,
               letterSpacing: "4px",
               textTransform: "uppercase" as const,
-              color: "#9a8a5a",
+              color: "#7a6e52",
               margin: 0,
             }}
           >
@@ -335,12 +335,12 @@ export default function DeliveryTeam() {
           <KanbanColumn
             title="IN PREPARATION"
             orders={[]}
-            accent="#C9A84C"
+            accent="#a68a2e"
           />
           <KanbanColumn
             title="DISPATCHED"
             orders={[]}
-            accent="#4CFFA8"
+            accent="#2d8a3e"
           />
         </div>
       </section>
@@ -364,7 +364,7 @@ export default function DeliveryTeam() {
                 fontWeight: 700,
                 letterSpacing: "4px",
                 textTransform: "uppercase" as const,
-                color: "#9a8a5a",
+                color: "#7a6e52",
                 margin: 0,
               }}
             >
@@ -375,7 +375,7 @@ export default function DeliveryTeam() {
           <div
             style={{
               background: "#0e0d10",
-              border: "1px solid rgba(201,168,76,0.12)",
+              border: "1px solid rgba(166,138,46,0.10)",
               overflow: "hidden",
             }}
           >
@@ -383,11 +383,11 @@ export default function DeliveryTeam() {
             <div
               style={{
                 padding: "12px 16px",
-                borderBottom: "1px solid rgba(201,168,76,0.1)",
+                borderBottom: "1px solid rgba(166,138,46,0.10)",
                 display: "flex",
                 alignItems: "center",
                 gap: "10px",
-                background: "rgba(201,168,76,0.03)",
+                background: "rgba(166,138,46,0.04)",
               }}
             >
               <span
@@ -406,7 +406,7 @@ export default function DeliveryTeam() {
                   fontSize: "10px",
                   letterSpacing: "3px",
                   textTransform: "uppercase" as const,
-                  color: "#C9A84C",
+                  color: "#a68a2e",
                   fontWeight: 700,
                 }}
               >
@@ -451,7 +451,7 @@ export default function DeliveryTeam() {
                     fontSize: "10px",
                     letterSpacing: "2px",
                     textTransform: "uppercase" as const,
-                    color: "#9a8a5a",
+                    color: "#7a6e52",
                     margin: 0,
                   }}
                 >
@@ -482,7 +482,7 @@ export default function DeliveryTeam() {
                 fontWeight: 700,
                 letterSpacing: "4px",
                 textTransform: "uppercase" as const,
-                color: "#9a8a5a",
+                color: "#7a6e52",
                 margin: 0,
               }}
             >
@@ -493,7 +493,7 @@ export default function DeliveryTeam() {
           <div
             style={{
               background: "#0e0d10",
-              border: "1px solid rgba(201,168,76,0.12)",
+              border: "1px solid rgba(166,138,46,0.10)",
               borderTop: "2px solid #25D366",
               padding: "20px",
             }}
@@ -509,7 +509,7 @@ export default function DeliveryTeam() {
                     fontWeight: 700,
                     letterSpacing: "3px",
                     textTransform: "uppercase" as const,
-                    color: "#f5ecd0",
+                    color: "#1a1710",
                   }}
                 >
                   TWILIO WHATSAPP
@@ -546,7 +546,7 @@ export default function DeliveryTeam() {
                 style={{
                   fontFamily: "'Menlo', monospace",
                   fontSize: "13px",
-                  color: "#f5ecd0",
+                  color: "#1a1710",
                   letterSpacing: "1px",
                 }}
               >
@@ -574,8 +574,8 @@ export default function DeliveryTeam() {
                   fontWeight: 700,
                   letterSpacing: "2px",
                   textTransform: "uppercase" as const,
-                  color: "#C9A84C",
-                  background: "rgba(201,168,76,0.1)",
+                  color: "#a68a2e",
+                  background: "rgba(166,138,46,0.10)",
                   border: "1px solid rgba(201,168,76,0.35)",
                   padding: "2px 8px",
                   borderRadius: "2px",
@@ -592,8 +592,8 @@ export default function DeliveryTeam() {
                 width: "100%",
                 padding: "10px 16px",
                 background: "transparent",
-                border: "1px solid rgba(201,168,76,0.4)",
-                color: "rgba(201,168,76,0.5)",
+                border: "1px solid rgba(166,138,46,0.25)",
+                color: "rgba(166,138,46,0.30)",
                 fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
                 fontSize: "9px",
                 fontWeight: 700,
@@ -609,8 +609,8 @@ export default function DeliveryTeam() {
             {/* Note */}
             <div
               style={{
-                background: "rgba(201,168,76,0.04)",
-                border: "1px solid rgba(201,168,76,0.1)",
+                background: "rgba(166,138,46,0.04)",
+                border: "1px solid rgba(166,138,46,0.10)",
                 padding: "10px 12px",
               }}
             >

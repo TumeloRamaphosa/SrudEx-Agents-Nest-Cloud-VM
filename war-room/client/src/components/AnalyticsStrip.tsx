@@ -30,12 +30,12 @@ export function AnalyticsStrip() {
     {
       label: "Today's Revenue",
       value: `R${mask(today?.revenue?.toLocaleString("en-ZA") ?? "43,585")}`,
-      color: "#C9A84C",
+      color: "#a68a2e",
     },
     {
       label: "Orders Today",
       value: mask(String(today?.orders ?? shopify?.orders ?? 4)),
-      color: "#C9A84C",
+      color: "#a68a2e",
     },
     {
       label: "Unfulfilled",
@@ -45,7 +45,7 @@ export function AnalyticsStrip() {
     {
       label: "IG Followers",
       value: mask("5,318"),
-      color: "#C9A84C",
+      color: "#a68a2e",
     },
     {
       label: "Active Ads",
@@ -58,8 +58,8 @@ export function AnalyticsStrip() {
     <div
       className="sticky top-0 z-50"
       style={{
-        background: "rgba(10,10,12,0.97)",
-        borderBottom: "1px solid rgba(201,168,76,0.2)",
+        background: "rgba(255,255,255,0.95)",
+        borderBottom: "1px solid rgba(166,138,46,0.15)",
         backdropFilter: "blur(8px)",
       }}
       data-testid="analytics-strip"
@@ -80,12 +80,12 @@ export function AnalyticsStrip() {
                 fontStyle: "italic",
                 fontSize: "16px",
                 fontWeight: 500,
-                color: "#f5ecd0",
+                color: "#1a1710",
                 lineHeight: 1.2,
                 letterSpacing: "0.5px",
               }}
             >
-              Studex Meat <span style={{ color: "#C9A84C" }}>·</span> War Room
+              Studex Meat <span style={{ color: "#a68a2e" }}>·</span> War Room
             </p>
             <a
               href="mailto:info@studexmeat.com"
@@ -100,7 +100,7 @@ export function AnalyticsStrip() {
                 gap: "4px",
               }}
             >
-              <Mail size={9} style={{ color: "#C9A84C" }} />
+              <Mail size={9} style={{ color: "#a68a2e" }} />
               info@studexmeat.com
             </a>
           </div>
@@ -119,7 +119,7 @@ export function AnalyticsStrip() {
                   fontSize: "9px",
                   letterSpacing: "2.5px",
                   textTransform: "uppercase",
-                  color: "#9a8a5a",
+                  color: "#7a6e52",
                   fontFamily: "'Helvetica Neue', sans-serif",
                 }}
               >
@@ -130,7 +130,7 @@ export function AnalyticsStrip() {
                   fontFamily: "'Menlo', 'Monaco', monospace",
                   fontSize: "12px",
                   fontWeight: 600,
-                  color: isPrivate ? "#9a8a5a" : s.color,
+                  color: isPrivate ? "#7a6e52" : s.color,
                   filter: isPrivate ? "blur(4px)" : "none",
                   userSelect: isPrivate ? "none" : "auto",
                 }}
@@ -147,8 +147,8 @@ export function AnalyticsStrip() {
           className="flex items-center gap-1.5 px-3 py-1.5 transition-colors shrink-0"
           style={{
             background: "transparent",
-            border: "1px solid rgba(201,168,76,0.3)",
-            color: "#9a8a5a",
+            border: "1px solid rgba(166,138,46,0.25)",
+            color: "#7a6e52",
             fontSize: "9px",
             letterSpacing: "2px",
             textTransform: "uppercase",

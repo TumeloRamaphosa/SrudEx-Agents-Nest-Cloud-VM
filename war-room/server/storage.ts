@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
 import { eq, desc, or } from "drizzle-orm";
-import { contentItems, calendarEvents, analyticsCache, cachedMessages, type ContentItem, type CalendarEvent, type InsertContentItem, type InsertCachedMessage } from "../shared/schema";
+import { contentItems, calendarEvents, analyticsCache, cachedMessages, clients, creditTransactions, type ContentItem, type CalendarEvent, type InsertContentItem, type InsertCachedMessage, type Client, type InsertClient, type CreditTransaction, type InsertCreditTransaction } from "../shared/schema";
 
 const sqlite = new Database("data.db");
 export const db = drizzle(sqlite);
@@ -32,7 +32,7 @@ sqlite.exec(`
     platform TEXT NOT NULL,
     campaign TEXT,
     content_item_id INTEGER,
-    color TEXT DEFAULT '#C9A84C'
+    color TEXT DEFAULT '#a68a2e'
   );
   CREATE TABLE IF NOT EXISTS analytics_cache (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -52,6 +52,25 @@ sqlite.exec(`
     is_read INTEGER NOT NULL DEFAULT 0,
     labels TEXT NOT NULL DEFAULT '[]',
     synced_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS clients (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    tier TEXT NOT NULL,
+    ai_credits INTEGER NOT NULL DEFAULT 0,
+    monthly_allocation INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS credit_transactions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_id INTEGER NOT NULL,
+    amount INTEGER NOT NULL,
+    type TEXT NOT NULL,
+    description TEXT,
+    balance_after INTEGER NOT NULL,
+    payment_ref TEXT,
+    created_at TEXT NOT NULL
   );
 `);
 
@@ -177,11 +196,11 @@ if (existingCal.length === 0) {
     { date: "2026-06-03", title: "Tomahawk Hero Posted ✅", description: "Father's Day campaign launch — Tomahawk hero image live on FB + IG", platform: "both", campaign: "Fathers Day", color: "#22c55e" },
     { date: "2026-06-04", title: "Ankole Scarcity Drop", description: "Only 7 Ankole Ribeye left — urgency post", platform: "both", campaign: "Product Spotlight", color: "#ef4444" },
     { date: "2026-06-05", title: "Father's Day Ad Live", description: "Paid ad goes live — R100/day, South Africa ages 25-55", platform: "facebook", campaign: "Fathers Day", color: "#3b82f6" },
-    { date: "2026-06-07", title: "Wagyu Burger Patties", description: "Product spotlight — Saturday braai timing", platform: "both", campaign: "Product Spotlight", color: "#C9A84C" },
-    { date: "2026-06-10", title: "Braai Lifestyle", description: "Emotional Father's Day storytelling — father + son braai", platform: "both", campaign: "Fathers Day", color: "#C9A84C" },
+    { date: "2026-06-07", title: "Wagyu Burger Patties", description: "Product spotlight — Saturday braai timing", platform: "both", campaign: "Product Spotlight", color: "#a68a2e" },
+    { date: "2026-06-10", title: "Braai Lifestyle", description: "Emotional Father's Day storytelling — father + son braai", platform: "both", campaign: "Fathers Day", color: "#a68a2e" },
     { date: "2026-06-12", title: "Hwende Box Drop 🏆", description: "Nicholas Hwende 2x Champ Box reveal + celebration reel", platform: "both", campaign: "Hwende", color: "#8b5cf6" },
     { date: "2026-06-14", title: "Youth Day Teaser", description: "Patriotism angle — Youth Day June 16 preview", platform: "both", campaign: "Youth Day", color: "#10b981" },
-    { date: "2026-06-15", title: "Father's Day Push 🎁", description: "Last-day push + WhatsApp broadcast — VIP box + Tomahawk", platform: "both", campaign: "Fathers Day", color: "#C9A84C" },
+    { date: "2026-06-15", title: "Father's Day Push 🎁", description: "Last-day push + WhatsApp broadcast — VIP box + Tomahawk", platform: "both", campaign: "Fathers Day", color: "#a68a2e" },
     { date: "2026-06-16", title: "Youth Day 🇿🇦", description: "Feed the Nation — Youth Day post", platform: "both", campaign: "Youth Day", color: "#10b981" },
     { date: "2026-06-19", title: "Hwende Fan Repost", description: "Fan testimonial or engagement repost", platform: "instagram", campaign: "Hwende", color: "#8b5cf6" },
     { date: "2026-06-22", title: "Hwende Restock Alert", description: "2x Champ Box restock notification", platform: "both", campaign: "Hwende", color: "#8b5cf6" },
@@ -240,4 +259,20 @@ export const storage = {
       db.insert(analyticsCache).values({ key, value, updatedAt: new Date().toISOString() }).run();
     }
   },
+
+  // ── AI Credits ──────────────────────────────────────────────────────
+  getClientById: (id: number) => db.select().from(clients).where(eq(clients.id, id)).get(),
+  getClientByEmail: (email: string) => db.select().from(clients).where(eq(clients.email, email)).get(),
+  getAllClients: () => db.select().from(clients).all(),
+  createClient: (client: InsertClient) => db.insert(clients).values(client).returning().get(),
+  updateClientCredits: (id: number, credits: number) =>
+    db.update(clients).set({ aiCredits: credits }).where(eq(clients.id, id)).run(),
+
+  getTransactions: (clientId: number) =>
+    db.select().from(creditTransactions)
+      .where(eq(creditTransactions.clientId, clientId))
+      .orderBy(desc(creditTransactions.id))
+      .all(),
+  addTransaction: (tx: InsertCreditTransaction) =>
+    db.insert(creditTransactions).values(tx).returning().get(),
 };

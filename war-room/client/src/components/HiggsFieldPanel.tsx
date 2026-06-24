@@ -220,7 +220,7 @@ export default function HiggsFieldPanel() {
               download
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-xs text-[#C9A84C] hover:text-[#B8943B] font-medium"
+              className="flex items-center gap-1 text-xs text-[#a68a2e] hover:text-[#B8943B] font-medium"
               data-testid="link-higgsfield-download"
             >
               <Download className="w-3.5 h-3.5" /> Download

@@ -21,7 +21,7 @@ const AGENTS: Agent[] = [
     status: "online",
     platform: "Perplexity AI",
     capabilities: ["Scheduling", "Shopify", "Reporting", "Coordination"],
-    color: "#C9A84C",
+    color: "#a68a2e",
     icon: "⬡",
   },
   {
@@ -32,7 +32,7 @@ const AGENTS: Agent[] = [
     status: "online",
     platform: "MiniMax",
     capabilities: ["Image Gen", "Video Gen", "Captions"],
-    color: "#4CFFA8",
+    color: "#2d8a3e",
     icon: "◈",
   },
   {
@@ -43,7 +43,7 @@ const AGENTS: Agent[] = [
     status: "online",
     platform: "MiniMax",
     capabilities: ["Analytics", "Reporting", "Insights"],
-    color: "#4CFFA8",
+    color: "#2d8a3e",
     icon: "◈",
   },
   {
@@ -54,7 +54,7 @@ const AGENTS: Agent[] = [
     status: "idle",
     platform: "KiloCode / Claude",
     capabilities: ["Workspace Memory", "Identity", "Context"],
-    color: "#C9A84C",
+    color: "#a68a2e",
     icon: "◉",
   },
   {
@@ -65,7 +65,7 @@ const AGENTS: Agent[] = [
     status: "idle",
     platform: "Hermes Workspace",
     capabilities: ["Multi-model Chat", "Terminal", "Skills"],
-    color: "#C9A84C",
+    color: "#a68a2e",
     icon: "⟁",
   },
   {
@@ -76,7 +76,7 @@ const AGENTS: Agent[] = [
     status: "idle",
     platform: "Cursor AI",
     capabilities: ["Code Generation", "Debugging", "Refactoring"],
-    color: "#C9A84C",
+    color: "#a68a2e",
     icon: "▸",
   },
   {
@@ -87,7 +87,7 @@ const AGENTS: Agent[] = [
     status: "idle",
     platform: "AntiGravity",
     capabilities: ["Shopify Theme", "UI Design", "Store UX"],
-    color: "#C9A84C",
+    color: "#a68a2e",
     icon: "⟠",
   },
   {
@@ -98,7 +98,7 @@ const AGENTS: Agent[] = [
     status: "idle",
     platform: "HYRVE AI Marketplace",
     capabilities: ["Missions", "Invoicing", "Stripe", "Lead Gen"],
-    color: "#C9A84C",
+    color: "#a68a2e",
     icon: "◎",
   },
   {
@@ -109,7 +109,7 @@ const AGENTS: Agent[] = [
     status: "idle",
     platform: "DenchClaw / OpenClaw",
     capabilities: ["CRM", "Contacts", "Email", "Pipeline"],
-    color: "#C9A84C",
+    color: "#a68a2e",
     icon: "◑",
   },
   {
@@ -120,7 +120,7 @@ const AGENTS: Agent[] = [
     status: "online",
     platform: "Mac Mini M4 + Ollama",
     capabilities: ["Hermes Gateway", "Claude Code", "Ollama LLMs", "Terminal"],
-    color: "#4CFFA8",
+    color: "#2d8a3e",
     icon: "⬛",
   },
 ];
@@ -133,7 +133,7 @@ const REAL_AGENTMAIL_INBOXES = [
     assigned: "CHARLIE",
     role: "CTO direct line / escalations",
     tag: "PERSONAL",
-    tagColor: "#C9A84C",
+    tagColor: "#a68a2e",
   },
   {
     email: "studexgroup@agentmail.to",
@@ -141,7 +141,7 @@ const REAL_AGENTMAIL_INBOXES = [
     assigned: "CHARLIE",
     role: "B2B outreach & partner comms",
     tag: "B2B",
-    tagColor: "#4CFFA8",
+    tagColor: "#2d8a3e",
   },
   {
     email: "studex-2571@agentmail.to",
@@ -179,12 +179,12 @@ function StatusBadge({ status }: { status: Agent["status"] }) {
           fontWeight: 700,
           letterSpacing: "2px",
           textTransform: "uppercase" as const,
-          color: "#4CFFA8",
+          color: "#2d8a3e",
           background: "rgba(76,255,168,0.08)",
-          border: "1px solid rgba(76,255,168,0.3)",
+          border: "1px solid rgba(45,138,62,0.20)",
           padding: "2px 8px",
           borderRadius: "2px",
-          boxShadow: "0 0 8px rgba(76,255,168,0.2)",
+          boxShadow: "0 0 8px rgba(45,138,62,0.15)",
         }}
       >
         ONLINE
@@ -200,9 +200,9 @@ function StatusBadge({ status }: { status: Agent["status"] }) {
           fontWeight: 700,
           letterSpacing: "2px",
           textTransform: "uppercase" as const,
-          color: "#C9A84C",
-          background: "rgba(201,168,76,0.08)",
-          border: "1px solid rgba(201,168,76,0.3)",
+          color: "#a68a2e",
+          background: "rgba(166,138,46,0.08)",
+          border: "1px solid rgba(166,138,46,0.20)",
           padding: "2px 8px",
           borderRadius: "2px",
         }}
@@ -239,11 +239,11 @@ function AgentCard({ agent }: { agent: Agent }) {
       style={{
         background: "#0e0d10",
         borderTop: `2px solid ${agent.color}`,
-        borderLeft: "1px solid rgba(201,168,76,0.08)",
-        borderRight: "1px solid rgba(201,168,76,0.08)",
-        borderBottom: "1px solid rgba(201,168,76,0.08)",
+        borderLeft: "1px solid rgba(166,138,46,0.08)",
+        borderRight: "1px solid rgba(166,138,46,0.08)",
+        borderBottom: "1px solid rgba(166,138,46,0.08)",
         boxShadow:
-          "0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(201,168,76,0.1), inset 0 1px 0 rgba(201,168,76,0.08)",
+          "0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(166,138,46,0.10), inset 0 1px 0 rgba(166,138,46,0.08)",
         padding: "20px",
         position: "relative" as const,
         transition: "transform 0.2s ease, box-shadow 0.2s ease",
@@ -253,13 +253,13 @@ function AgentCard({ agent }: { agent: Agent }) {
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLDivElement).style.transform =
           "perspective(800px) rotateX(0deg) translateY(-4px)";
-        (e.currentTarget as HTMLDivElement).style.boxShadow = `0 16px 48px rgba(0,0,0,0.9), 0 4px 16px rgba(201,168,76,0.2), inset 0 1px 0 rgba(201,168,76,0.12)`;
+        (e.currentTarget as HTMLDivElement).style.boxShadow = `0 16px 48px rgba(0,0,0,0.9), 0 4px 16px rgba(166,138,46,0.15), inset 0 1px 0 rgba(166,138,46,0.10)`;
       }}
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLDivElement).style.transform =
           "perspective(800px) rotateX(1deg)";
         (e.currentTarget as HTMLDivElement).style.boxShadow =
-          "0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(201,168,76,0.1), inset 0 1px 0 rgba(201,168,76,0.08)";
+          "0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(166,138,46,0.10), inset 0 1px 0 rgba(166,138,46,0.08)";
       }}
     >
       {/* Header row */}
@@ -308,7 +308,7 @@ function AgentCard({ agent }: { agent: Agent }) {
           fontFamily: "'Cormorant Garamond', Georgia, serif",
           fontStyle: "italic",
           fontSize: "20px",
-          color: "#f5ecd0",
+          color: "#1a1710",
           marginBottom: "4px",
           lineHeight: 1.2,
         }}
@@ -324,7 +324,7 @@ function AgentCard({ agent }: { agent: Agent }) {
           fontWeight: 600,
           letterSpacing: "3px",
           textTransform: "uppercase" as const,
-          color: "#9a8a5a",
+          color: "#7a6e52",
           marginBottom: "2px",
         }}
       >
@@ -359,8 +359,8 @@ function AgentCard({ agent }: { agent: Agent }) {
             key={cap}
             style={{
               background: "#1a1a10",
-              border: `1px solid rgba(201,168,76,0.2)`,
-              color: "#9a8a5a",
+              border: `1px solid rgba(166,138,46,0.15)`,
+              color: "#7a6e52",
               fontSize: "8px",
               letterSpacing: "1.5px",
               textTransform: "uppercase" as const,
@@ -382,7 +382,7 @@ function AgentCard({ agent }: { agent: Agent }) {
             width: "6px",
             height: "6px",
             borderRadius: "50%",
-            background: isOnline ? "#4CFFA8" : agent.status === "idle" ? "#C9A84C" : "#4a4a4a",
+            background: isOnline ? "#2d8a3e" : agent.status === "idle" ? "#a68a2e" : "#4a4a4a",
             display: "inline-block",
             animation: isOnline ? "dotPulse 1.8s ease-in-out infinite" : "none",
             boxShadow: isOnline ? "0 0 8px rgba(76,255,168,0.6)" : "none",
@@ -394,7 +394,7 @@ function AgentCard({ agent }: { agent: Agent }) {
             fontSize: "8px",
             letterSpacing: "2px",
             textTransform: "uppercase" as const,
-            color: isOnline ? "#4CFFA8" : "#5a5040",
+            color: isOnline ? "#2d8a3e" : "#5a5040",
           }}
         >
           {isOnline ? "Signal Active" : "Standby"}
@@ -450,7 +450,7 @@ function AgentMailSection() {
             fontWeight: 700,
             letterSpacing: "6px",
             textTransform: "uppercase" as const,
-            color: "#C9A84C",
+            color: "#a68a2e",
             margin: 0,
             lineHeight: 1,
           }}
@@ -462,7 +462,7 @@ function AgentMailSection() {
             fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontStyle: "italic",
             fontSize: "11px",
-            color: "#9a8a5a",
+            color: "#7a6e52",
             marginTop: "6px",
             letterSpacing: "1px",
           }}
@@ -491,8 +491,8 @@ function AgentMailSection() {
               style={{
                 background: isSelected ? "rgba(201,168,76,0.06)" : "#0e0d10",
                 border: isSelected
-                  ? `1px solid rgba(201,168,76,0.4)`
-                  : "1px solid rgba(201,168,76,0.12)",
+                  ? `1px solid rgba(166,138,46,0.25)`
+                  : "1px solid rgba(166,138,46,0.10)",
                 borderTop: `2px solid ${inbox.tagColor}`,
                 padding: "16px 20px",
                 cursor: "pointer",
@@ -544,7 +544,7 @@ function AgentMailSection() {
                 style={{
                   fontFamily: "'Menlo', 'Courier New', monospace",
                   fontSize: "11px",
-                  color: "#f5ecd0",
+                  color: "#1a1710",
                   letterSpacing: "0.3px",
                   marginBottom: "4px",
                   wordBreak: "break-all" as const,
@@ -557,7 +557,7 @@ function AgentMailSection() {
                   fontFamily: "'Cormorant Garamond', Georgia, serif",
                   fontStyle: "italic",
                   fontSize: "12px",
-                  color: "#9a8a5a",
+                  color: "#7a6e52",
                   marginBottom: "8px",
                 }}
               >
@@ -585,8 +585,8 @@ function AgentMailSection() {
                   onClick={(e) => e.stopPropagation()}
                   style={{
                     background: "#1a1a10",
-                    border: "1px solid rgba(201,168,76,0.2)",
-                    color: "#C9A84C",
+                    border: "1px solid rgba(166,138,46,0.15)",
+                    color: "#a68a2e",
                     fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
                     fontSize: "9px",
                     letterSpacing: "2px",
@@ -627,7 +627,7 @@ function AgentMailSection() {
               fontWeight: 700,
               letterSpacing: "4px",
               textTransform: "uppercase" as const,
-              color: "#9a8a5a",
+              color: "#7a6e52",
               margin: 0,
             }}
           >
@@ -638,7 +638,7 @@ function AgentMailSection() {
               onClick={() => setSelectedInbox(null)}
               style={{
                 background: "transparent",
-                border: "1px solid rgba(201,168,76,0.2)",
+                border: "1px solid rgba(166,138,46,0.15)",
                 color: "#6a6050",
                 fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
                 fontSize: "8px",
@@ -656,7 +656,7 @@ function AgentMailSection() {
         <div
           style={{
             background: "#0e0d10",
-            border: "1px solid rgba(201,168,76,0.12)",
+            border: "1px solid rgba(166,138,46,0.10)",
             maxHeight: "400px",
             overflowY: "auto" as const,
           }}
@@ -667,8 +667,8 @@ function AgentMailSection() {
               display: "grid",
               gridTemplateColumns: "1.2fr 1fr 2fr 80px",
               padding: "8px 16px",
-              borderBottom: "1px solid rgba(201,168,76,0.1)",
-              background: "rgba(201,168,76,0.03)",
+              borderBottom: "1px solid rgba(166,138,46,0.10)",
+              background: "rgba(166,138,46,0.04)",
             }}
           >
             {["FROM", "INBOX", "SUBJECT", "DATE"].map((col) => (
@@ -708,8 +708,8 @@ function AgentMailSection() {
                   display: "grid",
                   gridTemplateColumns: "1.2fr 1fr 2fr 80px",
                   padding: "10px 16px",
-                  borderBottom: i < filteredMessages.length - 1 ? "1px solid rgba(201,168,76,0.05)" : "none",
-                  borderLeft: msg.isRead ? "none" : "2px solid #C9A84C",
+                  borderBottom: i < filteredMessages.length - 1 ? "1px solid rgba(166,138,46,0.06)" : "none",
+                  borderLeft: msg.isRead ? "none" : "2px solid #a68a2e",
                   alignItems: "center",
                   transition: "background 0.15s ease",
                 }}
@@ -720,13 +720,13 @@ function AgentMailSection() {
                   (e.currentTarget as HTMLDivElement).style.background = "transparent";
                 }}
               >
-                <span style={{ fontFamily: "'Menlo', monospace", fontSize: "10px", color: msg.isRead ? "#7a6a4a" : "#f5ecd0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
+                <span style={{ fontFamily: "'Menlo', monospace", fontSize: "10px", color: msg.isRead ? "#7a6a4a" : "#1a1710", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
                   {msg.from}
                 </span>
                 <span style={{ fontFamily: "'Menlo', monospace", fontSize: "9px", color: "#5a5040", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const }}>
                   {msg.inbox.split("@")[0]}
                 </span>
-                <span style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "13px", color: msg.isRead ? "#7a6a4a" : "#f5ecd0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, fontWeight: msg.isRead ? 400 : 600 }}>
+                <span style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "13px", color: msg.isRead ? "#7a6a4a" : "#1a1710", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" as const, fontWeight: msg.isRead ? 400 : 600 }}>
                   {msg.subject}
                 </span>
                 <span style={{ fontFamily: "'Menlo', monospace", fontSize: "9px", color: "#3a3020", whiteSpace: "nowrap" as const }}>
@@ -790,7 +790,7 @@ export default function AgentNetwork() {
         {/* OS Status strip */}
         <div
           style={{
-            borderBottom: "1px solid rgba(201,168,76,0.12)",
+            borderBottom: "1px solid rgba(166,138,46,0.10)",
             padding: "8px 0",
             marginBottom: "32px",
             display: "flex",
@@ -814,9 +814,9 @@ export default function AgentNetwork() {
                 fontFamily: "var(--font-mono, 'Menlo', monospace)",
                 fontSize: "8px",
                 letterSpacing: "2px",
-                color: i === 0 ? "#C9A84C" : i === 5 ? "#4CFFA8" : "#5a5040",
+                color: i === 0 ? "#a68a2e" : i === 5 ? "#2d8a3e" : "#5a5040",
                 padding: "0 16px",
-                borderRight: i < 6 ? "1px solid rgba(201,168,76,0.1)" : "none",
+                borderRight: i < 6 ? "1px solid rgba(166,138,46,0.10)" : "none",
               }}
             >
               {item}
@@ -833,7 +833,7 @@ export default function AgentNetwork() {
               fontWeight: 700,
               letterSpacing: "8px",
               textTransform: "uppercase" as const,
-              color: "#C9A84C",
+              color: "#a68a2e",
               margin: 0,
               lineHeight: 1,
             }}
@@ -845,7 +845,7 @@ export default function AgentNetwork() {
               fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontStyle: "italic",
               fontSize: "12px",
-              color: "#9a8a5a",
+              color: "#7a6e52",
               marginTop: "6px",
               letterSpacing: "1px",
             }}

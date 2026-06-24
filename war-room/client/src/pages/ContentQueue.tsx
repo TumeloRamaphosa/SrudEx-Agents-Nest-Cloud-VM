@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import type { ContentItem } from "@shared/schema";
 import {
-  Check, X, Send, Eye, Instagram, Facebook,
+  Check, X, Send, Eye,
   Clock, Loader2, CheckCircle2
 } from "lucide-react";
+import { FacebookIcon as Facebook, InstagramIcon as Instagram } from "@/components/icons/social";
 
 // Asset imports
 import tomahawkHero from "@assets/tomahawk-hero.jpg";
@@ -37,13 +38,13 @@ function getAsset(path: string) {
 const FILTERS = ["All", "Draft", "Approved", "Posted", "Rejected", "Fathers Day", "Hwende", "Youth Day", "Product Spotlight"];
 
 // War Room color constants
-const GOLD = "#C9A84C";
-const GOLD_DIM = "#9a8a5a";
+const GOLD = "#a68a2e";
+const GOLD_DIM = "#7a6e52";
 const GOLD_DARK = "#5a4f2e";
-const CREAM = "#f5ecd0";
+const CREAM = "#1a1710";
 const GREEN = "#6fa84f";
 const RED = "#c14e3c";
-const OBSIDIAN_2 = "#15140e";
+const OBSIDIAN_2 = "#ffffff";
 
 interface LightboxProps {
   item: ContentItem;
@@ -145,8 +146,8 @@ function ContentCard({ item }: { item: ContentItem }) {
     : isRejected
     ? "rgba(193,78,60,0.4)"
     : isPosted
-    ? "rgba(201,168,76,0.4)"
-    : "rgba(201,168,76,0.25)";
+    ? "rgba(166,138,46,0.25)"
+    : "rgba(166,138,46,0.18)";
 
   const scheduledStr = item.scheduledDate
     ? new Date(item.scheduledDate).toLocaleDateString("en-ZA", { weekday: "short", day: "numeric", month: "short" }).toUpperCase()
@@ -235,7 +236,7 @@ function ContentCard({ item }: { item: ContentItem }) {
         <div
           style={{
             padding: "20px 24px 16px",
-            borderBottom: "1px solid rgba(201,168,76,0.15)",
+            borderBottom: "1px solid rgba(166,138,46,0.12)",
             background: "linear-gradient(180deg, rgba(21,20,14,0.8) 0%, rgba(21,20,14,0) 100%)",
           }}
         >
@@ -363,7 +364,7 @@ function ContentCard({ item }: { item: ContentItem }) {
           <div
             style={{
               padding: "20px 24px",
-              borderLeft: "1px solid rgba(201,168,76,0.15)",
+              borderLeft: "1px solid rgba(166,138,46,0.12)",
             }}
           >
             <div className="mb-2">
@@ -398,7 +399,7 @@ function ContentCard({ item }: { item: ContentItem }) {
                 style={{ background: "rgba(0,0,0,0.35)" }}
                 data-testid={`button-preview-${item.id}`}
               >
-                <div className="rounded-full p-2" style={{ background: "rgba(201,168,76,0.15)", border: `1px solid ${GOLD}` }}>
+                <div className="rounded-full p-2" style={{ background: "rgba(166,138,46,0.12)", border: `1px solid ${GOLD}` }}>
                   <Eye className="w-4 h-4" style={{ color: GOLD }} />
                 </div>
               </button>
@@ -411,7 +412,7 @@ function ContentCard({ item }: { item: ContentItem }) {
           className="flex items-center gap-2 flex-wrap"
           style={{
             padding: "14px 24px",
-            borderTop: "1px solid rgba(201,168,76,0.15)",
+            borderTop: "1px solid rgba(166,138,46,0.12)",
             background: "rgba(0,0,0,0.3)",
           }}
         >
@@ -469,7 +470,7 @@ function ContentCard({ item }: { item: ContentItem }) {
               onClick={() => postMutation.mutate()}
               disabled={postMutation.isPending || postMutation.isSuccess}
               style={{
-                background: "rgba(201,168,76,0.1)",
+                background: "rgba(166,138,46,0.10)",
                 border: `1px solid ${GOLD}`,
                 color: GOLD,
                 padding: "9px 16px",
@@ -514,7 +515,7 @@ function ContentCard({ item }: { item: ContentItem }) {
       <Dialog open={showRejectModal} onOpenChange={setShowRejectModal}>
         <DialogContent
           style={{
-            background: "#15140e",
+            background: "#ffffff",
             border: `1px solid ${GOLD}`,
             color: CREAM,
           }}
@@ -632,7 +633,7 @@ export default function ContentQueue() {
             key={f}
             onClick={() => setActiveFilter(f)}
             style={{
-              background: activeFilter === f ? "rgba(201,168,76,0.12)" : "transparent",
+              background: activeFilter === f ? "rgba(166,138,46,0.10)" : "transparent",
               border: `1px solid ${activeFilter === f ? GOLD : GOLD_DARK}`,
               color: activeFilter === f ? CREAM : GOLD_DIM,
               padding: "7px 13px",
@@ -662,13 +663,13 @@ export default function ContentQueue() {
       </div>
 
       {/* Hairline divider */}
-      <div style={{ height: "1px", background: "rgba(201,168,76,0.15)" }} />
+      <div style={{ height: "1px", background: "rgba(166,138,46,0.12)" }} />
 
       {/* Content list */}
       {isLoading ? (
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-64 w-full" style={{ background: "rgba(201,168,76,0.05)" }} />
+            <Skeleton key={i} className="h-64 w-full" style={{ background: "rgba(166,138,46,0.06)" }} />
           ))}
         </div>
       ) : filtered.length === 0 ? (
