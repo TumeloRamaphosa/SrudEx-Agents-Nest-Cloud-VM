@@ -4,7 +4,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CalendarEvent } from "@shared/schema";
-import { Calendar, X, Facebook, Instagram } from "lucide-react";
+import { Calendar, X } from "lucide-react";
+import { Facebook, Instagram } from "@/components/icons/social";
 
 // June 2026
 const YEAR = 2026;

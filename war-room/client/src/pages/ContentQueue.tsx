@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import type { ContentItem } from "@shared/schema";
 import {
-  Check, X, Send, Eye, Instagram, Facebook,
+  Check, X, Send, Eye,
   Clock, Loader2, CheckCircle2
 } from "lucide-react";
+import { Facebook, Instagram } from "@/components/icons/social";
 
 // Asset imports
 import tomahawkHero from "@assets/tomahawk-hero.jpg";

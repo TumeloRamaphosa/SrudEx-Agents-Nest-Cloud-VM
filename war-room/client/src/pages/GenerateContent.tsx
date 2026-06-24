@@ -222,10 +222,10 @@ export default function GenerateContent() {
           }}
         >
           {([
-            { icon: "⬡", codename: "PROMPT", label: "Prompt Input", status: "READY" as const },
-            { icon: "◈", codename: "APEX", label: "Generates Image", status: "READY" as const },
-            { icon: "◈", codename: "NOVA", label: "Writes Caption", status: "READY" as const },
-            { icon: "⬡", codename: "CHARLIE", label: "Queues for Approval", status: "READY" as const },
+            { icon: "⬡", codename: "PROMPT", label: "Prompt Input", status: "READY" as "READY" | "RUNNING" | "DONE" },
+            { icon: "◈", codename: "APEX", label: "Generates Image", status: "READY" as "READY" | "RUNNING" | "DONE" },
+            { icon: "◈", codename: "NOVA", label: "Writes Caption", status: "READY" as "READY" | "RUNNING" | "DONE" },
+            { icon: "⬡", codename: "CHARLIE", label: "Queues for Approval", status: "READY" as "READY" | "RUNNING" | "DONE" },
           ]).map((stage, i, arr) => (
             <div key={stage.codename} style={{ display: "flex", alignItems: "center" }}>
               {/* Stage card */}
@@ -253,7 +253,7 @@ export default function GenerateContent() {
                     filter:
                       stage.status === "RUNNING"
                         ? "drop-shadow(0 0 6px #4CFFA888)"
-                        : stage.status === "RUNNING"
+                        : stage.status === "DONE"
                         ? "drop-shadow(0 0 4px #C9A84C88)"
                         : "none",
                     animation: stage.status === "RUNNING" ? "dotPulse 1.5s ease-in-out infinite" : "none",
