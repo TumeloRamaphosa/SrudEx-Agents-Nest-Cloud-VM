@@ -5,16 +5,11 @@ import {
   Cell
 } from "recharts";
 import { AlertTriangle, CheckCircle, CreditCard, TrendingUp, Users, ShoppingCart } from "lucide-react";
+import { colors } from "@/lib/theme";
+import { formatCurrency } from "@/lib/format";
+import { WRLabel, WRCard } from "@/components/war-room";
 
-// War Room colors
-const GOLD = "#C9A84C";
-const GOLD_DIM = "#9a8a5a";
-const GOLD_DARK = "#5a4f2e";
-const CREAM = "#f5ecd0";
-const GREEN = "#6fa84f";
-const RED = "#c14e3c";
-const OBSIDIAN_2 = "#15140e";
-const OBSIDIAN_3 = "#1f1d15";
+const { gold: GOLD, goldDim: GOLD_DIM, goldDark: GOLD_DARK, cream: CREAM, green: GREEN, red: RED, obsidian2: OBSIDIAN_2 } = colors;
 
 const MONTHLY_REVENUE = [
   { month: "Jan", revenue: 26283 },
@@ -91,32 +86,7 @@ interface UnfulfilledData {
   orders: UnfulfilledOrder[];
 }
 
-function formatCurrency(val: number) {
-  return `R${val.toLocaleString("en-ZA")}`;
-}
 
-function WRLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <span style={{ fontSize: "9px", letterSpacing: "3px", textTransform: "uppercase" as const, color: GOLD, fontFamily: "'Helvetica Neue', sans-serif" }}>
-      {children}
-    </span>
-  );
-}
-
-function WRCard({ children, style, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      style={{
-        background: OBSIDIAN_2,
-        border: `1px solid rgba(201,168,76,0.25)`,
-        ...style,
-      }}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-}
 
 function CustomTooltip({ active, payload, label }: any) {
   if (active && payload && payload.length) {

@@ -10,6 +10,8 @@ import {
   Check, X, Send, Eye, Instagram, Facebook,
   Clock, Loader2, CheckCircle2
 } from "lucide-react";
+import { colors } from "@/lib/theme";
+import { WRLabel } from "@/components/war-room";
 
 // Asset imports
 import tomahawkHero from "@assets/tomahawk-hero.jpg";
@@ -36,14 +38,7 @@ function getAsset(path: string) {
 
 const FILTERS = ["All", "Draft", "Approved", "Posted", "Rejected", "Fathers Day", "Hwende", "Youth Day", "Product Spotlight"];
 
-// War Room color constants
-const GOLD = "#C9A84C";
-const GOLD_DIM = "#9a8a5a";
-const GOLD_DARK = "#5a4f2e";
-const CREAM = "#f5ecd0";
-const GREEN = "#6fa84f";
-const RED = "#c14e3c";
-const OBSIDIAN_2 = "#15140e";
+const { gold: GOLD, goldDim: GOLD_DIM, goldDark: GOLD_DARK, cream: CREAM, green: GREEN, red: RED, obsidian2: OBSIDIAN_2 } = colors;
 
 interface LightboxProps {
   item: ContentItem;
@@ -102,13 +97,7 @@ function InstagramLightbox({ item, onClose }: LightboxProps) {
   );
 }
 
-function WRLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <span style={{ fontSize: "9px", letterSpacing: "3px", textTransform: "uppercase", color: GOLD, fontFamily: "'Helvetica Neue', sans-serif" }}>
-      {children}
-    </span>
-  );
-}
+
 
 function ContentCard({ item }: { item: ContentItem }) {
   const [showLightbox, setShowLightbox] = useState(false);

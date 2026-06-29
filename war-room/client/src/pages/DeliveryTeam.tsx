@@ -1,3 +1,7 @@
+import { colors } from "@/lib/theme";
+import { formatCurrency } from "@/lib/format";
+import { PageHeader, SectionHeading, StatusBadge } from "@/components/war-room";
+
 const DISCORD_SERVER_ID = "";
 
 interface Order {
@@ -17,70 +21,15 @@ const ORDERS: Order[] = [
   { id: "#1943", customer: "D.O.", value: 5405, items: 6, age: "4 days", priority: "high" },
 ];
 
-function formatCurrency(val: number) {
-  return `R${val.toLocaleString("en-ZA")}`;
-}
+const PRIORITY_STYLES: Record<Order["priority"], { color: string; glow: boolean }> = {
+  critical: { color: "#ff4444", glow: true },
+  high: { color: colors.gold, glow: false },
+  normal: { color: "#5a5040", glow: false },
+};
 
 function PriorityBadge({ priority }: { priority: Order["priority"] }) {
-  if (priority === "critical") {
-    return (
-      <span
-        style={{
-          fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-          fontSize: "8px",
-          fontWeight: 700,
-          letterSpacing: "2px",
-          textTransform: "uppercase" as const,
-          color: "#ff4444",
-          background: "rgba(255,68,68,0.12)",
-          border: "1px solid rgba(255,68,68,0.4)",
-          padding: "2px 7px",
-          borderRadius: "2px",
-          boxShadow: "0 0 8px rgba(255,68,68,0.3)",
-        }}
-      >
-        CRITICAL
-      </span>
-    );
-  }
-  if (priority === "high") {
-    return (
-      <span
-        style={{
-          fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-          fontSize: "8px",
-          fontWeight: 700,
-          letterSpacing: "2px",
-          textTransform: "uppercase" as const,
-          color: "#C9A84C",
-          background: "rgba(201,168,76,0.1)",
-          border: "1px solid rgba(201,168,76,0.35)",
-          padding: "2px 7px",
-          borderRadius: "2px",
-        }}
-      >
-        HIGH
-      </span>
-    );
-  }
-  return (
-    <span
-      style={{
-        fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-        fontSize: "8px",
-        fontWeight: 700,
-        letterSpacing: "2px",
-        textTransform: "uppercase" as const,
-        color: "#5a5040",
-        background: "rgba(74,74,74,0.08)",
-        border: "1px solid rgba(74,74,74,0.2)",
-        padding: "2px 7px",
-        borderRadius: "2px",
-      }}
-    >
-      NORMAL
-    </span>
-  );
+  const { color, glow } = PRIORITY_STYLES[priority];
+  return <StatusBadge label={priority} color={color} glow={glow} />;
 }
 
 function AgeBadge({ age }: { age: string }) {
@@ -271,52 +220,15 @@ function KanbanColumn({
 export default function DeliveryTeam() {
   return (
     <div style={{ position: "relative", minHeight: "100vh" }}>
-      {/* Page header */}
-      <div style={{ marginBottom: "32px" }}>
-        <h1
-          style={{
-            fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-            fontSize: "36px",
-            fontWeight: 700,
-            letterSpacing: "8px",
-            textTransform: "uppercase" as const,
-            color: "#C9A84C",
-            margin: 0,
-            lineHeight: 1,
-          }}
-        >
-          DELIVERY & TEAM
-        </h1>
-        <p
-          style={{
-            fontFamily: "'Cormorant Garamond', Georgia, serif",
-            fontStyle: "italic",
-            fontSize: "12px",
-            color: "#9a8a5a",
-            marginTop: "6px",
-            letterSpacing: "1px",
-          }}
-        >
-          Order fulfilment · Team chat · WhatsApp notifications
-        </p>
-      </div>
+      <PageHeader
+        title="DELIVERY & TEAM"
+        subtitle="Order fulfilment · Team chat · WhatsApp notifications"
+      />
 
       {/* ── Section A: Order Fulfilment Board ── */}
       <section style={{ marginBottom: "48px" }}>
         <div style={{ marginBottom: "20px" }}>
-          <h2
-            style={{
-              fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-              fontSize: "12px",
-              fontWeight: 700,
-              letterSpacing: "4px",
-              textTransform: "uppercase" as const,
-              color: "#9a8a5a",
-              margin: 0,
-            }}
-          >
-            ORDER FULFILMENT BOARD
-          </h2>
+          <SectionHeading>ORDER FULFILMENT BOARD</SectionHeading>
         </div>
 
         <div
@@ -357,19 +269,7 @@ export default function DeliveryTeam() {
         {/* Section B: Team Chat (Discord) */}
         <section>
           <div style={{ marginBottom: "16px" }}>
-            <h2
-              style={{
-                fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-                fontSize: "12px",
-                fontWeight: 700,
-                letterSpacing: "4px",
-                textTransform: "uppercase" as const,
-                color: "#9a8a5a",
-                margin: 0,
-              }}
-            >
-              TEAM CHAT
-            </h2>
+            <SectionHeading>TEAM CHAT</SectionHeading>
           </div>
 
           <div
@@ -475,19 +375,7 @@ export default function DeliveryTeam() {
         {/* Section C: WhatsApp Order Notifications */}
         <section>
           <div style={{ marginBottom: "16px" }}>
-            <h2
-              style={{
-                fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-                fontSize: "12px",
-                fontWeight: 700,
-                letterSpacing: "4px",
-                textTransform: "uppercase" as const,
-                color: "#9a8a5a",
-                margin: 0,
-              }}
-            >
-              WHATSAPP NOTIFICATIONS
-            </h2>
+            <SectionHeading>WHATSAPP NOTIFICATIONS</SectionHeading>
           </div>
 
           <div

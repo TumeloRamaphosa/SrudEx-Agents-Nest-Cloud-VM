@@ -223,7 +223,20 @@ Write ONLY the caption. No intro, no explanation.`;
 
 
   // ── Higgsfield Generation Route ──
-  // ── Higgsfield Generation Route ──
+  async function pollHiggsfield(jobId: string, headers: Record<string, string>, maxAttempts = 45): Promise<string | null> {
+    const pollUrl = `https://platform.higgsfield.ai/v1/jobs/${jobId}`;
+    for (let i = 0; i < maxAttempts; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
+      const pollRes = await fetch(pollUrl, { headers });
+      const pollData = await pollRes.json();
+      if (pollData.status === "completed") {
+        return pollData?.results?.raw?.url || pollData?.jobs?.[0]?.results?.raw?.url || null;
+      }
+      if (pollData.status === "failed") return null;
+    }
+    return null;
+  }
+
   app.post("/api/higgsfield/generate", async (req, res) => {
     const { prompt, aspect = "1024x1024", mode = "image" } = req.body;
 
@@ -271,25 +284,10 @@ Write ONLY the caption. No intro, no explanation.`;
       }
 
       // Step 2: Poll for result (max 90s)
-      const pollUrl = `https://platform.higgsfield.ai/v1/jobs/${jobId}`;
-      let imageUrl: string | null = null;
-
-      for (let i = 0; i < 45; i++) {
-        await new Promise((r) => setTimeout(r, 2000));
-        const pollRes = await fetch(pollUrl, { headers });
-        const pollData = await pollRes.json();
-
-        if (pollData.status === "completed") {
-          imageUrl = pollData?.results?.raw?.url || pollData?.jobs?.[0]?.results?.raw?.url;
-          break;
-        }
-        if (pollData.status === "failed") {
-          return res.status(500).json({ error: "Higgsfield generation failed" });
-        }
-      }
+      const imageUrl = await pollHiggsfield(jobId, headers, 45);
 
       if (!imageUrl) {
-        return res.status(500).json({ error: "Higgsfield timed out after 90s" });
+        return res.status(500).json({ error: "Higgsfield generation failed or timed out" });
       }
 
       // If video mode: submit image-to-video (DoP turbo)
@@ -315,19 +313,7 @@ Write ONLY the caption. No intro, no explanation.`;
 
         if (!vidJobId) return res.json({ url: imageUrl, type: "image" });
 
-        const vidPollUrl = `https://platform.higgsfield.ai/v1/jobs/${vidJobId}`;
-        let videoUrl: string | null = null;
-
-        for (let i = 0; i < 60; i++) {
-          await new Promise((r) => setTimeout(r, 2000));
-          const vp = await fetch(vidPollUrl, { headers });
-          const vpData = await vp.json();
-          if (vpData.status === "completed") {
-            videoUrl = vpData?.results?.raw?.url;
-            break;
-          }
-          if (vpData.status === "failed") break;
-        }
+        const videoUrl = await pollHiggsfield(vidJobId, headers, 60);
 
         return res.json({ url: videoUrl || imageUrl, type: videoUrl ? "video" : "image" });
       }

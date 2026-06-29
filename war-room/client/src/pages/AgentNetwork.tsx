@@ -1,4 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
+import { colors } from "@/lib/theme";
+import { StatusBadge, SectionHeading } from "@/components/war-room";
 
 interface Agent {
   id: string;
@@ -169,66 +171,15 @@ interface AgentMailMessage {
   snippet: string;
 }
 
-function StatusBadge({ status }: { status: Agent["status"] }) {
-  if (status === "online") {
-    return (
-      <span
-        style={{
-          fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-          fontSize: "9px",
-          fontWeight: 700,
-          letterSpacing: "2px",
-          textTransform: "uppercase" as const,
-          color: "#4CFFA8",
-          background: "rgba(76,255,168,0.08)",
-          border: "1px solid rgba(76,255,168,0.3)",
-          padding: "2px 8px",
-          borderRadius: "2px",
-          boxShadow: "0 0 8px rgba(76,255,168,0.2)",
-        }}
-      >
-        ONLINE
-      </span>
-    );
-  }
-  if (status === "idle") {
-    return (
-      <span
-        style={{
-          fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-          fontSize: "9px",
-          fontWeight: 700,
-          letterSpacing: "2px",
-          textTransform: "uppercase" as const,
-          color: "#C9A84C",
-          background: "rgba(201,168,76,0.08)",
-          border: "1px solid rgba(201,168,76,0.3)",
-          padding: "2px 8px",
-          borderRadius: "2px",
-        }}
-      >
-        IDLE
-      </span>
-    );
-  }
-  return (
-    <span
-      style={{
-        fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-        fontSize: "9px",
-        fontWeight: 700,
-        letterSpacing: "2px",
-        textTransform: "uppercase" as const,
-        color: "#4a4a4a",
-        background: "rgba(74,74,74,0.08)",
-        border: "1px solid rgba(74,74,74,0.3)",
-        padding: "2px 8px",
-        borderRadius: "2px",
-      }}
-    >
-      OFFLINE
-    </span>
-  );
+const AGENT_STATUS_STYLES: Record<Agent["status"], { color: string; glow: boolean }> = {
+  online: { color: colors.greenBright, glow: true },
+  idle: { color: colors.gold, glow: false },
+  offline: { color: "#4a4a4a", glow: false },
+};
+
+function AgentStatusBadge({ status }: { status: Agent["status"] }) {
+  const { color, glow } = AGENT_STATUS_STYLES[status];
+  return <StatusBadge label={status} color={color} glow={glow} />;
 }
 
 function AgentCard({ agent }: { agent: Agent }) {
@@ -299,7 +250,7 @@ function AgentCard({ agent }: { agent: Agent }) {
             {agent.codename}
           </span>
         </div>
-        <StatusBadge status={agent.status} />
+        <AgentStatusBadge status={agent.status} />
       </div>
 
       {/* Agent name */}
