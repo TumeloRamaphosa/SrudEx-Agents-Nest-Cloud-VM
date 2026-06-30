@@ -20,9 +20,10 @@ import SuperAgents from "@/pages/SuperAgents";
 import Payments from "@/pages/Payments";
 import RevenueEngine from "@/pages/RevenueEngine";
 import NalediAI from "@/pages/NalediAI";
+import DarkFactory from "@/pages/DarkFactory";
 import NotFound from "@/pages/not-found";
 import { useState } from "react";
-import { LayoutGrid, Calendar, Sparkles, TrendingUp, ShoppingBag, CheckSquare, Bot, Megaphone, Truck, MessageSquare, Globe, Cpu, CreditCard, MessageCircle } from "lucide-react";
+import { LayoutGrid, Calendar, Sparkles, TrendingUp, ShoppingBag, CheckSquare, Bot, Megaphone, Truck, MessageSquare, Globe, Cpu, CreditCard, MessageCircle, Factory } from "lucide-react";
 
 const TABS = [
   { id: "queue", label: "Queue", icon: LayoutGrid },
@@ -40,6 +41,7 @@ const TABS = [
   { id: "super-agents", label: "Super Agents", icon: Cpu },
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "revenue", label: "Revenue Engine", icon: TrendingUp },
+  { id: "dark-factory", label: "Dark Factory", icon: Factory },
 ];
 
 function TabNav({ activeTab, onTabChange }: { activeTab: string; onTabChange: (id: string) => void }) {
@@ -151,6 +153,7 @@ function MainLayout() {
         {activeTab === "super-agents" && <SuperAgents />}
         {activeTab === "payments" && <Payments />}
         {activeTab === "revenue" && <RevenueEngine />}
+        {activeTab === "dark-factory" && <DarkFactory />}
       </main>
     </div>
   );

@@ -502,5 +502,173 @@ Write ONLY the caption. No intro, no explanation.`;
     }
   });
 
+  // ══════════════════════════════════════════════
+  // ══  DARK FACTORY  ═══════════════════════════
+  // ══════════════════════════════════════════════
+
+  // GET service catalog
+  app.get("/api/factory/services", (_req, res) => {
+    try {
+      const services = storage.getActiveServices();
+      res.json(services);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET all projects (operator view)
+  app.get("/api/factory/projects", (_req, res) => {
+    try {
+      const projects = storage.getAllProjects();
+      res.json(projects);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET single project
+  app.get("/api/factory/projects/:id", (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const project = storage.getProjectById(id);
+      if (!project) return res.status(404).json({ error: "Project not found" });
+      res.json(project);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // POST client intake — creates a new project
+  app.post("/api/factory/intake", (req, res) => {
+    try {
+      const { clientName, clientEmail, serviceId, title, description, transcription, links, voiceNoteUrl } = req.body as {
+        clientName: string;
+        clientEmail: string;
+        serviceId: string;
+        title: string;
+        description: string;
+        transcription?: string;
+        links?: string[];
+        voiceNoteUrl?: string;
+      };
+
+      if (!clientName || !clientEmail || !serviceId || !title) {
+        return res.status(400).json({ error: "clientName, clientEmail, serviceId, and title are required" });
+      }
+
+      const service = storage.getServiceById(serviceId);
+      const now = new Date().toISOString();
+      const slug = `${serviceId}-${Date.now().toString(36)}`;
+
+      const project = storage.createProject({
+        slug,
+        clientName,
+        clientEmail,
+        serviceId,
+        title,
+        description: description || "",
+        status: "intake",
+        tier: service?.tier || "custom",
+        quotedPriceUsd: service?.startingPriceUsd || null,
+        depositPaid: false,
+        buildPaid: false,
+        finalPaid: false,
+        voiceNoteUrl: voiceNoteUrl || null,
+        transcription: transcription || null,
+        attachments: "[]",
+        links: JSON.stringify(links || []),
+        linearIssueId: null,
+        githubRepo: null,
+        reviewRound: 0,
+        maxReviews: 3,
+        agentNotes: JSON.stringify([{ ts: now, note: "Project submitted via client portal" }]),
+        createdAt: now,
+        updatedAt: now,
+      });
+
+      res.status(201).json(project);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // PATCH project status (operator action)
+  app.patch("/api/factory/projects/:id/status", (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body as { status: string };
+      const validStatuses = ["intake", "scope", "approved", "sandbox-created", "building", "review-ready", "delivered"];
+      if (!validStatuses.includes(status)) {
+        return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(", ")}` });
+      }
+      const project = storage.updateProjectStatus(id, status);
+      if (!project) return res.status(404).json({ error: "Project not found" });
+      res.json(project);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // PATCH project payment (operator confirms payment received)
+  app.patch("/api/factory/projects/:id/payment", (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { stage } = req.body as { stage: "deposit" | "build" | "final" };
+      const fieldMap: Record<string, string> = { deposit: "depositPaid", build: "buildPaid", final: "finalPaid" };
+      const field = fieldMap[stage];
+      if (!field) return res.status(400).json({ error: "stage must be deposit, build, or final" });
+      const project = storage.updateProject(id, { [field]: true } as any);
+      if (!project) return res.status(404).json({ error: "Project not found" });
+      res.json(project);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // PATCH project quote (operator sets custom price)
+  app.patch("/api/factory/projects/:id/quote", (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { quotedPriceUsd } = req.body as { quotedPriceUsd: number };
+      const project = storage.updateProject(id, { quotedPriceUsd });
+      if (!project) return res.status(404).json({ error: "Project not found" });
+      res.json(project);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // POST transcribe audio (proxy to VoiceBox)
+  app.post("/api/factory/transcribe", async (req, res) => {
+    try {
+      const voiceboxUrl = process.env.VOICEBOX_API_URL || "http://127.0.0.1:17493";
+      const contentType = req.headers["content-type"] || "";
+
+      if (contentType.includes("multipart/form-data")) {
+        // Forward multipart form data to VoiceBox
+        const chunks: Buffer[] = [];
+        req.on("data", (chunk: Buffer) => chunks.push(chunk));
+        req.on("end", async () => {
+          try {
+            const body = Buffer.concat(chunks);
+            const vbRes = await fetch(`${voiceboxUrl}/transcribe`, {
+              method: "POST",
+              headers: { "content-type": contentType },
+              body,
+            });
+            const data = await vbRes.json();
+            res.json(data);
+          } catch (err: any) {
+            res.status(502).json({ error: `VoiceBox unavailable: ${err.message}` });
+          }
+        });
+      } else {
+        res.status(400).json({ error: "Expected multipart/form-data with audio file" });
+      }
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   return httpServer;
 }
