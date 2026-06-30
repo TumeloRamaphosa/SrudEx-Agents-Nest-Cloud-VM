@@ -27,7 +27,7 @@ export const calendarEvents = sqliteTable("calendar_events", {
   platform: text("platform").notNull(),
   campaign: text("campaign"),
   contentItemId: integer("content_item_id"),
-  color: text("color").default("#C9A84C"),
+  color: text("color").default("#a68a2e"),
 });
 
 export const analyticsCache = sqliteTable("analytics_cache", {
@@ -52,12 +52,40 @@ export const cachedMessages = sqliteTable("cached_messages", {
   syncedAt: text("synced_at").notNull(),
 });
 
+// ── AI Credits System ──────────────────────────────────────────────
+export const clients = sqliteTable("clients", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  name: text("name").notNull(),
+  email: text("email").notNull().unique(),
+  tier: text("tier").notNull(), // "meat-os" | "agency-os" | "marketplace-os"
+  aiCredits: integer("ai_credits").notNull().default(0),
+  monthlyAllocation: integer("monthly_allocation").notNull().default(0),
+  createdAt: text("created_at").notNull(),
+});
+
+export const creditTransactions = sqliteTable("credit_transactions", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  clientId: integer("client_id").notNull(),
+  amount: integer("amount").notNull(), // positive = credit, negative = debit
+  type: text("type").notNull(), // "purchase" | "usage" | "bonus" | "refund" | "monthly"
+  description: text("description"),
+  balanceAfter: integer("balance_after").notNull(),
+  paymentRef: text("payment_ref"), // PayFast m_payment_id
+  createdAt: text("created_at").notNull(),
+});
+
 export const insertContentItemSchema = createInsertSchema(contentItems).omit({ id: true });
 export const insertCalendarEventSchema = createInsertSchema(calendarEvents).omit({ id: true });
 export const insertCachedMessageSchema = createInsertSchema(cachedMessages).omit({ id: true });
+export const insertClientSchema = createInsertSchema(clients).omit({ id: true });
+export const insertCreditTransactionSchema = createInsertSchema(creditTransactions).omit({ id: true });
 
 export type ContentItem = typeof contentItems.$inferSelect;
 export type InsertContentItem = z.infer<typeof insertContentItemSchema>;
 export type CalendarEvent = typeof calendarEvents.$inferSelect;
 export type CachedMessage = typeof cachedMessages.$inferSelect;
 export type InsertCachedMessage = z.infer<typeof insertCachedMessageSchema>;
+export type Client = typeof clients.$inferSelect;
+export type InsertClient = z.infer<typeof insertClientSchema>;
+export type CreditTransaction = typeof creditTransactions.$inferSelect;
+export type InsertCreditTransaction = z.infer<typeof insertCreditTransactionSchema>;

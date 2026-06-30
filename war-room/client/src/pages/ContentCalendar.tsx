@@ -4,7 +4,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { CalendarEvent } from "@shared/schema";
-import { Calendar, X, Facebook, Instagram } from "lucide-react";
+import { Calendar, X } from "lucide-react";
+import { FacebookIcon as Facebook, InstagramIcon as Instagram } from "@/components/icons/social";
 
 // June 2026
 const YEAR = 2026;
@@ -80,7 +81,7 @@ export default function ContentCalendar() {
         {/* Legend */}
         <div className="flex flex-wrap gap-3 text-[11px] font-medium">
           {[
-            { label: "Father's Day", color: "#C9A84C" },
+            { label: "Father's Day", color: "#a68a2e" },
             { label: "Hwende", color: "#8b5cf6" },
             { label: "Youth Day", color: "#10b981" },
             { label: "Product", color: "#3b82f6" },
@@ -127,7 +128,7 @@ export default function ContentCalendar() {
                   key={dateKey}
                   onClick={() => handleDayClick(dateKey, dayEvents.length > 0)}
                   className={`min-h-[80px] p-1.5 cursor-pointer transition-colors hover:bg-[#F7F4EE] ${
-                    isToday ? "bg-[#C9A84C]/5 ring-1 ring-[#C9A84C] ring-inset" : ""
+                    isToday ? "bg-[#a68a2e]/5 ring-1 ring-[#a68a2e] ring-inset" : ""
                   }`}
                   data-testid={`calendar-day-${day}`}
                 >
@@ -135,7 +136,7 @@ export default function ContentCalendar() {
                     <span
                       className={`text-xs font-semibold w-6 h-6 flex items-center justify-center rounded-full ${
                         isToday
-                          ? "bg-[#C9A84C] text-white"
+                          ? "bg-[#a68a2e] text-white"
                           : "text-[#1A1410]"
                       }`}
                     >
@@ -152,7 +153,7 @@ export default function ContentCalendar() {
                       <div
                         key={ev.id}
                         className="text-[9px] leading-tight px-1 py-0.5 rounded truncate text-white font-medium"
-                        style={{ backgroundColor: ev.color || "#C9A84C" }}
+                        style={{ backgroundColor: ev.color || "#a68a2e" }}
                         title={ev.title}
                       >
                         {ev.title}
@@ -201,7 +202,7 @@ export default function ContentCalendar() {
                   <div className="flex items-start gap-2">
                     <span
                       className="w-3 h-3 rounded-full mt-0.5 shrink-0"
-                      style={{ backgroundColor: ev.color || "#C9A84C" }}
+                      style={{ backgroundColor: ev.color || "#a68a2e" }}
                     />
                     <div className="flex-1 min-w-0">
                       <h4

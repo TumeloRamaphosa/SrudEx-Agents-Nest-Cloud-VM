@@ -7,14 +7,14 @@ import {
 import { AlertTriangle, CheckCircle, CreditCard, TrendingUp, Users, ShoppingCart } from "lucide-react";
 
 // War Room colors
-const GOLD = "#C9A84C";
-const GOLD_DIM = "#9a8a5a";
+const GOLD = "#a68a2e";
+const GOLD_DIM = "#7a6e52";
 const GOLD_DARK = "#5a4f2e";
-const CREAM = "#f5ecd0";
+const CREAM = "#1a1710";
 const GREEN = "#6fa84f";
 const RED = "#c14e3c";
-const OBSIDIAN_2 = "#15140e";
-const OBSIDIAN_3 = "#1f1d15";
+const OBSIDIAN_2 = "#ffffff";
+const OBSIDIAN_3 = "#f2efe8";
 
 const MONTHLY_REVENUE = [
   { month: "Jan", revenue: 26283 },
@@ -108,7 +108,7 @@ function WRCard({ children, style, ...props }: React.HTMLAttributes<HTMLDivEleme
     <div
       style={{
         background: OBSIDIAN_2,
-        border: `1px solid rgba(201,168,76,0.25)`,
+        border: `1px solid rgba(166,138,46,0.18)`,
         ...style,
       }}
       {...props}
@@ -234,7 +234,7 @@ export default function Analytics() {
               {unfulfilled.orders.map((order, i) => (
                 <tr
                   key={order.order}
-                  style={{ borderBottom: "1px solid rgba(201,168,76,0.08)" }}
+                  style={{ borderBottom: "1px solid rgba(166,138,46,0.08)" }}
                   data-testid={`row-unfulfilled-${i}`}
                 >
                   <td style={{ padding: "10px 24px", fontFamily: "'Menlo', monospace", fontSize: "11px", color: GOLD, letterSpacing: "1px" }}>
@@ -330,7 +330,7 @@ export default function Analytics() {
 
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={MONTHLY_REVENUE} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(201,168,76,0.1)" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(166,138,46,0.10)" vertical={false} />
             <XAxis
               dataKey="month"
               tick={{ fontSize: 10, fill: GOLD_DIM, fontFamily: "'Menlo', monospace", letterSpacing: "2px" }}
@@ -348,7 +348,7 @@ export default function Analytics() {
               {MONTHLY_REVENUE.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={entry.revenue === bestMonth.revenue ? GOLD : "rgba(201,168,76,0.2)"}
+                  fill={entry.revenue === bestMonth.revenue ? GOLD : "rgba(166,138,46,0.15)"}
                 />
               ))}
             </Bar>
@@ -358,7 +358,7 @@ export default function Analytics() {
 
       {/* ── Top Posts ── */}
       <WRCard style={{ overflow: "hidden" }}>
-        <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(201,168,76,0.15)" }}>
+        <div style={{ padding: "20px 24px", borderBottom: "1px solid rgba(166,138,46,0.12)" }}>
           <p style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: "italic", fontSize: "22px", color: CREAM, marginBottom: "4px" }}>
             Top Instagram Posts
           </p>
@@ -367,7 +367,7 @@ export default function Analytics() {
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ background: "rgba(0,0,0,0.3)", borderBottom: "1px solid rgba(201,168,76,0.15)" }}>
+              <tr style={{ background: "rgba(0,0,0,0.3)", borderBottom: "1px solid rgba(166,138,46,0.12)" }}>
                 {["Post", "Campaign", "Likes", "Comments", "Reach", "Platform"].map((h) => (
                   <th
                     key={h}
@@ -393,7 +393,7 @@ export default function Analytics() {
                 <tr
                   key={post.id}
                   style={{
-                    borderBottom: "1px solid rgba(201,168,76,0.08)",
+                    borderBottom: "1px solid rgba(166,138,46,0.08)",
                     background: i === 0 ? "rgba(201,168,76,0.04)" : "transparent",
                   }}
                   data-testid={`row-post-${post.id}`}
@@ -446,14 +446,14 @@ export default function Analytics() {
             </div>
             <p style={{ fontFamily: "'Helvetica Neue', sans-serif", fontSize: "11px", color: GOLD_DIM, marginTop: "4px" }}>Father's Day Tomahawk</p>
           </div>
-          <div style={{ background: "rgba(0,0,0,0.2)", border: `1px solid rgba(201,168,76,0.15)`, padding: "14px 18px" }}>
+          <div style={{ background: "rgba(0,0,0,0.2)", border: `1px solid rgba(166,138,46,0.12)`, padding: "14px 18px" }}>
             <WRLabel>Daily Budget</WRLabel>
             <p style={{ fontFamily: "'Menlo', monospace", fontSize: "20px", fontWeight: 700, color: CREAM, marginTop: "8px" }}>
               {isPrivate ? "•••••" : "R100"}
             </p>
             <p style={{ fontSize: "10px", color: GOLD_DIM, marginTop: "2px" }}>per day</p>
           </div>
-          <div style={{ background: "rgba(0,0,0,0.2)", border: `1px solid rgba(201,168,76,0.15)`, padding: "14px 18px" }}>
+          <div style={{ background: "rgba(0,0,0,0.2)", border: `1px solid rgba(166,138,46,0.12)`, padding: "14px 18px" }}>
             <WRLabel>Payment</WRLabel>
             <div className="flex items-center gap-2 mt-2">
               <CreditCard className="w-4 h-4" style={{ color: GOLD_DIM }} />
