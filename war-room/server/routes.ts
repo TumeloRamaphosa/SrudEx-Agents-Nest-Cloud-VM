@@ -18,7 +18,8 @@ export async function registerRoutes(
     try {
       const items = storage.getAllContent();
       res.json(items);
-    } catch (err) {
+    } catch (err: any) {
+      console.error("[routes] GET /api/content error:", err);
       res.status(500).json({ error: "Failed to fetch content" });
     }
   });
@@ -31,8 +32,10 @@ export async function registerRoutes(
       if (!status) return res.status(400).json({ error: "status is required" });
       storage.updateContentStatus(id, status, note);
       const updated = storage.getContentById(id);
+      if (!updated) return res.status(404).json({ error: `Content item ${id} not found` });
       res.json(updated);
-    } catch (err) {
+    } catch (err: any) {
+      console.error(`[routes] PATCH /api/content/${req.params.id}/status error:`, err);
       res.status(500).json({ error: "Failed to update status" });
     }
   });
@@ -43,8 +46,10 @@ export async function registerRoutes(
       const id = parseInt(req.params.id);
       storage.markPosted(id, null, null);
       const updated = storage.getContentById(id);
+      if (!updated) return res.status(404).json({ error: `Content item ${id} not found` });
       res.json({ success: true, message: "Queued for posting", item: updated });
-    } catch (err) {
+    } catch (err: any) {
+      console.error(`[routes] POST /api/content/${req.params.id}/post error:`, err);
       res.status(500).json({ error: "Failed to post content" });
     }
   });
@@ -54,7 +59,8 @@ export async function registerRoutes(
     try {
       const events = storage.getAllEvents();
       res.json(events);
-    } catch (err) {
+    } catch (err: any) {
+      console.error("[routes] GET /api/calendar error:", err);
       res.status(500).json({ error: "Failed to fetch calendar" });
     }
   });
@@ -231,7 +237,7 @@ Write ONLY the caption. No intro, no explanation.`;
     const keySecret = process.env.HIGGSFIELD_KEY_SECRET;
 
     if (!keyId || !keySecret) {
-      return res.json({ error: "HIGGSFIELD_KEY_MISSING" });
+      return res.status(503).json({ error: "Higgsfield API keys are not configured" });
     }
 
     const headers = {
@@ -399,7 +405,10 @@ Write ONLY the caption. No intro, no explanation.`;
                 },
               }
             );
-            if (!r.ok) return;
+            if (!r.ok) {
+              console.error(`[routes] AgentMail inbox ${email} returned ${r.status}`);
+              return;
+            }
             const data = await r.json();
             const threads = data?.threads || data?.items || data || [];
             if (Array.isArray(threads)) {
@@ -418,8 +427,8 @@ Write ONLY the caption. No intro, no explanation.`;
                 });
               });
             }
-          } catch {
-            // skip failed inbox
+          } catch (inboxErr: any) {
+            console.error(`[routes] AgentMail inbox ${email} fetch failed:`, inboxErr.message);
           }
         })
       );

@@ -160,12 +160,19 @@ async function handleCommand(message, args) {
     case 'deal': {
       if (!body) return message.reply('Usage: `@ADAM deal [deal name]`\nExample: `@ADAM deal NTechLab × Anglo American FindFace pilot`');
       try {
-        await fetch(`${WAR_ROOM_URL}/api/deals`, {
+        const r = await fetch(`${WAR_ROOM_URL}/api/deals`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: body, created_by: message.author.username, discord_id: message.author.id }),
         });
-      } catch (_) {}
+        if (!r.ok) {
+          console.error(`[ADAM] deal: War Room returned ${r.status}`);
+          return message.reply(`Failed to log deal — War Room returned ${r.status}. Try again later.`);
+        }
+      } catch (e) {
+        console.error('[ADAM] deal: fetch failed:', e.message);
+        return message.reply(`Failed to log deal — War Room unreachable: ${e.message}`);
+      }
       return message.reply(`Deal logged: **${body}**\n\nAdded to pipeline as LEAD.\nView in War Room: ${WAR_ROOM_URL}/deals`);
     }
 
@@ -173,12 +180,19 @@ async function handleCommand(message, args) {
     case 'meeting': {
       if (!body) return message.reply('Usage: `@ADAM meeting [title]`\nExample: `@ADAM meeting NTechLab Q3 strategy review`');
       try {
-        await fetch(`${WAR_ROOM_URL}/api/meetings`, {
+        const r = await fetch(`${WAR_ROOM_URL}/api/meetings`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ title: body, created_by: message.author.username, status: 'scheduled' }),
         });
-      } catch (_) {}
+        if (!r.ok) {
+          console.error(`[ADAM] meeting: War Room returned ${r.status}`);
+          return message.reply(`Failed to schedule meeting — War Room returned ${r.status}. Try again later.`);
+        }
+      } catch (e) {
+        console.error('[ADAM] meeting: fetch failed:', e.message);
+        return message.reply(`Failed to schedule meeting — War Room unreachable: ${e.message}`);
+      }
       return message.reply(`Meeting scheduled: **${body}**\n\n5-agent boardroom will be notified.\nWar Room: ${WAR_ROOM_URL}/meetings`);
     }
 
@@ -277,12 +291,19 @@ async function handleCommand(message, args) {
     case 'trade': {
       if (!body) return message.reply('Usage: `@ADAM trade [idea]`\nExample: `@ADAM trade Long USD/ZAR targeting 18.80`');
       try {
-        await fetch(`${WAR_ROOM_URL}/api/trades`, {
+        const r = await fetch(`${WAR_ROOM_URL}/api/trades`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ idea: body, trader: message.author.username, usdzar: 18.42 }),
         });
-      } catch (_) {}
+        if (!r.ok) {
+          console.error(`[ADAM] trade: War Room returned ${r.status}`);
+          return message.reply(`Failed to log trade — War Room returned ${r.status}. Try again later.`);
+        }
+      } catch (e) {
+        console.error('[ADAM] trade: fetch failed:', e.message);
+        return message.reply(`Failed to log trade — War Room unreachable: ${e.message}`);
+      }
       return message.reply(`Trade idea logged: **${body}**\nUSD/ZAR context: 18.42\nWar Room: ${WAR_ROOM_URL}/trades`);
     }
 
