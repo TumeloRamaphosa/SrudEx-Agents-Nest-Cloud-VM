@@ -7,7 +7,7 @@ const TIERS = [
     subtitle: "Single Brand",
     price: "R8,500",
     period: "/mo",
-    color: "#C9A84C",
+    color: "#a68a2e",
     target: "Independent butcheries, small food brands",
     agents: 4,
     features: [
@@ -26,7 +26,7 @@ const TIERS = [
     subtitle: "Multi-Brand",
     price: "R18,500",
     period: "/mo",
-    color: "#4CFFA8",
+    color: "#2d8a3e",
     target: "Marketing agencies, multi-store operators",
     agents: 8,
     features: [
@@ -47,7 +47,7 @@ const TIERS = [
     subtitle: "Full Ecosystem",
     price: "R24,000",
     period: "/mo",
-    color: "#E6C766",
+    color: "#c4a330",
     target: "Enterprise, export platforms, B2B networks",
     agents: 11,
     features: [
@@ -66,17 +66,17 @@ const TIERS = [
 ];
 
 const METRICS = [
-  { label: "Target MRR @ 20 clients", value: "R240K", period: "12-month projection", color: "#C9A84C" },
-  { label: "Avg. hours saved/client", value: "40h", period: "per month", color: "#4CFFA8" },
-  { label: "ROI vs. hiring staff", value: "6.2×", period: "cost efficiency", color: "#E6C766" },
-  { label: "Pilot clients", value: "0 → 3", period: "Q3 2026 target", color: "#9a8a5a" },
+  { label: "Target MRR @ 20 clients", value: "R240K", period: "12-month projection", color: "#a68a2e" },
+  { label: "Avg. hours saved/client", value: "40h", period: "per month", color: "#2d8a3e" },
+  { label: "ROI vs. hiring staff", value: "6.2×", period: "cost efficiency", color: "#c4a330" },
+  { label: "Pilot clients", value: "0 → 3", period: "Q3 2026 target", color: "#7a6e52" },
 ];
 
 const PIPELINE = [
-  { stage: "Lead", count: 0, color: "#9a8a5a" },
-  { stage: "Demo", count: 0, color: "#C9A84C" },
-  { stage: "Trial", count: 0, color: "#4CFFA8" },
-  { stage: "Signed", count: 0, color: "#E6C766" },
+  { stage: "Lead", count: 0, color: "#7a6e52" },
+  { stage: "Demo", count: 0, color: "#a68a2e" },
+  { stage: "Trial", count: 0, color: "#2d8a3e" },
+  { stage: "Signed", count: 0, color: "#c4a330" },
 ];
 
 const ROADMAP = [
@@ -94,8 +94,8 @@ export default function SuperAgents() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <Cpu className="w-4 h-4" style={{ color: "#C9A84C" }} />
-          <span style={{ fontSize: "9px", letterSpacing: "5px", textTransform: "uppercase", color: "#9a8a5a", fontFamily: "'Helvetica Neue', sans-serif" }}>
+          <Cpu className="w-4 h-4" style={{ color: "#a68a2e" }} />
+          <span style={{ fontSize: "9px", letterSpacing: "5px", textTransform: "uppercase", color: "#7a6e52", fontFamily: "'Helvetica Neue', sans-serif" }}>
             SUPER AGENTS — SAAS PLATFORM
           </span>
         </div>
@@ -104,13 +104,13 @@ export default function SuperAgents() {
             fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontSize: "28px",
             fontWeight: 300,
-            color: "#f5ecd0",
+            color: "#1a1710",
             lineHeight: 1.15,
           }}
         >
           AI Operating Systems for Premium Brands
         </h2>
-        <p style={{ fontSize: "11px", color: "#9a8a5a", marginTop: "4px" }}>
+        <p style={{ fontSize: "11px", color: "#7a6e52", marginTop: "4px" }}>
           White-label the StudEx War Room — sell autonomous agent infrastructure to food brands, retailers, and agencies.
         </p>
       </div>
@@ -121,14 +121,14 @@ export default function SuperAgents() {
           <div
             key={m.label}
             style={{
-              background: "rgba(201,168,76,0.04)",
-              border: "1px solid rgba(201,168,76,0.1)",
+              background: "rgba(166,138,46,0.04)",
+              border: "1px solid rgba(166,138,46,0.10)",
               padding: "14px",
             }}
           >
-            <p style={{ fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#9a8a5a", marginBottom: "6px" }}>{m.label}</p>
+            <p style={{ fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#7a6e52", marginBottom: "6px" }}>{m.label}</p>
             <p style={{ fontSize: "24px", fontFamily: "Menlo, monospace", color: m.color, fontWeight: 700 }}>{m.value}</p>
-            <p style={{ fontSize: "9px", color: "#9a8a5a", marginTop: "2px" }}>{m.period}</p>
+            <p style={{ fontSize: "9px", color: "#7a6e52", marginTop: "2px" }}>{m.period}</p>
           </div>
         ))}
       </div>
@@ -149,9 +149,9 @@ export default function SuperAgents() {
               textTransform: "uppercase",
               fontFamily: "'Helvetica Neue', sans-serif",
               padding: "6px 14px",
-              background: view === v.id ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.04)",
-              border: `1px solid ${view === v.id ? "rgba(201,168,76,0.5)" : "rgba(201,168,76,0.1)"}`,
-              color: view === v.id ? "#C9A84C" : "#9a8a5a",
+              background: view === v.id ? "rgba(166,138,46,0.12)" : "rgba(255,255,255,0.04)",
+              border: `1px solid ${view === v.id ? "rgba(166,138,46,0.30)" : "rgba(166,138,46,0.10)"}`,
+              color: view === v.id ? "#a68a2e" : "#7a6e52",
               cursor: "pointer",
             }}
           >
@@ -168,7 +168,7 @@ export default function SuperAgents() {
               key={tier.name}
               style={{
                 background: tier.highlight ? "rgba(76,255,168,0.05)" : "rgba(201,168,76,0.03)",
-                border: `1px solid ${tier.highlight ? "rgba(76,255,168,0.25)" : "rgba(201,168,76,0.12)"}`,
+                border: `1px solid ${tier.highlight ? "rgba(76,255,168,0.25)" : "rgba(166,138,46,0.10)"}`,
                 padding: "20px",
                 position: "relative",
               }}
@@ -180,8 +180,8 @@ export default function SuperAgents() {
                     top: "-1px",
                     left: "50%",
                     transform: "translateX(-50%)",
-                    background: "#4CFFA8",
-                    color: "#0a0a0c",
+                    background: "#2d8a3e",
+                    color: "#ffffff",
                     fontSize: "7px",
                     letterSpacing: "2px",
                     textTransform: "uppercase",
@@ -194,25 +194,25 @@ export default function SuperAgents() {
               )}
               <div className="mb-4 mt-2">
                 <p style={{ fontSize: "10px", letterSpacing: "3px", textTransform: "uppercase", color: tier.color, marginBottom: "2px" }}>{tier.subtitle}</p>
-                <p style={{ fontSize: "20px", fontWeight: 700, color: "#f5ecd0" }}>{tier.name}</p>
-                <p style={{ fontSize: "10px", color: "#9a8a5a", marginTop: "4px" }}>{tier.target}</p>
+                <p style={{ fontSize: "20px", fontWeight: 700, color: "#1a1710" }}>{tier.name}</p>
+                <p style={{ fontSize: "10px", color: "#7a6e52", marginTop: "4px" }}>{tier.target}</p>
               </div>
 
               <div className="flex items-end gap-1 mb-4">
                 <span style={{ fontSize: "32px", fontFamily: "Menlo, monospace", color: tier.color, fontWeight: 700 }}>{tier.price}</span>
-                <span style={{ fontSize: "11px", color: "#9a8a5a", paddingBottom: "6px" }}>{tier.period}</span>
+                <span style={{ fontSize: "11px", color: "#7a6e52", paddingBottom: "6px" }}>{tier.period}</span>
               </div>
 
               <div className="flex items-center gap-2 mb-4">
                 <Cpu className="w-3 h-3" style={{ color: tier.color }} />
-                <span style={{ fontSize: "10px", color: "#9a8a5a" }}>{tier.agents} AI Agents included</span>
+                <span style={{ fontSize: "10px", color: "#7a6e52" }}>{tier.agents} AI Agents included</span>
               </div>
 
               <div className="space-y-2">
                 {tier.features.map((f) => (
                   <div key={f} className="flex items-center gap-2">
                     <CheckCircle className="w-3 h-3 shrink-0" style={{ color: tier.color }} />
-                    <span style={{ fontSize: "11px", color: "#9a8a5a" }}>{f}</span>
+                    <span style={{ fontSize: "11px", color: "#7a6e52" }}>{f}</span>
                   </div>
                 ))}
               </div>
@@ -229,34 +229,34 @@ export default function SuperAgents() {
               <div key={stage.stage} className="flex items-center gap-3">
                 <div
                   style={{
-                    background: "rgba(10,10,12,0.9)",
+                    background: "rgba(255,255,255,0.95)",
                     border: `1px solid ${stage.color}30`,
                     padding: "16px 20px",
                     minWidth: "120px",
                     textAlign: "center",
                   }}
                 >
-                  <p style={{ fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#9a8a5a", marginBottom: "6px" }}>{stage.stage}</p>
+                  <p style={{ fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#7a6e52", marginBottom: "6px" }}>{stage.stage}</p>
                   <p style={{ fontSize: "28px", fontFamily: "Menlo, monospace", color: stage.color, fontWeight: 700 }}>{stage.count}</p>
                 </div>
                 {i < PIPELINE.length - 1 && (
-                  <ArrowRight className="w-4 h-4" style={{ color: "rgba(201,168,76,0.3)" }} />
+                  <ArrowRight className="w-4 h-4" style={{ color: "rgba(166,138,46,0.20)" }} />
                 )}
               </div>
             ))}
           </div>
           <div
             style={{
-              background: "rgba(201,168,76,0.04)",
-              border: "1px solid rgba(201,168,76,0.1)",
+              background: "rgba(166,138,46,0.04)",
+              border: "1px solid rgba(166,138,46,0.10)",
               padding: "16px",
               marginTop: "16px",
             }}
           >
-            <p style={{ fontSize: "11px", color: "#9a8a5a", fontStyle: "italic", fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "15px" }}>
+            <p style={{ fontSize: "11px", color: "#7a6e52", fontStyle: "italic", fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "15px" }}>
               Pipeline is empty — StudEx is the first client. Phase 2 targets 3 pilot brands in Q3 2026.
             </p>
-            <p style={{ fontSize: "10px", color: "#9a8a5a", marginTop: "8px" }}>
+            <p style={{ fontSize: "10px", color: "#7a6e52", marginTop: "8px" }}>
               Target sectors: premium butcheries, specialty food brands, SA farming operations, AfricaBiz network members.
             </p>
           </div>
@@ -270,32 +270,32 @@ export default function SuperAgents() {
             <div
               key={phase.phase}
               style={{
-                background: phase.status === "live" ? "rgba(76,255,168,0.04)" : "rgba(201,168,76,0.02)",
-                border: `1px solid ${phase.status === "live" ? "rgba(76,255,168,0.2)" : phase.status === "building" ? "rgba(201,168,76,0.2)" : "rgba(201,168,76,0.08)"}`,
+                background: phase.status === "live" ? "rgba(45,138,62,0.06)" : "rgba(201,168,76,0.02)",
+                border: `1px solid ${phase.status === "live" ? "rgba(45,138,62,0.15)" : phase.status === "building" ? "rgba(166,138,46,0.15)" : "rgba(166,138,46,0.08)"}`,
                 padding: "16px",
               }}
             >
               <div className="flex items-center justify-between mb-3">
-                <span style={{ fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#9a8a5a" }}>{phase.phase}</span>
+                <span style={{ fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#7a6e52" }}>{phase.phase}</span>
                 <span
                   style={{
                     fontSize: "8px",
                     letterSpacing: "1px",
                     textTransform: "uppercase",
-                    color: phase.status === "live" ? "#4CFFA8" : phase.status === "building" ? "#C9A84C" : "#9a8a5a",
-                    border: `1px solid ${phase.status === "live" ? "rgba(76,255,168,0.3)" : phase.status === "building" ? "rgba(201,168,76,0.3)" : "rgba(154,138,90,0.2)"}`,
+                    color: phase.status === "live" ? "#2d8a3e" : phase.status === "building" ? "#a68a2e" : "#7a6e52",
+                    border: `1px solid ${phase.status === "live" ? "rgba(45,138,62,0.20)" : phase.status === "building" ? "rgba(166,138,46,0.20)" : "rgba(154,138,90,0.2)"}`,
                     padding: "2px 6px",
                   }}
                 >
                   {phase.status}
                 </span>
               </div>
-              <p style={{ fontSize: "14px", fontWeight: 600, color: "#f5ecd0", marginBottom: "2px" }}>{phase.label}</p>
-              <p style={{ fontSize: "10px", color: "#C9A84C", marginBottom: "10px" }}>{phase.date}</p>
+              <p style={{ fontSize: "14px", fontWeight: 600, color: "#1a1710", marginBottom: "2px" }}>{phase.label}</p>
+              <p style={{ fontSize: "10px", color: "#a68a2e", marginBottom: "10px" }}>{phase.date}</p>
               {phase.items.map((item) => (
                 <div key={item} className="flex items-center gap-2 mb-1.5">
-                  <div style={{ width: "3px", height: "3px", borderRadius: "50%", background: phase.status === "live" ? "#4CFFA8" : "#C9A84C", flexShrink: 0 }} />
-                  <span style={{ fontSize: "10px", color: "#9a8a5a" }}>{item}</span>
+                  <div style={{ width: "3px", height: "3px", borderRadius: "50%", background: phase.status === "live" ? "#2d8a3e" : "#a68a2e", flexShrink: 0 }} />
+                  <span style={{ fontSize: "10px", color: "#7a6e52" }}>{item}</span>
                 </div>
               ))}
             </div>

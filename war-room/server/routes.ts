@@ -8,6 +8,26 @@ function getOpenAI() {
   return new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "no-key" });
 }
 
+/** Deduct credits from a client. Returns null on success or an error message. */
+function deductCredits(clientId: number | undefined, amount: number, description: string): string | null {
+  if (!clientId) return null; // no client context = free usage (backwards compat)
+  const client = storage.getClientById(clientId);
+  if (!client) return "Client not found";
+  if (client.aiCredits < amount) return `Insufficient credits (have ${client.aiCredits}, need ${amount})`;
+  const newBalance = client.aiCredits - amount;
+  storage.updateClientCredits(clientId, newBalance);
+  storage.addTransaction({
+    clientId,
+    amount: -amount,
+    type: "usage",
+    description,
+    balanceAfter: newBalance,
+    paymentRef: null,
+    createdAt: new Date().toISOString(),
+  });
+  return null;
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
@@ -95,15 +115,19 @@ export async function registerRoutes(
     });
   });
 
-  // POST generate caption
+  // POST generate caption (costs 5 credits)
   app.post("/api/generate/caption", async (req, res) => {
     try {
-      const { title, caption, campaign, tone } = req.body as {
+      const { title, caption, campaign, tone, clientId } = req.body as {
         title: string;
         caption?: string;
         campaign?: string;
         tone: string;
+        clientId?: number;
       };
+
+      const creditError = deductCredits(clientId, 5, "GPT-4o caption generation");
+      if (creditError) return res.status(402).json({ error: creditError });
 
       const toneInstructions: Record<string, string> = {
         Premium: "sophisticated, refined, luxury brand voice — think high-end editorial",
@@ -225,7 +249,11 @@ Write ONLY the caption. No intro, no explanation.`;
   // ── Higgsfield Generation Route ──
   // ── Higgsfield Generation Route ──
   app.post("/api/higgsfield/generate", async (req, res) => {
-    const { prompt, aspect = "1024x1024", mode = "image" } = req.body;
+    const { prompt, aspect = "1024x1024", mode = "image", clientId } = req.body;
+
+    const creditCost = mode === "video" ? 25 : 10;
+    const creditError = deductCredits(clientId, creditCost, `Higgsfield ${mode} generation`);
+    if (creditError) return res.status(402).json({ error: creditError });
 
     const keyId = process.env.HIGGSFIELD_KEY_ID;
     const keySecret = process.env.HIGGSFIELD_KEY_SECRET;
@@ -443,18 +471,25 @@ Write ONLY the caption. No intro, no explanation.`;
     res.json([]);
   });
 
-  // ── AI Chat Streaming Route ──
+  // ── AI Chat Streaming Route (costs 2-4 credits depending on model) ──
   app.post("/api/chat/stream", async (req, res) => {
-    const { prompt, systemPrompt, model, agentId } = req.body as {
+    const { prompt, systemPrompt, model, agentId, clientId } = req.body as {
       prompt: string;
       systemPrompt: string;
       model: string;
       agentId: string;
+      clientId?: number;
     };
 
     if (!prompt) {
       return res.status(400).json({ error: "prompt is required" });
     }
+
+    const chatCosts: Record<string, number> = {
+      "gpt-4o": 3, "claude-sonnet-4-5": 4, "gemini-2.0-flash": 2, "perplexity": 2,
+    };
+    const chatCreditError = deductCredits(clientId, chatCosts[model] || 3, `AI Chat: ${model}`);
+    if (chatCreditError) return res.status(402).json({ error: chatCreditError });
 
     // Route to appropriate model based on selection
     const modelMap: Record<string, { provider: string; model: string }> = {
@@ -499,6 +534,195 @@ Write ONLY the caption. No intro, no explanation.`;
         res.write(`data: ${JSON.stringify({ text: `\n\n⚠️ Error: ${err.message}` })}\n\n`);
         res.end();
       }
+    }
+  });
+
+  // ── AI Credits API ──────────────────────────────────────────────────
+
+  const TIER_ALLOCATIONS: Record<string, number> = {
+    "meat-os": 500,
+    "agency-os": 2000,
+    "marketplace-os": 5000,
+  };
+
+  const CREDIT_COSTS: Record<string, number> = {
+    "gpt-4o-caption": 5,
+    "higgsfield-image": 10,
+    "higgsfield-video": 25,
+    "chat-gpt4o": 3,
+    "chat-claude": 4,
+    "chat-gemini": 2,
+    "chat-perplexity": 2,
+  };
+
+  // GET all clients
+  app.get("/api/clients", (_req, res) => {
+    try {
+      res.json(storage.getAllClients());
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // POST create client
+  app.post("/api/clients", (req, res) => {
+    try {
+      const { name, email, tier } = req.body as { name: string; email: string; tier: string };
+      if (!name || !email || !tier) return res.status(400).json({ error: "name, email, tier required" });
+      const allocation = TIER_ALLOCATIONS[tier] || 0;
+      const client = storage.createClient({
+        name,
+        email,
+        tier,
+        aiCredits: allocation,
+        monthlyAllocation: allocation,
+        createdAt: new Date().toISOString(),
+      });
+      if (allocation > 0) {
+        storage.addTransaction({
+          clientId: client.id,
+          amount: allocation,
+          type: "monthly",
+          description: `Initial ${tier} monthly allocation`,
+          balanceAfter: allocation,
+          paymentRef: null,
+          createdAt: new Date().toISOString(),
+        });
+      }
+      res.json(client);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET client credits + recent transactions
+  app.get("/api/clients/:id/credits", (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const client = storage.getClientById(id);
+      if (!client) return res.status(404).json({ error: "Client not found" });
+      const transactions = storage.getTransactions(id);
+      res.json({
+        clientId: client.id,
+        name: client.name,
+        tier: client.tier,
+        balance: client.aiCredits,
+        monthlyAllocation: client.monthlyAllocation,
+        transactions: transactions.slice(0, 50),
+      });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // POST purchase credits (manual or from PayFast webhook)
+  app.post("/api/clients/:id/credits/purchase", (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { amount, paymentRef, description } = req.body as {
+        amount: number; paymentRef?: string; description?: string;
+      };
+      if (!amount || amount <= 0) return res.status(400).json({ error: "amount must be positive" });
+      const client = storage.getClientById(id);
+      if (!client) return res.status(404).json({ error: "Client not found" });
+      const newBalance = client.aiCredits + amount;
+      storage.updateClientCredits(id, newBalance);
+      const tx = storage.addTransaction({
+        clientId: id,
+        amount,
+        type: "purchase",
+        description: description || `Purchased ${amount} credits`,
+        balanceAfter: newBalance,
+        paymentRef: paymentRef || null,
+        createdAt: new Date().toISOString(),
+      });
+      res.json({ balance: newBalance, transaction: tx });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // POST deduct credits (called by AI generation endpoints)
+  app.post("/api/clients/:id/credits/deduct", (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { amount, usageType, description } = req.body as {
+        amount: number; usageType?: string; description?: string;
+      };
+      if (!amount || amount <= 0) return res.status(400).json({ error: "amount must be positive" });
+      const client = storage.getClientById(id);
+      if (!client) return res.status(404).json({ error: "Client not found" });
+      if (client.aiCredits < amount) {
+        return res.status(402).json({
+          error: "Insufficient credits",
+          balance: client.aiCredits,
+          required: amount,
+        });
+      }
+      const newBalance = client.aiCredits - amount;
+      storage.updateClientCredits(id, newBalance);
+      const tx = storage.addTransaction({
+        clientId: id,
+        amount: -amount,
+        type: "usage",
+        description: description || usageType || `AI usage: -${amount} credits`,
+        balanceAfter: newBalance,
+        paymentRef: null,
+        createdAt: new Date().toISOString(),
+      });
+      res.json({ balance: newBalance, transaction: tx });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // GET credit costs reference
+  app.get("/api/credits/costs", (_req, res) => {
+    res.json(CREDIT_COSTS);
+  });
+
+  // POST PayFast ITN (Instant Transaction Notification) webhook
+  app.post("/api/webhooks/payfast", (req, res) => {
+    try {
+      const {
+        m_payment_id,
+        pf_payment_id,
+        payment_status,
+        amount_gross,
+        email_address,
+        custom_str1, // client ID
+        custom_str2, // credit amount to add
+      } = req.body as Record<string, string>;
+
+      if (payment_status !== "COMPLETE") {
+        return res.status(200).send("OK");
+      }
+
+      const clientId = parseInt(custom_str1);
+      const creditAmount = parseInt(custom_str2) || Math.floor(parseFloat(amount_gross));
+
+      if (!clientId || !creditAmount) {
+        return res.status(400).json({ error: "Missing client or credit info" });
+      }
+
+      const client = storage.getClientById(clientId);
+      if (!client) return res.status(404).json({ error: "Client not found" });
+
+      const newBalance = client.aiCredits + creditAmount;
+      storage.updateClientCredits(clientId, newBalance);
+      storage.addTransaction({
+        clientId,
+        amount: creditAmount,
+        type: "purchase",
+        description: `PayFast payment R${amount_gross} (ref: ${pf_payment_id})`,
+        balanceAfter: newBalance,
+        paymentRef: m_payment_id || pf_payment_id,
+        createdAt: new Date().toISOString(),
+      });
+
+      res.status(200).send("OK");
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
     }
   });
 

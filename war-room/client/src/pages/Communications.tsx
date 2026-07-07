@@ -49,7 +49,7 @@ function PlatformDot({ platform }: { platform: "discord" | "slack" }) {
         width: "8px",
         height: "8px",
         borderRadius: "50%",
-        background: isDiscord ? "#5865F2" : "#4CFFA8",
+        background: isDiscord ? "#5865F2" : "#2d8a3e",
         display: "inline-block",
         flexShrink: 0,
         boxShadow: isDiscord
@@ -106,7 +106,7 @@ function MessageRow({ msg }: { msg: MockMessage }) {
           fontWeight: 700,
           letterSpacing: "2px",
           textTransform: "uppercase" as const,
-          color: "#C9A84C",
+          color: "#a68a2e",
           whiteSpace: "nowrap" as const,
           flexShrink: 0,
           minWidth: "70px",
@@ -120,7 +120,7 @@ function MessageRow({ msg }: { msg: MockMessage }) {
         style={{
           fontFamily: "'Cormorant Garamond', Georgia, serif",
           fontSize: "13px",
-          color: "#f5ecd0",
+          color: "#1a1710",
           flex: 1,
           lineHeight: 1.4,
         }}
@@ -220,15 +220,15 @@ function GmailWidget() {
             fontSize: "8px",
             letterSpacing: "2px",
             textTransform: "uppercase" as const,
-            color: "#C9A84C",
+            color: "#a68a2e",
             textDecoration: "none",
-            border: "1px solid rgba(201,168,76,0.2)",
+            border: "1px solid rgba(166,138,46,0.15)",
             padding: "2px 8px",
             borderRadius: "2px",
             transition: "background 0.15s ease",
           }}
           onMouseEnter={(e) => {
-            (e.currentTarget as HTMLAnchorElement).style.background = "rgba(201,168,76,0.08)";
+            (e.currentTarget as HTMLAnchorElement).style.background = "rgba(166,138,46,0.08)";
           }}
           onMouseLeave={(e) => {
             (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
@@ -242,7 +242,7 @@ function GmailWidget() {
       <div
         style={{
           background: "#0e0d10",
-          border: "1px solid rgba(201,168,76,0.12)",
+          border: "1px solid rgba(166,138,46,0.10)",
           borderTop: "2px solid #EA4335",
           padding: "12px 16px",
           marginBottom: "12px",
@@ -272,7 +272,7 @@ function GmailWidget() {
             style={{
               fontFamily: "'Menlo', monospace",
               fontSize: "11px",
-              color: "#f5ecd0",
+              color: "#1a1710",
               letterSpacing: "0.3px",
               marginBottom: "2px",
             }}
@@ -297,7 +297,7 @@ function GmailWidget() {
               width: "6px",
               height: "6px",
               borderRadius: "50%",
-              background: "#4CFFA8",
+              background: "#2d8a3e",
               display: "inline-block",
               boxShadow: "0 0 6px rgba(76,255,168,0.5)",
               animation: "dotPulse 1.8s ease-in-out infinite",
@@ -309,7 +309,7 @@ function GmailWidget() {
               fontSize: "8px",
               letterSpacing: "2px",
               textTransform: "uppercase" as const,
-              color: "#4CFFA8",
+              color: "#2d8a3e",
             }}
           >
             CONNECTED
@@ -321,7 +321,7 @@ function GmailWidget() {
       <div
         style={{
           background: "#0e0d10",
-          border: "1px solid rgba(201,168,76,0.12)",
+          border: "1px solid rgba(166,138,46,0.10)",
           maxHeight: "280px",
           overflowY: "auto" as const,
         }}
@@ -400,7 +400,7 @@ function GmailWidget() {
                   style={{
                     fontFamily: "'Menlo', monospace",
                     fontSize: "10px",
-                    color: msg.isRead ? "#7a6a4a" : "#f5ecd0",
+                    color: msg.isRead ? "#7a6a4a" : "#1a1710",
                     fontWeight: msg.isRead ? 400 : 600,
                   }}
                 >
@@ -414,7 +414,7 @@ function GmailWidget() {
                 style={{
                   fontFamily: "'Cormorant Garamond', Georgia, serif",
                   fontSize: "13px",
-                  color: msg.isRead ? "#7a6a4a" : "#f5ecd0",
+                  color: msg.isRead ? "#7a6a4a" : "#1a1710",
                   fontWeight: msg.isRead ? 400 : 600,
                   marginBottom: "2px",
                   overflow: "hidden",
@@ -447,8 +447,8 @@ function GmailWidget() {
         style={{
           marginTop: "12px",
           padding: "8px 12px",
-          background: "rgba(201,168,76,0.03)",
-          border: "1px solid rgba(201,168,76,0.1)",
+          background: "rgba(166,138,46,0.04)",
+          border: "1px solid rgba(166,138,46,0.10)",
           display: "flex",
           alignItems: "center",
           gap: "10px",
@@ -469,7 +469,7 @@ function GmailWidget() {
           style={{
             fontFamily: "'Menlo', monospace",
             fontSize: "11px",
-            color: "#C9A84C",
+            color: "#a68a2e",
           }}
         >
           info@studexmeat.com
@@ -482,7 +482,7 @@ function GmailWidget() {
             fontSize: "8px",
             letterSpacing: "2px",
             textTransform: "uppercase" as const,
-            color: "#9a8a5a",
+            color: "#7a6e52",
             textDecoration: "none",
           }}
         >
@@ -505,7 +505,7 @@ export default function Communications() {
             fontWeight: 700,
             letterSpacing: "8px",
             textTransform: "uppercase" as const,
-            color: "#C9A84C",
+            color: "#a68a2e",
             margin: 0,
             lineHeight: 1,
           }}
@@ -517,7 +517,7 @@ export default function Communications() {
             fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontStyle: "italic",
             fontSize: "12px",
-            color: "#9a8a5a",
+            color: "#7a6e52",
             marginTop: "6px",
             letterSpacing: "1px",
           }}
@@ -553,15 +553,15 @@ export default function Communications() {
             style={{
               background: "#1a1a10",
               padding: "24px",
-              border: "1px solid rgba(201,168,76,0.2)",
-              borderTop: "2px solid #4CFFA8",
+              border: "1px solid rgba(166,138,46,0.15)",
+              borderTop: "2px solid #2d8a3e",
               minHeight: "200px",
             }}
           >
             <p
               style={{
                 fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-                color: "#C9A84C",
+                color: "#a68a2e",
                 letterSpacing: "3px",
                 fontSize: "10px",
                 margin: "0 0 8px 0",
@@ -572,7 +572,7 @@ export default function Communications() {
             </p>
             <p
               style={{
-                color: "#9a8a5a",
+                color: "#7a6e52",
                 fontSize: "12px",
                 marginTop: "8px",
                 marginBottom: "0",
@@ -587,8 +587,8 @@ export default function Communications() {
                 display: "inline-block",
                 marginTop: "16px",
                 padding: "8px 16px",
-                border: "1px solid #C9A84C",
-                color: "#C9A84C",
+                border: "1px solid #a68a2e",
+                color: "#a68a2e",
                 fontSize: "10px",
                 letterSpacing: "2px",
                 textDecoration: "none",
@@ -598,7 +598,7 @@ export default function Communications() {
                 transition: "background 0.15s ease",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(201,168,76,0.1)";
+                (e.currentTarget as HTMLAnchorElement).style.background = "rgba(166,138,46,0.10)";
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
@@ -627,7 +627,7 @@ export default function Communications() {
             style={{
               background: "#1a1a10",
               padding: "24px",
-              border: "1px solid rgba(201,168,76,0.2)",
+              border: "1px solid rgba(166,138,46,0.15)",
               borderTop: "2px solid #5865F2",
               minHeight: "200px",
             }}
@@ -635,7 +635,7 @@ export default function Communications() {
             <p
               style={{
                 fontFamily: "var(--font-rajdhani, 'Rajdhani', sans-serif)",
-                color: "#C9A84C",
+                color: "#a68a2e",
                 letterSpacing: "3px",
                 fontSize: "10px",
                 margin: "0 0 8px 0",
@@ -646,7 +646,7 @@ export default function Communications() {
             </p>
             <p
               style={{
-                color: "#9a8a5a",
+                color: "#7a6e52",
                 fontSize: "12px",
                 marginTop: "8px",
                 marginBottom: "0",
@@ -689,8 +689,8 @@ export default function Communications() {
                 style={{
                   display: "inline-block",
                   padding: "8px 16px",
-                  border: "1px solid rgba(201,168,76,0.3)",
-                  color: "#9a8a5a",
+                  border: "1px solid rgba(166,138,46,0.20)",
+                  color: "#7a6e52",
                   fontSize: "10px",
                   letterSpacing: "2px",
                   textDecoration: "none",
@@ -715,7 +715,7 @@ export default function Communications() {
       <div
         style={{
           background: "#0e0d10",
-          border: "1px solid rgba(201,168,76,0.12)",
+          border: "1px solid rgba(166,138,46,0.10)",
           borderTop: "2px solid #9A6FFF",
           padding: "16px 20px",
           marginBottom: "32px",
@@ -734,8 +734,8 @@ export default function Communications() {
           </div>
         </div>
         {[
-          { label: "CTO LINE", value: "t.rama.studexgroup.cto@agentmail.to", color: "#C9A84C" },
-          { label: "B2B OUTREACH", value: "studexgroup@agentmail.to", color: "#4CFFA8" },
+          { label: "CTO LINE", value: "t.rama.studexgroup.cto@agentmail.to", color: "#a68a2e" },
+          { label: "B2B OUTREACH", value: "studexgroup@agentmail.to", color: "#2d8a3e" },
           { label: "DAILY BRIEFS", value: "studex-2571@agentmail.to → tumelor001@gmail.com", color: "#9A6FFF" },
         ].map((item) => (
           <div key={item.label}>
@@ -759,7 +759,7 @@ export default function Communications() {
               fontWeight: 700,
               letterSpacing: "4px",
               textTransform: "uppercase" as const,
-              color: "#9a8a5a",
+              color: "#7a6e52",
               margin: 0,
             }}
           >
@@ -794,7 +794,7 @@ export default function Communications() {
                   width: "6px",
                   height: "6px",
                   borderRadius: "50%",
-                  background: "#4CFFA8",
+                  background: "#2d8a3e",
                   display: "inline-block",
                 }}
               />
@@ -816,7 +816,7 @@ export default function Communications() {
         <div
           style={{
             background: "#0e0d10",
-            border: "1px solid rgba(201,168,76,0.12)",
+            border: "1px solid rgba(166,138,46,0.10)",
             maxHeight: "400px",
             overflowY: "auto" as const,
           }}
@@ -828,8 +828,8 @@ export default function Communications() {
               gridTemplateColumns: "20px 90px 70px 1fr 40px",
               gap: "12px",
               padding: "8px 16px",
-              borderBottom: "1px solid rgba(201,168,76,0.1)",
-              background: "rgba(201,168,76,0.03)",
+              borderBottom: "1px solid rgba(166,138,46,0.10)",
+              background: "rgba(166,138,46,0.04)",
             }}
           >
             {["", "CHANNEL", "USER", "MESSAGE", "TIME"].map((col, i) => (

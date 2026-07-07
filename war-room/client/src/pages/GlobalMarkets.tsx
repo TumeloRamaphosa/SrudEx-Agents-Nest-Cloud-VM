@@ -10,10 +10,10 @@ const PARTNERS = [
 ];
 
 const MARKETS = [
-  { region: "South Africa", flag: "🇿🇦", status: "PRIMARY", revenue: "R2.4M", growth: "+34%", color: "#C9A84C" },
-  { region: "Russia", flag: "🇷🇺", status: "EXPANDING", revenue: "R890K", growth: "+112%", color: "#4CFFA8" },
-  { region: "UAE / Dubai", flag: "🇦🇪", status: "PIPELINE", revenue: "—", growth: "Q3 2026", color: "#9a8a5a" },
-  { region: "Europe", flag: "🇪🇺", status: "PIPELINE", revenue: "—", growth: "Q4 2026", color: "#9a8a5a" },
+  { region: "South Africa", flag: "🇿🇦", status: "PRIMARY", revenue: "R2.4M", growth: "+34%", color: "#a68a2e" },
+  { region: "Russia", flag: "🇷🇺", status: "EXPANDING", revenue: "R890K", growth: "+112%", color: "#2d8a3e" },
+  { region: "UAE / Dubai", flag: "🇦🇪", status: "PIPELINE", revenue: "—", growth: "Q3 2026", color: "#7a6e52" },
+  { region: "Europe", flag: "🇪🇺", status: "PIPELINE", revenue: "—", growth: "Q4 2026", color: "#7a6e52" },
 ];
 
 const PRODUCTS = [
@@ -29,7 +29,7 @@ export default function GlobalMarkets() {
   return (
     <div
       className="relative min-h-screen rounded overflow-hidden"
-      style={{ background: "#0a0a0c" }}
+      style={{ background: "#faf8f4" }}
     >
       {/* === SISTINE CHAPEL BACKGROUND === */}
       <div
@@ -48,7 +48,7 @@ export default function GlobalMarkets() {
         className="absolute inset-0 z-0"
         style={{
           background:
-            "linear-gradient(180deg, rgba(201,168,76,0.08) 0%, rgba(10,10,12,0.6) 40%, rgba(10,10,12,0.95) 100%)",
+            "linear-gradient(180deg, rgba(166,138,46,0.08) 0%, rgba(10,10,12,0.6) 40%, rgba(10,10,12,0.95) 100%)",
         }}
       />
 
@@ -68,8 +68,8 @@ export default function GlobalMarkets() {
         {/* Hero Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <Globe className="w-5 h-5" style={{ color: "#C9A84C" }} />
-            <span style={{ fontSize: "9px", letterSpacing: "5px", textTransform: "uppercase", color: "#9a8a5a", fontFamily: "'Helvetica Neue', sans-serif" }}>
+            <Globe className="w-5 h-5" style={{ color: "#a68a2e" }} />
+            <span style={{ fontSize: "9px", letterSpacing: "5px", textTransform: "uppercase", color: "#7a6e52", fontFamily: "'Helvetica Neue', sans-serif" }}>
               STUDEX GLOBAL MARKETS — COMMAND CENTRE
             </span>
           </div>
@@ -78,15 +78,15 @@ export default function GlobalMarkets() {
               fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontSize: "clamp(28px, 4vw, 48px)",
               fontWeight: 300,
-              color: "#f5ecd0",
+              color: "#1a1710",
               lineHeight: 1.1,
               letterSpacing: "-0.5px",
             }}
           >
             Premium Meat.<br />
-            <span style={{ color: "#C9A84C", fontStyle: "italic" }}>Global Reach.</span>
+            <span style={{ color: "#a68a2e", fontStyle: "italic" }}>Global Reach.</span>
           </h1>
-          <p style={{ fontSize: "11px", color: "#9a8a5a", marginTop: "8px", letterSpacing: "1px" }}>
+          <p style={{ fontSize: "11px", color: "#7a6e52", marginTop: "8px", letterSpacing: "1px" }}>
             SA–Russia Trade Week · AfricaBiz Partnership · B2B Export Platform
           </p>
         </div>
@@ -108,9 +108,9 @@ export default function GlobalMarkets() {
                 textTransform: "uppercase",
                 fontFamily: "'Helvetica Neue', sans-serif",
                 padding: "6px 14px",
-                background: activeSection === s.id ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.04)",
-                border: `1px solid ${activeSection === s.id ? "rgba(201,168,76,0.5)" : "rgba(201,168,76,0.1)"}`,
-                color: activeSection === s.id ? "#C9A84C" : "#9a8a5a",
+                background: activeSection === s.id ? "rgba(166,138,46,0.12)" : "rgba(255,255,255,0.04)",
+                border: `1px solid ${activeSection === s.id ? "rgba(166,138,46,0.30)" : "rgba(166,138,46,0.10)"}`,
+                color: activeSection === s.id ? "#a68a2e" : "#7a6e52",
                 cursor: "pointer",
                 transition: "all 0.2s",
               }}
@@ -148,13 +148,13 @@ export default function GlobalMarkets() {
                     {m.status}
                   </span>
                 </div>
-                <p style={{ fontSize: "13px", fontWeight: 600, color: "#f5ecd0", marginBottom: "4px", fontFamily: "'Helvetica Neue', sans-serif" }}>
+                <p style={{ fontSize: "13px", fontWeight: 600, color: "#1a1710", marginBottom: "4px", fontFamily: "'Helvetica Neue', sans-serif" }}>
                   {m.region}
                 </p>
                 <p style={{ fontSize: "18px", fontFamily: "Menlo, monospace", color: m.color, fontWeight: 700 }}>
                   {m.revenue}
                 </p>
-                <p style={{ fontSize: "10px", color: "#9a8a5a", marginTop: "2px" }}>{m.growth}</p>
+                <p style={{ fontSize: "10px", color: "#7a6e52", marginTop: "2px" }}>{m.growth}</p>
               </div>
             ))}
 
@@ -173,18 +173,18 @@ export default function GlobalMarkets() {
                   <div
                     key={kpi.label}
                     style={{
-                      background: "rgba(201,168,76,0.05)",
-                      border: "1px solid rgba(201,168,76,0.12)",
+                      background: "rgba(166,138,46,0.06)",
+                      border: "1px solid rgba(166,138,46,0.10)",
                       padding: "14px",
                       backdropFilter: "blur(12px)",
                     }}
                   >
                     <div className="flex items-center gap-2 mb-2">
-                      <Icon className="w-3.5 h-3.5" style={{ color: "#C9A84C" }} />
-                      <span style={{ fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#9a8a5a" }}>{kpi.label}</span>
+                      <Icon className="w-3.5 h-3.5" style={{ color: "#a68a2e" }} />
+                      <span style={{ fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#7a6e52" }}>{kpi.label}</span>
                     </div>
-                    <p style={{ fontSize: "22px", fontFamily: "Menlo, monospace", color: "#C9A84C", fontWeight: 700 }}>{kpi.value}</p>
-                    <p style={{ fontSize: "9px", color: "#9a8a5a", marginTop: "2px" }}>{kpi.trend}</p>
+                    <p style={{ fontSize: "22px", fontFamily: "Menlo, monospace", color: "#a68a2e", fontWeight: 700 }}>{kpi.value}</p>
+                    <p style={{ fontSize: "9px", color: "#7a6e52", marginTop: "2px" }}>{kpi.trend}</p>
                   </div>
                 );
               })}
@@ -200,7 +200,7 @@ export default function GlobalMarkets() {
                 key={p.name}
                 style={{
                   background: "rgba(10,10,12,0.88)",
-                  border: `1px solid ${p.status === "active" ? "rgba(76,255,168,0.2)" : "rgba(201,168,76,0.1)"}`,
+                  border: `1px solid ${p.status === "active" ? "rgba(45,138,62,0.15)" : "rgba(166,138,46,0.10)"}`,
                   padding: "18px",
                   backdropFilter: "blur(12px)",
                 }}
@@ -213,19 +213,19 @@ export default function GlobalMarkets() {
                         fontSize: "9px",
                         letterSpacing: "2px",
                         textTransform: "uppercase",
-                        color: p.status === "active" ? "#4CFFA8" : "#9a8a5a",
-                        border: `1px solid ${p.status === "active" ? "rgba(76,255,168,0.3)" : "rgba(154,138,90,0.3)"}`,
+                        color: p.status === "active" ? "#2d8a3e" : "#7a6e52",
+                        border: `1px solid ${p.status === "active" ? "rgba(45,138,62,0.20)" : "rgba(154,138,90,0.3)"}`,
                         padding: "2px 6px",
                       }}
                     >
                       {p.status}
                     </span>
                   </div>
-                  <span style={{ fontSize: "9px", color: "#9a8a5a", textTransform: "uppercase", letterSpacing: "1px" }}>{p.country}</span>
+                  <span style={{ fontSize: "9px", color: "#7a6e52", textTransform: "uppercase", letterSpacing: "1px" }}>{p.country}</span>
                 </div>
-                <p style={{ fontSize: "15px", fontWeight: 600, color: "#f5ecd0", marginBottom: "4px" }}>{p.name}</p>
-                <p style={{ fontSize: "10px", color: "#C9A84C", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>{p.sector}</p>
-                <p style={{ fontSize: "11px", color: "#9a8a5a", lineHeight: 1.5 }}>{p.deal}</p>
+                <p style={{ fontSize: "15px", fontWeight: 600, color: "#1a1710", marginBottom: "4px" }}>{p.name}</p>
+                <p style={{ fontSize: "10px", color: "#a68a2e", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "1px" }}>{p.sector}</p>
+                <p style={{ fontSize: "11px", color: "#7a6e52", lineHeight: 1.5 }}>{p.deal}</p>
               </div>
             ))}
           </div>
@@ -236,9 +236,9 @@ export default function GlobalMarkets() {
           <div className="overflow-x-auto">
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
-                <tr style={{ borderBottom: "1px solid rgba(201,168,76,0.15)" }}>
+                <tr style={{ borderBottom: "1px solid rgba(166,138,46,0.12)" }}>
                   {["Product", "Grade", "Monthly Volume", "Target Markets", "Margin"].map((h) => (
-                    <th key={h} style={{ textAlign: "left", padding: "8px 12px", fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#9a8a5a" }}>{h}</th>
+                    <th key={h} style={{ textAlign: "left", padding: "8px 12px", fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#7a6e52" }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -251,11 +251,11 @@ export default function GlobalMarkets() {
                       background: i % 2 === 0 ? "rgba(201,168,76,0.02)" : "transparent",
                     }}
                   >
-                    <td style={{ padding: "12px", fontSize: "13px", color: "#f5ecd0", fontWeight: 500 }}>{p.name}</td>
-                    <td style={{ padding: "12px", fontSize: "11px", color: "#C9A84C" }}>{p.grade}</td>
-                    <td style={{ padding: "12px", fontSize: "12px", fontFamily: "Menlo, monospace", color: "#f5ecd0" }}>{p.volume}</td>
-                    <td style={{ padding: "12px", fontSize: "11px", color: "#9a8a5a" }}>{p.market}</td>
-                    <td style={{ padding: "12px", fontSize: "13px", fontFamily: "Menlo, monospace", color: "#4CFFA8", fontWeight: 700 }}>{p.margin}</td>
+                    <td style={{ padding: "12px", fontSize: "13px", color: "#1a1710", fontWeight: 500 }}>{p.name}</td>
+                    <td style={{ padding: "12px", fontSize: "11px", color: "#a68a2e" }}>{p.grade}</td>
+                    <td style={{ padding: "12px", fontSize: "12px", fontFamily: "Menlo, monospace", color: "#1a1710" }}>{p.volume}</td>
+                    <td style={{ padding: "12px", fontSize: "11px", color: "#7a6e52" }}>{p.market}</td>
+                    <td style={{ padding: "12px", fontSize: "13px", fontFamily: "Menlo, monospace", color: "#2d8a3e", fontWeight: 700 }}>{p.margin}</td>
                   </tr>
                 ))}
               </tbody>
@@ -275,7 +275,7 @@ export default function GlobalMarkets() {
                 volume: "3.2T/quarter",
                 products: "Wagyu, Ankole, Biltong",
                 events: ["SA–Russia Trade Week Jun 2026", "AfricaBiz Summit Q3"],
-                color: "#4CFFA8",
+                color: "#2d8a3e",
               },
               {
                 from: "🇿🇦 South Africa",
@@ -285,7 +285,7 @@ export default function GlobalMarkets() {
                 volume: "Est. 1.8T/quarter",
                 products: "VIP Wagyu Boxes, Tomahawk",
                 events: ["Target Q3 2026 launch", "Dubai Food Expo shortlist"],
-                color: "#9a8a5a",
+                color: "#7a6e52",
               },
             ].map((route) => (
               <div
@@ -315,23 +315,23 @@ export default function GlobalMarkets() {
                     {route.status}
                   </span>
                 </div>
-                <p style={{ fontSize: "14px", fontWeight: 600, color: "#f5ecd0", marginBottom: "8px" }}>{route.label}</p>
+                <p style={{ fontSize: "14px", fontWeight: 600, color: "#1a1710", marginBottom: "8px" }}>{route.label}</p>
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div>
-                    <p style={{ fontSize: "8px", color: "#9a8a5a", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "2px" }}>Volume</p>
+                    <p style={{ fontSize: "8px", color: "#7a6e52", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "2px" }}>Volume</p>
                     <p style={{ fontSize: "13px", fontFamily: "Menlo, monospace", color: route.color }}>{route.volume}</p>
                   </div>
                   <div>
-                    <p style={{ fontSize: "8px", color: "#9a8a5a", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "2px" }}>Products</p>
-                    <p style={{ fontSize: "11px", color: "#f5ecd0" }}>{route.products}</p>
+                    <p style={{ fontSize: "8px", color: "#7a6e52", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "2px" }}>Products</p>
+                    <p style={{ fontSize: "11px", color: "#1a1710" }}>{route.products}</p>
                   </div>
                 </div>
-                <div style={{ borderTop: "1px solid rgba(201,168,76,0.1)", paddingTop: "12px" }}>
-                  <p style={{ fontSize: "8px", color: "#9a8a5a", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "6px" }}>Events</p>
+                <div style={{ borderTop: "1px solid rgba(166,138,46,0.10)", paddingTop: "12px" }}>
+                  <p style={{ fontSize: "8px", color: "#7a6e52", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "6px" }}>Events</p>
                   {route.events.map((e) => (
                     <div key={e} className="flex items-center gap-2 mb-1">
                       <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: route.color, flexShrink: 0 }} />
-                      <span style={{ fontSize: "11px", color: "#9a8a5a" }}>{e}</span>
+                      <span style={{ fontSize: "11px", color: "#7a6e52" }}>{e}</span>
                     </div>
                   ))}
                 </div>

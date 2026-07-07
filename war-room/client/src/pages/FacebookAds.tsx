@@ -69,12 +69,12 @@ function StatusBadge({ status }: { status: string }) {
         fontWeight: 700,
         letterSpacing: "2px",
         textTransform: "uppercase" as const,
-        color: isActive ? "#4CFFA8" : "#9a8a5a",
+        color: isActive ? "#2d8a3e" : "#7a6e52",
         background: isActive ? "rgba(76,255,168,0.08)" : "rgba(154,138,90,0.08)",
-        border: `1px solid ${isActive ? "rgba(76,255,168,0.3)" : "rgba(154,138,90,0.2)"}`,
+        border: `1px solid ${isActive ? "rgba(45,138,62,0.20)" : "rgba(154,138,90,0.2)"}`,
         padding: "2px 8px",
         borderRadius: "2px",
-        boxShadow: isActive ? "0 0 8px rgba(76,255,168,0.15)" : "none",
+        boxShadow: isActive ? "0 0 8px rgba(45,138,62,0.12)" : "none",
       }}
     >
       {status}
@@ -95,10 +95,10 @@ function StatCard({
     <div
       style={{
         background: "#0e0d10",
-        border: "1px solid rgba(201,168,76,0.08)",
-        borderTop: "2px solid #C9A84C",
+        border: "1px solid rgba(166,138,46,0.08)",
+        borderTop: "2px solid #a68a2e",
         boxShadow:
-          "0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(201,168,76,0.1), inset 0 1px 0 rgba(201,168,76,0.08)",
+          "0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(166,138,46,0.10), inset 0 1px 0 rgba(166,138,46,0.08)",
         padding: "20px",
         flex: 1,
         minWidth: "150px",
@@ -111,7 +111,7 @@ function StatCard({
           fontWeight: 600,
           letterSpacing: "3px",
           textTransform: "uppercase" as const,
-          color: "#9a8a5a",
+          color: "#7a6e52",
           marginBottom: "10px",
         }}
       >
@@ -121,7 +121,7 @@ function StatCard({
         style={{
           fontFamily: mono,
           fontSize: "28px",
-          color: "#C9A84C",
+          color: "#a68a2e",
           fontWeight: 700,
           lineHeight: 1,
           marginBottom: "4px",
@@ -164,7 +164,7 @@ function SectionHeader({ title }: { title: string }) {
           fontWeight: 700,
           letterSpacing: "4px",
           textTransform: "uppercase" as const,
-          color: "#C9A84C",
+          color: "#a68a2e",
           margin: 0,
         }}
       >
@@ -174,7 +174,7 @@ function SectionHeader({ title }: { title: string }) {
         style={{
           flex: 1,
           height: "1px",
-          background: "rgba(201,168,76,0.12)",
+          background: "rgba(166,138,46,0.10)",
         }}
       />
     </div>
@@ -205,7 +205,7 @@ function MetricPill({
         style={{
           fontFamily: mono,
           fontSize: "13px",
-          color: "#f5ecd0",
+          color: "#1a1710",
         }}
       >
         {value}
@@ -239,7 +239,7 @@ export default function FacebookAds() {
           fontFamily: rajdhani,
           fontSize: "11px",
           letterSpacing: "3px",
-          color: "#9a8a5a",
+          color: "#7a6e52",
           textTransform: "uppercase" as const,
         }}
       >
@@ -288,7 +288,7 @@ export default function FacebookAds() {
             fontWeight: 700,
             letterSpacing: "8px",
             textTransform: "uppercase" as const,
-            color: "#C9A84C",
+            color: "#a68a2e",
             margin: 0,
             lineHeight: 1,
           }}
@@ -300,7 +300,7 @@ export default function FacebookAds() {
             fontFamily: serif,
             fontStyle: "italic",
             fontSize: "12px",
-            color: "#9a8a5a",
+            color: "#7a6e52",
             marginTop: "6px",
             letterSpacing: "1px",
           }}
@@ -360,9 +360,9 @@ export default function FacebookAds() {
             key={c.id}
             style={{
               background: "#0e0d10",
-              border: "1px solid rgba(201,168,76,0.08)",
-              borderTop: "2px solid rgba(201,168,76,0.3)",
-              boxShadow: "0 4px 16px rgba(0,0,0,0.6), inset 0 1px 0 rgba(201,168,76,0.05)",
+              border: "1px solid rgba(166,138,46,0.08)",
+              borderTop: "2px solid rgba(166,138,46,0.20)",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.6), inset 0 1px 0 rgba(166,138,46,0.06)",
               padding: "18px 20px",
             }}
           >
@@ -380,7 +380,7 @@ export default function FacebookAds() {
                     fontFamily: serif,
                     fontStyle: "italic",
                     fontSize: "17px",
-                    color: "#f5ecd0",
+                    color: "#1a1710",
                     marginBottom: "4px",
                   }}
                 >
@@ -418,10 +418,10 @@ export default function FacebookAds() {
             key={a.id}
             style={{
               background: "#0e0d10",
-              border: "1px solid rgba(201,168,76,0.08)",
-              borderTop: "2px solid rgba(201,168,76,0.2)",
+              border: "1px solid rgba(166,138,46,0.08)",
+              borderTop: "2px solid rgba(166,138,46,0.15)",
               boxShadow:
-                "0 4px 16px rgba(0,0,0,0.6), inset 0 1px 0 rgba(201,168,76,0.05)",
+                "0 4px 16px rgba(0,0,0,0.6), inset 0 1px 0 rgba(166,138,46,0.06)",
               padding: "18px 20px",
             }}
           >
@@ -439,7 +439,7 @@ export default function FacebookAds() {
                     fontFamily: serif,
                     fontStyle: "italic",
                     fontSize: "17px",
-                    color: "#f5ecd0",
+                    color: "#1a1710",
                     marginBottom: "4px",
                   }}
                 >
@@ -461,7 +461,7 @@ export default function FacebookAds() {
                   style={{
                     fontFamily: mono,
                     fontSize: "11px",
-                    color: "#C9A84C",
+                    color: "#a68a2e",
                   }}
                 >
                   R{(a.daily_budget / 100).toFixed(0)}/day
@@ -492,10 +492,10 @@ export default function FacebookAds() {
             key={ad.id}
             style={{
               background: "#0e0d10",
-              border: "1px solid rgba(201,168,76,0.08)",
-              borderTop: "2px solid rgba(76,255,168,0.3)",
+              border: "1px solid rgba(166,138,46,0.08)",
+              borderTop: "2px solid rgba(45,138,62,0.20)",
               boxShadow:
-                "0 4px 16px rgba(0,0,0,0.6), inset 0 1px 0 rgba(76,255,168,0.04)",
+                "0 4px 16px rgba(0,0,0,0.6), inset 0 1px 0 rgba(45,138,62,0.06)",
               padding: "18px 20px",
             }}
           >
@@ -513,7 +513,7 @@ export default function FacebookAds() {
                     fontFamily: serif,
                     fontStyle: "italic",
                     fontSize: "16px",
-                    color: "#f5ecd0",
+                    color: "#1a1710",
                     marginBottom: "4px",
                   }}
                 >
@@ -547,10 +547,10 @@ export default function FacebookAds() {
       <div
         style={{
           background: "#0e0d10",
-          border: "1px solid rgba(201,168,76,0.08)",
-          borderTop: "2px solid #C9A84C",
+          border: "1px solid rgba(166,138,46,0.08)",
+          borderTop: "2px solid #a68a2e",
           boxShadow:
-            "0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(201,168,76,0.1), inset 0 1px 0 rgba(201,168,76,0.08)",
+            "0 8px 32px rgba(0,0,0,0.8), 0 2px 8px rgba(166,138,46,0.10), inset 0 1px 0 rgba(166,138,46,0.08)",
           padding: "20px",
           display: "flex",
           gap: "40px",
@@ -569,7 +569,7 @@ export default function FacebookAds() {
         style={{
           marginTop: "32px",
           paddingTop: "20px",
-          borderTop: "1px solid rgba(201,168,76,0.08)",
+          borderTop: "1px solid rgba(166,138,46,0.08)",
           fontFamily: rajdhani,
           fontSize: "9px",
           letterSpacing: "2px",

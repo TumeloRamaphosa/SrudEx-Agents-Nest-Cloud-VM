@@ -40,8 +40,8 @@ export default function ShopifyStore() {
 
   const statusColor = (days: number) => {
     if (days >= 4) return "#c14e3c";
-    if (days >= 2) return "#C9A84C";
-    return "#4CFFA8";
+    if (days >= 2) return "#a68a2e";
+    return "#2d8a3e";
   };
 
   return (
@@ -49,15 +49,15 @@ export default function ShopifyStore() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <ShoppingBag className="w-4 h-4" style={{ color: "#C9A84C" }} />
-          <span style={{ fontSize: "9px", letterSpacing: "5px", textTransform: "uppercase", color: "#9a8a5a", fontFamily: "'Helvetica Neue', sans-serif" }}>
+          <ShoppingBag className="w-4 h-4" style={{ color: "#a68a2e" }} />
+          <span style={{ fontSize: "9px", letterSpacing: "5px", textTransform: "uppercase", color: "#7a6e52", fontFamily: "'Helvetica Neue', sans-serif" }}>
             SHOPIFY — studexmeat.com
           </span>
-          <span style={{ marginLeft: "auto", fontSize: "8px", color: "#4CFFA8", border: "1px solid rgba(76,255,168,0.3)", padding: "2px 6px", letterSpacing: "2px" }}>
+          <span style={{ marginLeft: "auto", fontSize: "8px", color: "#2d8a3e", border: "1px solid rgba(45,138,62,0.20)", padding: "2px 6px", letterSpacing: "2px" }}>
             LIVE
           </span>
         </div>
-        <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "24px", fontWeight: 300, color: "#f5ecd0" }}>
+        <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: "24px", fontWeight: 300, color: "#1a1710" }}>
           Store Operations
         </h2>
       </div>
@@ -65,33 +65,33 @@ export default function ShopifyStore() {
       {/* KPI strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "Today's Revenue", value: mask("R2,197.50"), sub: "2 orders", color: "#C9A84C", icon: TrendingUp },
+          { label: "Today's Revenue", value: mask("R2,197.50"), sub: "2 orders", color: "#a68a2e", icon: TrendingUp },
           { label: "Unfulfilled Pipeline", value: mask("R133,623"), sub: `${UNFULFILLED_COUNT} orders`, color: "#c14e3c", icon: AlertCircle },
           { label: "Jun 6 Batch", value: mask("R43,585"), sub: "4 days UNPACKED ⚠️", color: "#c14e3c", icon: Clock },
           { label: "R.G. #1944 — URGENT", value: mask("R29,325"), sub: "VIP Trade Week — 4d", color: "#c14e3c", icon: Package },
         ].map((kpi) => {
           const Icon = kpi.icon;
           return (
-            <div key={kpi.label} style={{ background: "rgba(201,168,76,0.04)", border: `1px solid ${kpi.color}20`, padding: "14px" }}>
+            <div key={kpi.label} style={{ background: "rgba(166,138,46,0.04)", border: `1px solid ${kpi.color}20`, padding: "14px" }}>
               <div className="flex items-center gap-2 mb-2">
                 <Icon className="w-3 h-3" style={{ color: kpi.color }} />
-                <span style={{ fontSize: "8px", letterSpacing: "1px", textTransform: "uppercase", color: "#9a8a5a" }}>{kpi.label}</span>
+                <span style={{ fontSize: "8px", letterSpacing: "1px", textTransform: "uppercase", color: "#7a6e52" }}>{kpi.label}</span>
               </div>
               <p style={{ fontSize: "20px", fontFamily: "Menlo, monospace", color: kpi.color, fontWeight: 700 }}>{kpi.value}</p>
-              <p style={{ fontSize: "9px", color: "#9a8a5a", marginTop: "2px" }}>{kpi.sub}</p>
+              <p style={{ fontSize: "9px", color: "#7a6e52", marginTop: "2px" }}>{kpi.sub}</p>
             </div>
           );
         })}
       </div>
 
       {/* Critical alert */}
-      <div style={{ background: "rgba(193,78,60,0.06)", border: "1px solid rgba(193,78,60,0.25)", padding: "12px 16px", display: "flex", alignItems: "flex-start", gap: "10px" }}>
+      <div style={{ background: "rgba(193,78,60,0.06)", border: "1px solid rgba(193,78,60,0.18)", padding: "12px 16px", display: "flex", alignItems: "flex-start", gap: "10px" }}>
         <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" style={{ color: "#c14e3c" }} />
         <div>
-          <p style={{ fontSize: "12px", fontWeight: 600, color: "#f5ecd0", marginBottom: "2px" }}>
+          <p style={{ fontSize: "12px", fontWeight: 600, color: "#1a1710", marginBottom: "2px" }}>
             Chargeback Risk — Jun 6 Batch (4 orders, {mask("R43,585")})
           </p>
-          <p style={{ fontSize: "11px", color: "#9a8a5a" }}>
+          <p style={{ fontSize: "11px", color: "#7a6e52" }}>
             #1943–#1946 are 4 days PAID & UNFULFILLED. R.G. #1944 ({mask("R29,325")} VIP Trade Week) needs immediate contact. Risk escalates daily.
           </p>
         </div>
@@ -113,9 +113,9 @@ export default function ShopifyStore() {
               textTransform: "uppercase",
               fontFamily: "'Helvetica Neue', sans-serif",
               padding: "6px 14px",
-              background: activeView === v.id ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.04)",
-              border: `1px solid ${activeView === v.id ? "rgba(201,168,76,0.5)" : "rgba(201,168,76,0.1)"}`,
-              color: activeView === v.id ? "#C9A84C" : "#9a8a5a",
+              background: activeView === v.id ? "rgba(166,138,46,0.12)" : "rgba(255,255,255,0.04)",
+              border: `1px solid ${activeView === v.id ? "rgba(166,138,46,0.30)" : "rgba(166,138,46,0.10)"}`,
+              color: activeView === v.id ? "#a68a2e" : "#7a6e52",
               cursor: "pointer",
             }}
           >
@@ -129,22 +129,22 @@ export default function ShopifyStore() {
         <div className="overflow-x-auto">
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid rgba(201,168,76,0.12)" }}>
+              <tr style={{ borderBottom: "1px solid rgba(166,138,46,0.10)" }}>
                 {["Order", "Customer", "Date", "Amount", "Items", "Status", "Days Open"].map((h) => (
-                  <th key={h} style={{ textAlign: "left", padding: "6px 10px", fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#9a8a5a" }}>{h}</th>
+                  <th key={h} style={{ textAlign: "left", padding: "6px 10px", fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#7a6e52" }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {RECENT_ORDERS.map((o) => (
-                <tr key={o.id} style={{ borderBottom: "1px solid rgba(201,168,76,0.05)" }}>
-                  <td style={{ padding: "10px", fontSize: "12px", fontFamily: "Menlo, monospace", color: "#C9A84C" }}>{o.id}</td>
-                  <td style={{ padding: "10px", fontSize: "11px", color: "#9a8a5a" }}>{o.customer}</td>
-                  <td style={{ padding: "10px", fontSize: "11px", color: "#9a8a5a" }}>{o.date}</td>
-                  <td style={{ padding: "10px", fontSize: "12px", fontFamily: "Menlo, monospace", color: "#f5ecd0" }}>{mask(`R${o.amount.toLocaleString("en-ZA", { minimumFractionDigits: 2 })}`)}</td>
-                  <td style={{ padding: "10px", fontSize: "10px", color: "#9a8a5a", maxWidth: "160px" }}>{o.items.join(", ")}</td>
+                <tr key={o.id} style={{ borderBottom: "1px solid rgba(166,138,46,0.06)" }}>
+                  <td style={{ padding: "10px", fontSize: "12px", fontFamily: "Menlo, monospace", color: "#a68a2e" }}>{o.id}</td>
+                  <td style={{ padding: "10px", fontSize: "11px", color: "#7a6e52" }}>{o.customer}</td>
+                  <td style={{ padding: "10px", fontSize: "11px", color: "#7a6e52" }}>{o.date}</td>
+                  <td style={{ padding: "10px", fontSize: "12px", fontFamily: "Menlo, monospace", color: "#1a1710" }}>{mask(`R${o.amount.toLocaleString("en-ZA", { minimumFractionDigits: 2 })}`)}</td>
+                  <td style={{ padding: "10px", fontSize: "10px", color: "#7a6e52", maxWidth: "160px" }}>{o.items.join(", ")}</td>
                   <td style={{ padding: "10px" }}>
-                    <span style={{ fontSize: "8px", letterSpacing: "1px", color: "#C9A84C", border: "1px solid rgba(201,168,76,0.25)", padding: "2px 6px" }}>
+                    <span style={{ fontSize: "8px", letterSpacing: "1px", color: "#a68a2e", border: "1px solid rgba(166,138,46,0.18)", padding: "2px 6px" }}>
                       {o.status}
                     </span>
                   </td>
@@ -168,8 +168,8 @@ export default function ShopifyStore() {
             <div
               key={item.sku}
               style={{
-                background: item.status === "critical" ? "rgba(193,78,60,0.06)" : item.status === "low" ? "rgba(201,168,76,0.04)" : "rgba(76,255,168,0.04)",
-                border: `1px solid ${item.status === "critical" ? "rgba(193,78,60,0.2)" : item.status === "low" ? "rgba(201,168,76,0.12)" : "rgba(76,255,168,0.12)"}`,
+                background: item.status === "critical" ? "rgba(193,78,60,0.06)" : item.status === "low" ? "rgba(201,168,76,0.04)" : "rgba(45,138,62,0.06)",
+                border: `1px solid ${item.status === "critical" ? "rgba(193,78,60,0.2)" : item.status === "low" ? "rgba(166,138,46,0.10)" : "rgba(76,255,168,0.12)"}`,
                 padding: "10px 14px",
                 display: "flex",
                 alignItems: "center",
@@ -179,15 +179,15 @@ export default function ShopifyStore() {
               <div className="flex items-center gap-2">
                 <div style={{
                   width: "6px", height: "6px", borderRadius: "50%", flexShrink: 0,
-                  background: item.status === "critical" ? "#c14e3c" : item.status === "low" ? "#C9A84C" : "#4CFFA8"
+                  background: item.status === "critical" ? "#c14e3c" : item.status === "low" ? "#a68a2e" : "#2d8a3e"
                 }} />
-                <span style={{ fontSize: "12px", color: "#f5ecd0" }}>{item.sku}</span>
+                <span style={{ fontSize: "12px", color: "#1a1710" }}>{item.sku}</span>
               </div>
               <span style={{
                 fontSize: "13px",
                 fontFamily: "Menlo, monospace",
                 fontWeight: 700,
-                color: item.status === "critical" ? "#c14e3c" : item.status === "low" ? "#C9A84C" : "#4CFFA8"
+                color: item.status === "critical" ? "#c14e3c" : item.status === "low" ? "#a68a2e" : "#2d8a3e"
               }}>
                 {item.qty > 0 ? `+${item.qty}` : item.qty}
               </span>
@@ -200,30 +200,30 @@ export default function ShopifyStore() {
       {activeView === "pipeline" && (
         <div className="space-y-4">
           <div style={{ background: "rgba(193,78,60,0.05)", border: "1px solid rgba(193,78,60,0.2)", padding: "20px", textAlign: "center" }}>
-            <p style={{ fontSize: "9px", letterSpacing: "3px", textTransform: "uppercase", color: "#9a8a5a", marginBottom: "8px" }}>TOTAL UNFULFILLED PIPELINE</p>
+            <p style={{ fontSize: "9px", letterSpacing: "3px", textTransform: "uppercase", color: "#7a6e52", marginBottom: "8px" }}>TOTAL UNFULFILLED PIPELINE</p>
             <p style={{ fontSize: "40px", fontFamily: "Menlo, monospace", color: "#c14e3c", fontWeight: 700 }}>
               {mask(`R${PIPELINE_TOTAL.toLocaleString("en-ZA", { minimumFractionDigits: 2 })}`)}
             </p>
-            <p style={{ fontSize: "11px", color: "#9a8a5a", marginTop: "4px" }}>{UNFULFILLED_COUNT} orders · Oldest: #1221 (Apr 2024)</p>
+            <p style={{ fontSize: "11px", color: "#7a6e52", marginTop: "4px" }}>{UNFULFILLED_COUNT} orders · Oldest: #1221 (Apr 2024)</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {[
               { label: "Critical (4+ days)", amount: 43585, count: 4, color: "#c14e3c" },
-              { label: "Aging (2–3 days)", amount: 5865, count: 1, color: "#C9A84C" },
-              { label: "Recent (0–1 days)", amount: 2197.50, count: 2, color: "#4CFFA8" },
+              { label: "Aging (2–3 days)", amount: 5865, count: 1, color: "#a68a2e" },
+              { label: "Recent (0–1 days)", amount: 2197.50, count: 2, color: "#2d8a3e" },
             ].map((seg) => (
               <div key={seg.label} style={{ background: `${seg.color}08`, border: `1px solid ${seg.color}25`, padding: "14px" }}>
-                <p style={{ fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#9a8a5a", marginBottom: "6px" }}>{seg.label}</p>
+                <p style={{ fontSize: "8px", letterSpacing: "2px", textTransform: "uppercase", color: "#7a6e52", marginBottom: "6px" }}>{seg.label}</p>
                 <p style={{ fontSize: "22px", fontFamily: "Menlo, monospace", color: seg.color, fontWeight: 700 }}>{mask(`R${seg.amount.toLocaleString("en-ZA", { minimumFractionDigits: 2 })}`)}</p>
-                <p style={{ fontSize: "10px", color: "#9a8a5a", marginTop: "2px" }}>{seg.count} order{seg.count !== 1 ? "s" : ""}</p>
+                <p style={{ fontSize: "10px", color: "#7a6e52", marginTop: "2px" }}>{seg.count} order{seg.count !== 1 ? "s" : ""}</p>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <div style={{ fontSize: "9px", color: "#9a8a5a", borderTop: "1px solid rgba(201,168,76,0.08)", paddingTop: "10px" }}>
+      <div style={{ fontSize: "9px", color: "#7a6e52", borderTop: "1px solid rgba(166,138,46,0.08)", paddingTop: "10px" }}>
         Data synced via Shopify Admin API · studexmeat.com · ZAR · Shopify plan · info@studexmeat.com
       </div>
     </div>

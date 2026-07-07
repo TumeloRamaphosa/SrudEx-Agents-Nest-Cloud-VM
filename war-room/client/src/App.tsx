@@ -20,9 +20,10 @@ import SuperAgents from "@/pages/SuperAgents";
 import Payments from "@/pages/Payments";
 import RevenueEngine from "@/pages/RevenueEngine";
 import NalediAI from "@/pages/NalediAI";
+import AICredits from "@/pages/AICredits";
 import NotFound from "@/pages/not-found";
 import { useState } from "react";
-import { LayoutGrid, Calendar, Sparkles, TrendingUp, ShoppingBag, CheckSquare, Bot, Megaphone, Truck, MessageSquare, Globe, Cpu, CreditCard, MessageCircle } from "lucide-react";
+import { LayoutGrid, Calendar, Sparkles, TrendingUp, ShoppingBag, CheckSquare, Bot, Megaphone, Truck, MessageSquare, Globe, Cpu, CreditCard, MessageCircle, Coins } from "lucide-react";
 
 const TABS = [
   { id: "queue", label: "Queue", icon: LayoutGrid },
@@ -40,6 +41,7 @@ const TABS = [
   { id: "super-agents", label: "Super Agents", icon: Cpu },
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "revenue", label: "Revenue Engine", icon: TrendingUp },
+  { id: "ai-credits", label: "AI Credits", icon: Coins },
 ];
 
 function TabNav({ activeTab, onTabChange }: { activeTab: string; onTabChange: (id: string) => void }) {
@@ -47,8 +49,8 @@ function TabNav({ activeTab, onTabChange }: { activeTab: string; onTabChange: (i
     <div
       className="sticky top-[49px] z-40 border-b"
       style={{
-        background: "rgba(10,10,12,0.97)",
-        borderColor: "rgba(201,168,76,0.15)",
+        background: "rgba(255,255,255,0.95)",
+        borderColor: "rgba(166,138,46,0.12)",
         backdropFilter: "blur(8px)",
       }}
     >
@@ -67,15 +69,15 @@ function TabNav({ activeTab, onTabChange }: { activeTab: string; onTabChange: (i
                   letterSpacing: "3px",
                   textTransform: "uppercase",
                   fontFamily: "'Helvetica Neue', sans-serif",
-                  color: isActive ? "#C9A84C" : "#9a8a5a",
-                  borderBottom: isActive ? "2px solid #C9A84C" : "2px solid transparent",
+                  color: isActive ? "#a68a2e" : "#7a6e52",
+                  borderBottom: isActive ? "2px solid #a68a2e" : "2px solid transparent",
                   background: "transparent",
                 }}
                 data-testid={`tab-${tab.id}`}
               >
                 <Icon
                   className="w-3.5 h-3.5"
-                  style={{ color: isActive ? "#C9A84C" : "#9a8a5a" }}
+                  style={{ color: isActive ? "#a68a2e" : "#7a6e52" }}
                 />
                 <span className="hidden sm:block">{tab.label}</span>
               </button>
@@ -95,7 +97,7 @@ function ComingSoonPage({ title }: { title: string }) {
           fontFamily: "'Cormorant Garamond', Georgia, serif",
           fontStyle: "italic",
           fontSize: "36px",
-          color: "#f5ecd0",
+          color: "#1a1710",
           lineHeight: 1.25,
         }}
       >
@@ -106,7 +108,7 @@ function ComingSoonPage({ title }: { title: string }) {
           fontSize: "9px",
           letterSpacing: "4px",
           textTransform: "uppercase",
-          color: "#9a8a5a",
+          color: "#7a6e52",
         }}
       >
         Coming Soon · Integration In Progress
@@ -116,7 +118,7 @@ function ComingSoonPage({ title }: { title: string }) {
           marginTop: "16px",
           width: "64px",
           height: "1px",
-          background: "rgba(201,168,76,0.4)",
+          background: "rgba(166,138,46,0.3)",
         }}
       />
     </div>
@@ -151,6 +153,7 @@ function MainLayout() {
         {activeTab === "super-agents" && <SuperAgents />}
         {activeTab === "payments" && <Payments />}
         {activeTab === "revenue" && <RevenueEngine />}
+        {activeTab === "ai-credits" && <AICredits />}
       </main>
     </div>
   );

@@ -204,7 +204,7 @@ export default function GenerateContent() {
               fontWeight: 700,
               letterSpacing: "4px",
               textTransform: "uppercase" as const,
-              color: "#9a8a5a",
+              color: "#7a6e52",
               margin: 0,
             }}
           >
@@ -232,8 +232,8 @@ export default function GenerateContent() {
               <div
                 style={{
                   background: "#0e0d10",
-                  border: "1px solid rgba(201,168,76,0.15)",
-                  borderTop: `2px solid ${stage.status === "RUNNING" ? "#4CFFA8" : stage.status === "DONE" ? "#3a3020" : "#C9A84C"}`,
+                  border: "1px solid rgba(166,138,46,0.12)",
+                  borderTop: `2px solid ${stage.status === "RUNNING" ? "#2d8a3e" : stage.status === "DONE" ? "#3a3020" : "#a68a2e"}`,
                   padding: "12px 16px",
                   minWidth: "140px",
                   textAlign: "center" as const,
@@ -245,16 +245,16 @@ export default function GenerateContent() {
                     fontSize: "24px",
                     color:
                       stage.status === "RUNNING"
-                        ? "#4CFFA8"
+                        ? "#2d8a3e"
                         : stage.status === "DONE"
                         ? "#3a3020"
-                        : "#C9A84C",
+                        : "#a68a2e",
                     marginBottom: "6px",
                     filter:
                       stage.status === "RUNNING"
-                        ? "drop-shadow(0 0 6px #4CFFA888)"
+                        ? "drop-shadow(0 0 6px #2d8a3e88)"
                         : stage.status === "RUNNING"
-                        ? "drop-shadow(0 0 4px #C9A84C88)"
+                        ? "drop-shadow(0 0 4px #a68a2e88)"
                         : "none",
                     animation: stage.status === "RUNNING" ? "dotPulse 1.5s ease-in-out infinite" : "none",
                   }}
@@ -270,10 +270,10 @@ export default function GenerateContent() {
                     textTransform: "uppercase" as const,
                     color:
                       stage.status === "RUNNING"
-                        ? "#4CFFA8"
+                        ? "#2d8a3e"
                         : stage.status === "DONE"
                         ? "#3a3020"
-                        : "#C9A84C",
+                        : "#a68a2e",
                     marginBottom: "4px",
                   }}
                 >
@@ -300,27 +300,27 @@ export default function GenerateContent() {
                     textTransform: "uppercase" as const,
                     color:
                       stage.status === "RUNNING"
-                        ? "#4CFFA8"
+                        ? "#2d8a3e"
                         : stage.status === "DONE"
                         ? "#3a3020"
-                        : "#C9A84C",
+                        : "#a68a2e",
                     background:
                       stage.status === "RUNNING"
                         ? "rgba(76,255,168,0.08)"
                         : stage.status === "DONE"
                         ? "rgba(58,48,32,0.3)"
-                        : "rgba(201,168,76,0.08)",
+                        : "rgba(166,138,46,0.08)",
                     border: `1px solid ${
                       stage.status === "RUNNING"
-                        ? "rgba(76,255,168,0.3)"
+                        ? "rgba(45,138,62,0.20)"
                         : stage.status === "DONE"
                         ? "rgba(58,48,32,0.4)"
-                        : "rgba(201,168,76,0.3)"
+                        : "rgba(166,138,46,0.20)"
                     }`,
                     padding: "2px 8px",
                     borderRadius: "2px",
                     boxShadow:
-                      stage.status === "RUNNING" ? "0 0 6px rgba(76,255,168,0.2)" : "none",
+                      stage.status === "RUNNING" ? "0 0 6px rgba(45,138,62,0.15)" : "none",
                   }}
                 >
                   {stage.status}
@@ -341,13 +341,13 @@ export default function GenerateContent() {
                     style={{
                       width: "32px",
                       height: "1px",
-                      background: "linear-gradient(90deg, rgba(201,168,76,0.4), rgba(201,168,76,0.6))",
+                      background: "linear-gradient(90deg, rgba(166,138,46,0.25), rgba(201,168,76,0.6))",
                       position: "relative" as const,
                     }}
                   />
                   <span
                     style={{
-                      color: "#C9A84C",
+                      color: "#a68a2e",
                       fontSize: "10px",
                       lineHeight: 1,
                       opacity: 0.6,
@@ -366,8 +366,8 @@ export default function GenerateContent() {
       {/* ── Section 1: AI Caption Generator ── */}
       <section className="bg-white rounded-xl border border-[#E8E0CC] p-6 space-y-5">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-[#C9A84C]/10 rounded-lg flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-[#C9A84C]" />
+          <div className="w-9 h-9 bg-[#a68a2e]/10 rounded-lg flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-[#a68a2e]" />
           </div>
           <div>
             <h2
@@ -435,7 +435,7 @@ export default function GenerateContent() {
           <div className="bg-[#F7F4EE] rounded-lg p-3 border border-[#E8E0CC] text-xs text-[#6B5E45]">
             <span className="font-semibold text-[#1A1410]">{selectedItem.title}</span>
             {" — "}
-            {selectedItem.campaign && <span className="text-[#C9A84C]">{selectedItem.campaign}</span>}
+            {selectedItem.campaign && <span className="text-[#a68a2e]">{selectedItem.campaign}</span>}
             {selectedItem.caption && (
               <p className="mt-1 line-clamp-2 text-[#6B5E45]">{selectedItem.caption.slice(0, 120)}...</p>
             )}
@@ -445,7 +445,7 @@ export default function GenerateContent() {
         <Button
           onClick={handleGenerate}
           disabled={isGenerating || !selectedItemId}
-          className="bg-[#C9A84C] hover:bg-[#B8943B] text-white w-full h-10"
+          className="bg-[#a68a2e] hover:bg-[#8a7422] text-white w-full h-10"
           data-testid="button-generate-caption"
         >
           {isGenerating ? (
@@ -522,7 +522,7 @@ export default function GenerateContent() {
                     >
                       {tool.name}
                     </h3>
-                    <span className="text-[10px] px-1.5 py-0.5 bg-[#C9A84C]/15 text-[#C9A84C] rounded font-medium">
+                    <span className="text-[10px] px-1.5 py-0.5 bg-[#a68a2e]/15 text-[#a68a2e] rounded font-medium">
                       {tool.badge}
                     </span>
                   </div>
@@ -536,7 +536,7 @@ export default function GenerateContent() {
                 href={tool.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#C9A84C] hover:text-[#B8943B] transition-colors mt-auto"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#a68a2e] hover:text-[#8a7422] transition-colors mt-auto"
                 data-testid={`link-tool-${tool.name.toLowerCase()}`}
               >
                 Learn More <ExternalLink className="w-3 h-3" />
@@ -573,8 +573,8 @@ export default function GenerateContent() {
         {expandedIntel && (
           <div className="p-5 space-y-5 border-t border-[#E8E0CC]">
             {/* Executive summary */}
-            <div className="bg-[#C9A84C]/5 rounded-lg border border-[#C9A84C]/20 p-4">
-              <p className="text-xs font-semibold text-[#C9A84C] uppercase tracking-wider mb-2">
+            <div className="bg-[#a68a2e]/5 rounded-lg border border-[#a68a2e]/20 p-4">
+              <p className="text-xs font-semibold text-[#a68a2e] uppercase tracking-wider mb-2">
                 Executive Summary
               </p>
               <p className="text-sm text-[#1A1410] leading-relaxed">
@@ -591,7 +591,7 @@ export default function GenerateContent() {
                 { label: "Food Reels Engagement", value: "5.8%", sub: "highest of any industry on IG", icon: Lightbulb },
               ].map((s) => (
                 <div key={s.label} className="bg-[#F7F4EE] rounded-lg p-3 border border-[#E8E0CC]">
-                  <s.icon className="w-4 h-4 text-[#C9A84C] mb-1" />
+                  <s.icon className="w-4 h-4 text-[#a68a2e] mb-1" />
                   <p className="font-mono text-xl font-bold text-[#1A1410]">{s.value}</p>
                   <p className="text-[10px] font-semibold text-[#1A1410]">{s.label}</p>
                   <p className="text-[10px] text-[#6B5E45]">{s.sub}</p>
@@ -616,7 +616,7 @@ export default function GenerateContent() {
                         className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
                           gap.priority === "High"
                             ? "bg-[#2D7A3A]/10 text-[#2D7A3A]"
-                            : "bg-[#C9A84C]/10 text-[#C9A84C]"
+                            : "bg-[#a68a2e]/10 text-[#a68a2e]"
                         }`}
                       >
                         {gap.priority}
@@ -625,7 +625,7 @@ export default function GenerateContent() {
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-[#1A1410]">{gap.theme}</p>
                       <p className="text-xs text-[#6B5E45] mt-0.5">{gap.gap}</p>
-                      <p className="text-xs text-[#C9A84C] font-medium mt-0.5">→ {gap.opportunity}</p>
+                      <p className="text-xs text-[#a68a2e] font-medium mt-0.5">→ {gap.opportunity}</p>
                     </div>
                   </div>
                 ))}
@@ -651,7 +651,7 @@ export default function GenerateContent() {
                   "#StudExBraai Customer Cook-Along Challenge",
                 ].map((idea, i) => (
                   <div key={i} className="flex items-start gap-2 text-xs">
-                    <span className="font-mono text-[#C9A84C] shrink-0">{String(i + 1).padStart(2, "0")}.</span>
+                    <span className="font-mono text-[#a68a2e] shrink-0">{String(i + 1).padStart(2, "0")}.</span>
                     <span className="text-gray-300">{idea}</span>
                   </div>
                 ))}
@@ -662,9 +662,9 @@ export default function GenerateContent() {
       </section>
 
       {/* ── Freepik Integration Strip ── */}
-      <div style={{ marginTop: "48px", borderTop: "1px solid rgba(201,168,76,0.15)", paddingTop: "24px" }}>
+      <div style={{ marginTop: "48px", borderTop: "1px solid rgba(166,138,46,0.12)", paddingTop: "24px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-          <span style={{ fontFamily: "Rajdhani", fontSize: "9px", letterSpacing: "3px", color: "#9a8a5a" }}>
+          <span style={{ fontFamily: "Rajdhani", fontSize: "9px", letterSpacing: "3px", color: "#7a6e52" }}>
             FREEPIK INTEGRATION
           </span>
           <span style={{ fontSize: "9px", color: "#4a4a3a", letterSpacing: "1px" }}>
@@ -674,7 +674,7 @@ export default function GenerateContent() {
             href="https://www.freepik.com/api"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ marginLeft: "auto", fontSize: "9px", letterSpacing: "2px", color: "#C9A84C", textDecoration: "none", border: "1px solid rgba(201,168,76,0.3)", padding: "6px 12px" }}
+            style={{ marginLeft: "auto", fontSize: "9px", letterSpacing: "2px", color: "#a68a2e", textDecoration: "none", border: "1px solid rgba(166,138,46,0.20)", padding: "6px 12px" }}
           >
             GET API KEY →
           </a>
