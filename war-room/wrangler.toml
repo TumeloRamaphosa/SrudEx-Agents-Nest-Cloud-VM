@@ -1,0 +1,21 @@
+name = "studex-war-room"
+main = "worker/index.ts"
+compatibility_date = "2025-06-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Static frontend (Vite build output) served by Workers Static Assets.
+# API requests (/api/*) hit the Worker first; everything else is served as a
+# static asset, with unmatched routes falling back to index.html (SPA).
+[assets]
+directory = "./dist/public"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
+# Cloudflare D1 database (SQLite) — replaces the local better-sqlite3 file.
+# database_id is filled in after `wrangler d1 create studex-war-room`.
+[[d1_databases]]
+binding = "DB"
+database_name = "studex-war-room"
+database_id = "PLACEHOLDER_RUN_WRANGLER_D1_CREATE"
+migrations_dir = "migrations"
