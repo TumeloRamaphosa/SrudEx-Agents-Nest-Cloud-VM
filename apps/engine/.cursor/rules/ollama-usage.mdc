@@ -1,0 +1,48 @@
+---
+description: How to use local Ollama models in Cursor
+alwaysApply: true
+---
+
+# Using Ollama Models in Cursor
+
+## Available Local Models
+
+Quick models (fast responses):
+- `gemma4:e4b` - Default for quick tasks
+- `phi4-mini:latest` - Very fast, lightweight
+- `llama3.2:3b` - Compact and capable
+
+Coding models:
+- `qwen2.5-coder:7b` - Optimized for code generation
+- `deepseek-v4-pro:cloud` - Powerful reasoning (cloud)
+
+Analysis models:
+- `nous-hermes2:latest` - General analysis
+- `qwen3.5:latest` - Balanced performance
+
+## How to Use
+
+1. In Cursor's chat panel, look for the model selector (usually shows "GPT-4" or similar)
+2. Click it and select an Ollama model from the dropdown
+3. Type your request and press Enter
+4. The response will come from your local model!
+
+## Testing
+
+Try this test message:
+"Write a Python function to calculate fibonacci"
+
+You should get instant code from your local model.
+
+## Troubleshooting
+
+If models don't appear:
+1. Check Ollama is running: `curl http://localhost:11434/api/tags`
+2. Restart Cursor
+3. Check Cursor Settings > AI > Model Providers
+
+## Model Routing
+
+- Use fast models for quick questions and simple code
+- Use coding models (qwen2.5-coder, deepseek) for complex implementation
+- Use analysis models for architecture and planning

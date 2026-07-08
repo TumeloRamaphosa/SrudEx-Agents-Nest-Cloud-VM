@@ -1,0 +1,15 @@
+{
+  "title": "[mvp-scope] Example Client",
+  "description": "Client: Example Client\nService: mvp-scope\nBudget: $250\nDue: today\nApproval: Tumelo\nSource: https://app.base44.com/superagent\nRequest:\nCreate a Base44-style superagent MVP plan for a client-facing automation service.\nDeliverable format: Linear issue, GitHub repo, sandbox, and markdown scope\nNotes: Dry-run example for validating the factory flow.",
+  "labels": [
+    "lead",
+    "needs-scope",
+    "mvp-scope"
+  ],
+  "projectSlug": "example-client-mvp-scope",
+  "nextActions": [
+    "Operator approves scope and budget.",
+    "Factory creates sandbox and GitHub repo if needed.",
+    "Agents report status back to Linear."
+  ]
+}

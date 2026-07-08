@@ -1,0 +1,45 @@
+{
+  "aionUi": {
+    "path": "/Users/tumeloramaphosa/AionUi",
+    "webuiCommand": "bun run webui:prod:remote",
+    "role": "office UI, cowork sessions, client/operator dashboard"
+  },
+  "cashclaw": {
+    "path": "/Users/tumeloramaphosa/cashclaw",
+    "command": "npm start --",
+    "role": "lead/opportunity agent and service catalog",
+    "safeCommands": [
+      "npm start -- --help",
+      "npm start -- status",
+      "npm start -- skills"
+    ],
+    "gatedCommands": [
+      "npm start -- init",
+      "npm start -- hyrve poll",
+      "npm start -- hyrve auto-accept on",
+      "npm start -- invoice"
+    ]
+  },
+  "openMythos": {
+    "path": "/Users/tumeloramaphosa/OpenMythos",
+    "role": "repo overview, architecture summaries, and client progress explanations"
+  },
+  "ollama": {
+    "baseUrl": "http://localhost:11434",
+    "role": "local model provider"
+  },
+  "meshLlm": {
+    "baseUrl": "http://localhost:9337/v1",
+    "consoleUrl": "http://localhost:3131",
+    "role": "multi-machine local model provider"
+  },
+  "linear": {
+    "role": "work ledger and reporting channel",
+    "mode": "dry-run until LINEAR_API_KEY, LINEAR_TEAM_ID, and LINEAR_PROJECT_ID are set"
+  },
+  "github": {
+    "owner": "TumeloRamaphosa",
+    "role": "project repositories and pull requests",
+    "mode": "gh CLI is authenticated; repo creation should remain approval-gated"
+  }
+}

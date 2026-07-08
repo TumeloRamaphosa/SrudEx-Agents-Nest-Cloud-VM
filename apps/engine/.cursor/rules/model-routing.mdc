@@ -1,0 +1,13 @@
+---
+description: Model routing rules for Ollama, Mesh-LLM, and multi-machine Cursor work.
+alwaysApply: true
+---
+
+# Model Routing
+
+- Use `OLLAMA_BASE_URL=http://localhost:11434` for single-machine local models.
+- Use `MESH_LLM_BASE_URL=http://localhost:9337/v1` for multi-machine local models and GPU-hosted large models.
+- Keep Mesh-LLM private over Tailscale or invite tokens for client work. Do not use public mesh publishing for confidential code.
+- Use fast local models for intake, summaries, first drafts, and simple transformations.
+- Use stronger code models for repository planning, implementation, and review.
+- If a requested model name is missing from `ollama list` or `mesh-llm models installed`, choose the closest configured fallback and report the substitution.

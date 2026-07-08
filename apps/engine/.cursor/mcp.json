@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "ollama": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-ollama"],
+      "env": {
+        "OLLAMA_HOST": "http://localhost:11434"
+      },
+      "disabled": false
+    },
+    "github": {
+      "command": "gh",
+      "args": ["api", "--help"],
+      "disabled": true,
+      "notes": "Placeholder. Replace with a real GitHub MCP server or Composio GitHub tool when available."
+    },
+    "linear": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-linear"],
+      "env": {
+        "LINEAR_API_KEY": "${LINEAR_API_KEY}"
+      },
+      "disabled": true,
+      "notes": "Enable after LINEAR_API_KEY is set and the Linear MCP package/server choice is confirmed."
+    }
+  }
+}

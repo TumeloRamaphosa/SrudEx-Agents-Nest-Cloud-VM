@@ -1,0 +1,22 @@
+{
+  "name": "agentic-lab-v3",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "StudEx Dark Factory orchestration layer for Cursor, AionUi, CashClaw, Ollama, Mesh-LLM, Linear, and GitHub.",
+  "scripts": {
+    "factory:doctor": "node factory/scripts/doctor.mjs",
+    "factory:models": "node factory/scripts/models.mjs",
+    "factory:intake": "node factory/scripts/intake.mjs",
+    "factory:project:create": "node factory/scripts/project.mjs create",
+    "factory:project:start": "node factory/scripts/project.mjs start",
+    "factory:project:status": "node factory/scripts/project.mjs status",
+    "factory:project:stop": "node factory/scripts/project.mjs stop",
+    "factory:cashclaw": "node factory/scripts/cashclaw.mjs",
+    "factory:mesh": "node factory/scripts/mesh.mjs",
+    "factory:github": "node factory/scripts/github.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "offers": [
+    {
+      "id": "seo-audit",
+      "title": "SEO Audit Report",
+      "cashclawSkill": "cashclaw-seo-auditor",
+      "startingPriceUsd": 29,
+      "approvalRequired": true
+    },
+    {
+      "id": "landing-page",
+      "title": "Landing Page Copy + HTML",
+      "cashclawSkill": "cashclaw-landing-page",
+      "startingPriceUsd": 39,
+      "approvalRequired": true
+    },
+    {
+      "id": "lead-list",
+      "title": "Lead Generation List",
+      "cashclawSkill": "cashclaw-lead-generator",
+      "startingPriceUsd": 15,
+      "approvalRequired": true
+    },
+    {
+      "id": "competitor-analysis",
+      "title": "Competitor Analysis",
+      "cashclawSkill": "cashclaw-competitor-analyzer",
+      "startingPriceUsd": 49,
+      "approvalRequired": true
+    },
+    {
+      "id": "mvp-scope",
+      "title": "MVP Scope From Client Request",
+      "cashclawSkill": "cashclaw-core",
+      "startingPriceUsd": 99,
+      "approvalRequired": true
+    },
+    {
+      "id": "small-code-fix",
+      "title": "Small GitHub Code Fix",
+      "cashclawSkill": "cashclaw-core",
+      "startingPriceUsd": 75,
+      "approvalRequired": true
+    }
+  ],
+  "statuses": [
+    "intake",
+    "scope",
+    "approved",
+    "sandbox-created",
+    "building",
+    "review-ready",
+    "delivered"
+  ]
+}
