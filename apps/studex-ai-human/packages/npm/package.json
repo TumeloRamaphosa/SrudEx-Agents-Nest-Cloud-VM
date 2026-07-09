@@ -1,22 +1,22 @@
 {
-  "name": "openhuman",
+  "name": "studex-ai-human",
   "version": "0.0.0",
-  "description": "AI-powered assistant for communities — OpenHuman CLI",
+  "description": "StudEx AI Human — AI assistant CLI",
   "keywords": [
-    "openhuman",
+    "studex",
     "ai",
     "cli",
-    "crypto",
+    "assistant",
     "community"
   ],
-  "homepage": "https://github.com/tinyhumansai/openhuman",
+  "homepage": "https://github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM",
   "repository": {
     "type": "git",
-    "url": "https://github.com/tinyhumansai/openhuman.git",
-    "directory": "packages/npm"
+    "url": "https://github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM.git",
+    "directory": "apps/studex-ai-human/packages/npm"
   },
   "bugs": {
-    "url": "https://github.com/tinyhumansai/openhuman/issues"
+    "url": "https://github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM/issues"
   },
   "license": "MIT",
   "bin": {

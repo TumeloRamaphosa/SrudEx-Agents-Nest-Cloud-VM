@@ -1,11 +1,11 @@
-# Maintainer: OpenHuman <hello@tinyhumans.ai>
+# Maintainer: StudEx <hello@studex-group.com>
 
 pkgname=openhuman-bin
 pkgver=0.54.0
 pkgrel=1
-pkgdesc='Personal AI desktop assistant for communities'
+pkgdesc='StudEx AI Human — personal AI desktop assistant'
 arch=('x86_64')
-url='https://github.com/tinyhumansai/openhuman'
+url='https://github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM'
 license=('GPL-3.0-only')
 optdepends=(
   'xdg-utils: open browser, file, and URL handlers from the desktop app'

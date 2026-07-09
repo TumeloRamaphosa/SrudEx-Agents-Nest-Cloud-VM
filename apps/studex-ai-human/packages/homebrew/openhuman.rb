@@ -1,8 +1,8 @@
 # Homebrew formula template — rendered by CI, committed to tinyhumansai/homebrew-openhuman.
 # Placeholders replaced by .github/workflows/release-packages.yml before commit.
 class Openhuman < Formula
-  desc "AI-powered assistant for communities — OpenHuman CLI"
-  homepage "https://github.com/tinyhumansai/openhuman"
+  desc "StudEx AI Human — AI assistant CLI"
+  homepage "https://github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM"
   version "@VERSION@"
   license "MIT"
 

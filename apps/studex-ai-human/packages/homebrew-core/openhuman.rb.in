@@ -1,6 +1,6 @@
 class Openhuman < Formula
   desc "AI-powered personal assistant for communities"
-  homepage "https://github.com/tinyhumansai/openhuman"
+  homepage "https://github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM"
   url "https://github.com/tinyhumansai/openhuman/archive/refs/tags/v@VERSION@.tar.gz"
   sha256 "@SOURCE_SHA256@"
   license "GPL-3.0-only"
