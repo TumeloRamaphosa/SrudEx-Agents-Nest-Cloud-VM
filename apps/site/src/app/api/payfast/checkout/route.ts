@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getProject } from "@/lib/store";
 import { buildCheckout, usdToZar } from "@/lib/payfast";
 import { stageAmounts } from "@/lib/quickbooks";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +14,9 @@ const STAGE_LABEL: Record<string, string> = {
 
 // POST { projectId, stage } -> { url } redirect to PayFast checkout
 export async function POST(request: NextRequest) {
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
+
   const body = await request.json();
   const { projectId, stage } = body as {
     projectId?: string;

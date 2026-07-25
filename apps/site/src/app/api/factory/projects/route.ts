@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProjects, updateProjectStatus, updateProjectPayment } from "@/lib/store";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +9,9 @@ export async function GET() {
 }
 
 export async function PATCH(request: NextRequest) {
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
+
   const body = await request.json();
   const { id, status, paymentStage } = body;
 

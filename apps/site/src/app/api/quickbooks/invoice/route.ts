@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProject } from "@/lib/store";
 import { createStageInvoice, stageAmounts, isConnected } from "@/lib/quickbooks";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +16,9 @@ export async function GET() {
 
 // POST { projectId, stage } -> create a QuickBooks invoice for that stage
 export async function POST(request: NextRequest) {
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
+
   const body = await request.json();
   const { projectId, stage } = body as {
     projectId?: string;

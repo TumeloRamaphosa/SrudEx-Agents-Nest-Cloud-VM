@@ -8,10 +8,26 @@ export function kvConfigured(): boolean {
   return Boolean(process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN);
 }
 
+function isProduction(): boolean {
+  return (
+    process.env.VERCEL_ENV === "production" ||
+    process.env.NODE_ENV === "production"
+  );
+}
+
+function requireKvInProduction(): void {
+  if (!kvConfigured() && isProduction()) {
+    throw new Error(
+      "KV is required in production. Set KV_REST_API_URL and KV_REST_API_TOKEN."
+    );
+  }
+}
+
 // In-memory fallback (local dev only — not durable on serverless).
 const memory = new Map<string, string>();
 
 export async function kvGetRaw(key: string): Promise<string | null> {
+  requireKvInProduction();
   if (!kvConfigured()) return memory.get(key) ?? null;
   const res = await fetch(`${process.env.KV_REST_API_URL}/get/${encodeURIComponent(key)}`, {
     headers: { Authorization: `Bearer ${process.env.KV_REST_API_TOKEN}` },
@@ -23,6 +39,7 @@ export async function kvGetRaw(key: string): Promise<string | null> {
 }
 
 export async function kvSetRaw(key: string, value: string): Promise<void> {
+  requireKvInProduction();
   if (!kvConfigured()) {
     memory.set(key, value);
     return;
