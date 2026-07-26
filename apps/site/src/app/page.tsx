@@ -4,7 +4,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import {
   Factory, Mic, MicOff, Send, FileText, Link2, Clock,
   CheckCircle, Circle, ArrowRight, Zap, Package, Rocket, Crown,
-  ChevronRight, AlertCircle, Loader2,
+  ChevronRight, AlertCircle, Loader2, Search, Users, BarChart3, Wrench,
 } from "lucide-react";
 import type { FactoryService, FactoryProject } from "@/lib/services-data";
 
@@ -19,10 +19,12 @@ const STATUS_STEPS = [
 ];
 
 const TIER_ICONS: Record<string, typeof Zap> = {
-  "quick-fix": Zap,
-  "micro-build": Package,
-  "mini-project": Rocket,
-  "mvp-build": Crown,
+  "lead-list": Users,
+  "seo-audit": Search,
+  "landing-page": FileText,
+  "competitor-analysis": BarChart3,
+  "small-code-fix": Wrench,
+  "mvp-scope": Rocket,
   custom: Crown,
 };
 
