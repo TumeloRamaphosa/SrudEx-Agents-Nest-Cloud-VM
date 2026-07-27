@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGRE Pipeline Crisis Manager — Night 29</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#09090e;--surface:#111118;--surface2:#1a1a24;--surface3:#222230;--border:#2a2a3a;--border2:#353548;--accent:#6c63ff;--cyan:#00d4ff;--gold:#f59e0b;--green:#22c55e;--red:#ef4444;--amber:#f97316;--text:#e8e8f0;--muted:#8888aa;--font:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;--serif:'Newsreader',Georgia,serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+.bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(108,99,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,99,255,0.04) 1px,transparent 1px);background-size:60px 60px}
+.container{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:24px 20px 80px}
+
+/* TOPBAR */
+.topbar{position:sticky;top:0;z-index:100;background:rgba(9,9,14,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;height:56px;margin-bottom:28px}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.logo{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--gold);letter-spacing:1px}
+.signal-dot{width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse-dot 2s ease-in-out infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.4)}}
+.topbar-title{font-size:12px;color:var(--muted);font-family:var(--mono);letter-spacing:1px}
+.nav{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.nav a{font-size:12px;color:var(--muted);text-decoration:none;padding:5px 10px;border-radius:6px;font-family:var(--mono);transition:all 0.15s;white-space:nowrap}
+.nav a:hover,.nav a.active{color:var(--text);background:var(--surface2)}
+.nav a.active{color:var(--gold)}
+.live-clock{font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:1px;white-space:nowrap}
+
+/* SIGNAL BAND */
+.signal-band{background:linear-gradient(90deg,var(--accent),var(--cyan));color:#000;font-family:var(--mono);font-size:11px;letter-spacing:2px;text-align:center;padding:6px 16px;border-radius:8px;margin-bottom:24px;text-transform:uppercase;font-weight:700}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:28px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.red::before{background:var(--red)}
+.stat-card.gold::before{background:var(--gold)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.cyan::before{background:var(--cyan)}
+.stat-card.amber::before{background:var(--amber)}
+.stat-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.stat-value{font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
+.stat-card.red .stat-value{color:var(--red)}
+.stat-card.gold .stat-value{color:var(--gold)}
+.stat-card.green .stat-value{color:var(--green)}
+.stat-card.amber .stat-value{color:var(--amber)}
+.stat-sub{font-size:11px;color:var(--muted)}
+
+/* SECTION HEADERS */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+.section-title{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+.section-line{flex:1;height:1px;background:var(--border)}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{font-family:var(--mono);font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s}
+.filter-btn:hover{color:var(--text);border-color:var(--border2)}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.filter-btn .count{margin-left:4px;opacity:0.7}
+
+/* DEAL CARDS */
+.deal-list{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.deal-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 20px;cursor:pointer;transition:all 0.2s;position:relative}
+.deal-card:hover{border-color:var(--border2);background:var(--surface2)}
+.deal-card.selected{border-color:var(--gold);background:rgba(245,158,11,0.06)}
+.deal-card.critical{border-left:3px solid var(--red)}
+.deal-card.warning{border-left:3px solid var(--amber)}
+.deal-card.ok{border-left:3px solid var(--green)}
+.deal-card.stale{border-left:3px solid var(--muted)}
+.urgency-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:3px 8px;border-radius:20px;font-weight:600}
+.urgency-badge.critical{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3)}
+.urgency-badge.warning{background:rgba(249,115,22,0.15);color:var(--amber);border:1px solid rgba(249,115,22,0.3)}
+.urgency-badge.ok{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.urgency-badge.stale{background:rgba(136,136,170,0.15);color:var(--muted);border:1px solid rgba(136,136,170,0.3)}
+.deal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.deal-name{font-size:15px;font-weight:700;margin-bottom:3px}
+.deal-company{font-size:12px;color:var(--muted)}
+.deal-value{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--gold);white-space:nowrap}
+.deal-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.deal-tag{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;background:var(--surface3);color:var(--muted);border:1px solid var(--border)}
+.deal-tag.tender{background:rgba(108,99,255,0.1);color:var(--accent);border-color:rgba(108,99,255,0.3)}
+.deal-tag.stale-tag{background:rgba(239,68,68,0.1);color:var(--red);border-color:rgba(239,68,68,0.3)}
+.deal-days{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.deal-days.critical{color:var(--red);font-weight:700}
+.deal-days.warning{color:var(--amber)}
+.deal-days.ok{color:var(--green)}
+.deal-bar{height:3px;background:var(--border2);border-radius:2px;margin-top:12px;overflow:hidden}
+.deal-bar-fill{height:100%;border-radius:2px;transition:width 0.6s ease}
+.deal-bar-fill.critical{background:var(--red)}
+.deal-bar-fill.warning{background:var(--amber)}
+.deal-bar-fill.ok{background:var(--green)}
+.deal-bar-fill.stale{background:var(--muted)}
+
+/* PANELS */
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:768px){.panels{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px}
+.panel-title{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+
+/* MESSAGE PANEL */
+.message-toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.msg-type-btn{font-family:var(--mono);font-size:11px;padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all 0.15s}
+.msg-type-btn:hover{color:var(--text);border-color:var(--border2)}
+.msg-type-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.message-output{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;min-height:200px;position:relative}
+.message-text{font-family:var(--serif);font-size:14px;line-height:1.8;white-space:pre-wrap;color:var(--text)}
+.msg-placeholder{color:var(--muted);font-style:italic;font-family:var(--serif);font-size:13px}
+.msg-footer{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;align-items:center}
+.msg-meta{font-family:var(--mono);font-size:10px;color:var(--muted);margin-left:auto}
+.copy-btn{font-family:var(--mono);font-size:11px;padding:7px 16px;border-radius:8px;background:var(--accent);border:none;color:#fff;cursor:pointer;font-weight:600;transition:all 0.15s}
+.copy-btn:hover{opacity:0.85}
+.copy-btn:active{transform:scale(0.97)}
+.copy-btn.whatsapp{background:#25D366}
+.copy-btn.email{background:var(--cyan);color:#000}
+
+/* CONTACT INFO */
+.contact-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.field{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.field-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.field-value{font-size:13px;font-weight:600}
+
+/* ACTIVITY LOG */
+.activity-log{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
+.log-entry{display:flex;gap:10px;font-size:12px;padding:8px 0;border-bottom:1px solid var(--border)}
+.log-entry:last-child{border-bottom:none}
+.log-date{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;width:70px;flex-shrink:0}
+.log-text{color:var(--text)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface3);border:1px solid var(--green);color:var(--green);font-family:var(--mono);font-size:12px;padding:12px 20px;border-radius:10px;z-index:999;transform:translateY(80px);opacity:0;transition:all 0.3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:14px}
+
+/* SECTION DIVIDER */
+.section-divider{margin:28px 0}
+
+/* KZN ALERT */
+.kzn-alert{background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(108,99,255,0.05));border:1px solid rgba(245,158,11,0.3);border-radius:14px;padding:20px;margin-bottom:28px}
+.kzn-alert-title{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.kzn-alert-title span{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+.kzn-alert-title .blink{width:10px;height:10px;background:var(--amber);border-radius:50%;display:inline-block;animation:blink 1s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.kzn-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.kzn-stat{background:rgba(0,0,0,0.3);border-radius:8px;padding:12px}
+.kzn-stat-label{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.kzn-stat-value{font-size:18px;font-weight:700;color:var(--gold)}
+.kzn-actions{display:flex;gap:8px;flex-wrap:wrap}
+.kzn-btn{font-family:var(--mono);font-size:11px;padding:8px 16px;border-radius:8px;border:none;cursor:pointer;font-weight:600;transition:all 0.15s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.kzn-btn.primary{background:var(--gold);color:#000}
+.kzn-btn.primary:hover{opacity:0.85}
+.kzn-btn.secondary{background:var(--surface3);color:var(--text);border:1px solid var(--border)}
+
+/* KANBAN STRIP */
+.kanban-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:28px}
+.kanban-col{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.kanban-col-title{font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.kanban-col-count{font-size:22px;font-weight:800}
+.kanban-strip .kanban-col:nth-child(1) .kanban-col-count{color:#a78bfa}
+.kanban-strip .kanban-col:nth-child(2) .kanban-col-count{color:var(--gold)}
+.kanban-strip .kanban-col:nth-child(3) .kanban-col-count{color:var(--cyan)}
+.kanban-strip .kanban-col:nth-child(4) .kanban-col-count{color:var(--green)}
+.kanban-strip .kanban-col:nth-child(5) .kanban-col-count{color:var(--red)}
+
+/* UPDATE FORM */
+.update-form{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:flex-end}
+.update-form .field{flex:1;min-width:150px;margin-bottom:0}
+.form-input{width:100%;background:transparent;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:13px;padding:6px 0}
+.update-btn{font-family:var(--mono);font-size:11px;padding:9px 16px;border-radius:8px;background:var(--accent);border:none;color:#fff;cursor:pointer;font-weight:600;white-space:nowrap}
+
+/* FOOTER */
+.footer{text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);padding:24px 0;border-top:1px solid var(--border);margin-top:32px}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="container">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">OGRE//PIPELINE</div>
+    <span class="signal-dot"></span>
+    <span class="topbar-title">CRISIS MANAGER — NIGHT 29</span>
+  </div>
+  <div class="nav">
+    <a href="business-pulse.html">Pipeline</a>
+    <a href="tender-tracker.html">Tenders</a>
+    <a href="email-sequence.html">Email Seq</a>
+    <a href="lead-response.html">Leads</a>
+    <a href="proposal-generator.html">Proposals</a>
+    <a href="portal.html">Portal</a>
+  </div>
+  <div class="live-clock" id="clock">--:-- UTC</div>
+</div>
+
+<!-- SIGNAL BAND -->
+<div class="signal-band">⚠ Pipeline Review — July 21, 2026 — R0 closed today: No outbound sent</div>
+
+<!-- KZN EMERGENCY ALERT -->
+<div class="kzn-alert">
+  <div class="kzn-alert-title">
+    <span class="blink"></span>
+    <span>🔴 KZN GROWTH FUND — 9 DAYS TO SUBMIT</span>
+  </div>
+  <div class="kzn-stats">
+    <div class="kzn-stat">
+      <div class="kzn-stat-label">Proposal Value</div>
+      <div class="kzn-stat-value">R83,988/yr</div>
+    </div>
+    <div class="kzn-stat">
+      <div class="kzn-stat-label">Days Remaining</div>
+      <div class="kzn-stat-value">9 days</div>
+    </div>
+    <div class="kzn-stat">
+      <div class="kzn-stat-label">Contact</div>
+      <div class="kzn-stat-value">kzngf@thehotline.co.za</div>
+    </div>
+    <div class="kzn-stat">
+      <div class="kzn-stat-label">Status</div>
+      <div class="kzn-stat-value">Draft Ready — Needs Send</div>
+    </div>
+  </div>
+  <div class="kzn-actions">
+    <button class="kzn-btn primary" onclick="copyKZNIntro()">📋 Copy Intro Email</button>
+    <button class="kzn-btn secondary" onclick="copyKZNProposal()">📄 Copy Proposal Summary</button>
+    <button class="kzn-btn secondary" onclick="window.open('https://kzngrowthfund.co.za','_blank')">🌐 Visit Portal</button>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-grid">
+  <div class="stat-card red">
+    <div class="stat-label">Pipeline Value</div>
+    <div class="stat-value" style="color:var(--red)" id="totalValue">R0</div>
+    <div class="stat-sub">across <span id="dealCount">0</span> deals</div>
+  </div>
+  <div class="stat-card amber">
+    <div class="stat-label">Critical — No Contact</div>
+    <div class="stat-value" id="criticalCount">0</div>
+    <div class="stat-sub">7+ days since last touch</div>
+  </div>
+  <div class="stat-card gold">
+    <div class="stat-label">Warning</div>
+    <div class="stat-value" id="warningCount">0</div>
+    <div class="stat-sub">3–6 days since last touch</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-label">Healthy</div>
+    <div class="stat-value" id="healthyCount">0</div>
+    <div class="stat-sub">Contacted within 2 days</div>
+  </div>
+  <div class="stat-card cyan">
+    <div class="stat-label">Today's Actions</div>
+    <div class="stat-value" id="todayActions">0</div>
+    <div class="stat-sub">follow-ups needed now</div>
+  </div>
+</div>
+
+<!-- KANBAN STRIP -->
+<div class="kanban-strip">
+  <div class="kanban-col">
+    <div class="kanban-col-title">Lead</div>
+    <div class="kanban-col-count" id="kLead">0</div>
+  </div>
+  <div class="kanban-col">
+    <div class="kanban-col-title">Proposal</div>
+    <div class="kanban-col-count" id="kProposal">0</div>
+  </div>
+  <div class="kanban-col">
+    <div class="kanban-col-title">Negotiation</div>
+    <div class="kanban-col-count" id="kNegotiation">0</div>
+  </div>
+  <div class="kanban-col">
+    <div class="kanban-col-title">Won</div>
+    <div class="kanban-col-count" id="kWon">0</div>
+  </div>
+  <div class="kanban-col">
+    <div class="kanban-col-title">Stale</div>
+    <div class="kanban-col-count" id="kStale">0</div>
+  </div>
+</div>
+
+<!-- SECTION HEADER -->
+<div class="section-header">
+  <div class="section-title">Pipeline Deals</div>
+  <div class="section-line"></div>
+</div>
+
+<!-- UPDATE FORM -->
+<div class="update-form">
+  <div class="field" style="flex:0.5">
+    <div class="field-label">Deal Name</div>
+    <input class="form-input" id="newDealName" placeholder="e.g. Ghana Data Centre">
+  </div>
+  <div class="field">
+    <div class="field-label">Company</div>
+    <input class="form-input" id="newDealCompany" placeholder="Company name">
+  </div>
+  <div class="field">
+    <div class="field-label">Value (ZAR)</div>
+    <input class="form-input" id="newDealValue" placeholder="e.g. 2500000">
+  </div>
+  <div class="field" style="flex:0.5">
+    <div class="field-label">Stage</div>
+    <input class="form-input" id="newDealStage" placeholder="Lead / Proposal / Negotiation">
+  </div>
+  <div class="field" style="flex:0.5">
+    <div class="field-label">Last Contact</div>
+    <input class="form-input" id="newDealLastContact" placeholder="YYYY-MM-DD">
+  </div>
+  <div class="field" style="flex:0.5">
+    <div class="field-label">Notes</div>
+    <input class="form-input" id="newDealNotes" placeholder="Any notes">
+  </div>
+  <button class="update-btn" onclick="addDeal()">+ Add Deal</button>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">All <span class="count" id="fAll">0</span></button>
+  <button class="filter-btn" data-filter="critical" onclick="setFilter('critical')">Critical 🔴 <span class="count" id="fCritical">0</span></button>
+  <button class="filter-btn" data-filter="warning" onclick="setFilter('warning')">Warning 🟠 <span class="count" id="fWarning">0</span></button>
+  <button class="filter-btn" data-filter="ok" onclick="setFilter('ok')">Healthy 🟢 <span class="count" id="fOk">0</span></button>
+  <button class="filter-btn" data-filter="stale" onclick="setFilter('stale')">Stale ⚪ <span class="count" id="fStale">0</span></button>
+</div>
+
+<!-- DEAL LIST -->
+<div class="deal-list" id="dealList">
+  <div class="empty-state">No deals yet. Add your first deal above.</div>
+</div>
+
+<!-- PANELS -->
+<div class="panels">
+  <!-- MESSAGE PANEL -->
+  <div class="panel">
+    <div class="panel-title">Follow-Up Message Generator</div>
+    <div class="message-toolbar">
+      <button class="msg-type-btn active" data-msg="followup" onclick="setMsgType('followup')">📩 Follow-Up</button>
+      <button class="msg-type-btn" data-msg="urgent" onclick="setMsgType('urgent')">🚨 Urgent</button>
+      <button class="msg-type-btn" data-msg="warm" onclick="setMsgType('warm')">💬 Warm Nudge</button>
+      <button class="msg-type-btn" data-msg="proposal" onclick="setMsgType('proposal')">📄 Proposal</button>
+    </div>
+    <div class="message-output">
+      <div class="msg-placeholder" id="msgPlaceholder">← Select a deal from the list to generate a follow-up message</div>
+      <div class="message-text" id="messageText" style="display:none"></div>
+    </div>
+    <div class="msg-footer" id="msgFooter" style="display:none">
+      <button class="copy-btn" onclick="copyMessage()">📋 Copy Message</button>
+      <button class="copy-btn whatsapp" onclick="openWhatsApp()">💬 WhatsApp</button>
+      <button class="copy-btn email" onclick="openEmail()">✉️ Email</button>
+      <div class="msg-meta" id="msgMeta"></div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="field-label" style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Custom Note (optional)</div>
+      <textarea id="customNote" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--serif);font-size:13px;padding:10px;resize:vertical;min-height:60px;outline:none" placeholder="Add a personal note to append to the message..." oninput="regenerateMessage()"></textarea>
+    </div>
+  </div>
+
+  <!-- ACTIVITY LOG -->
+  <div class="panel">
+    <div class="panel-title">Activity Log</div>
+    <div class="activity-log" id="activityLog">
+      <div class="empty-state">No activity logged yet. Mark deals as contacted to start tracking.</div>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:8px">
+      <button class="update-btn" onclick="markContacted()" style="background:var(--green);flex:1">✅ Mark as Contacted</button>
+      <button class="update-btn" onclick="logActivity()" style="flex:1">📝 Log Note</button>
+    </div>
+    <div style="margin-top:8px">
+      <input class="form-input" id="logNoteInput" placeholder="Log a note (e.g. 'Sent KZN intro email')..." style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:12px;width:100%;color:var(--text);outline:none">
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  OGRE PIPELINE CRISIS MANAGER — NIGHT 29 · Built by Cipher Tr@ce · Data lives in your browser (localStorage)
+</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────
+const STORAGE_KEY = 'ogre_pipeline_crisis';
+let deals = [];
+let activities = [];
+let selectedDealId = null;
+let currentFilter = 'all';
+let msgType = 'followup';
+
+const TODAY = new Date('2026-07-21');
+const UTC_OFFSET_9 = (d) => { const nd = new Date(d); nd.setUTCDate(nd.getUTCDate() - 9); return nd; };
+
+function defaultDeals() {
+  return [
+    {
+      id: 'kzn-tender',
+      name: 'KZN Growth Fund Agency',
+      company: 'KZN Growth Fund',
+      value: 83988,
+      stage: 'Proposal',
+      lastContact: '2026-07-21',
+      nextAction: 'SUBMIT PROPOSAL — 9 days left',
+      notes: 'Intro email + proposal drafted. Tumelo needs to review and send.',
+      priority: 'critical',
+      isTender: true,
+      tenderDeadline: '2026-07-30'
+    },
+    {
+      id: 'ghana-data-centre',
+      name: 'Ghana Data Centre RFP',
+      company: 'Ghana Ministry of Communications',
+      value: 4500000,
+      stage: 'Proposal',
+      lastContact: '2026-07-18',
+      nextAction: 'Follow up — 3 days left (close Jul 24)',
+      notes: 'WhatsApp follow-up needed immediately.',
+      priority: 'warning',
+      isTender: true,
+      tenderDeadline: '2026-07-24'
+    },
+    {
+      id: 'laisa-phase-a',
+      name: 'LAISA Phase A',
+      company: 'LAISA / Dr. Musa',
+      value: 1800000,
+      stage: 'Negotiation',
+      lastContact: '2026-07-01',
+      nextAction: 'Follow up — 20 days stale',
+      notes: 'Day 21 — completely stale. WhatsApp + email follow-up needed.',
+      priority: 'stale',
+      isTender: false
+    },
+    {
+      id: 'pharmasyntez',
+      name: 'Pharmasyntez Partnership',
+      company: 'Pharmasyntez',
+      value: 2990000,
+      stage: 'Lead',
+      lastContact: '2026-07-14',
+      nextAction: 'Follow up — 7 days stale',
+      notes: 'No response in 7 days. Send follow-up email.',
+      priority: 'critical',
+      isTender: false
+    },
+    {
+      id: 'just-sa-echo',
+      name: 'JustSA — ECHO/PULSE',
+      company: 'JustSA',
+      value: 50000,
+      stage: 'Proposal',
+      lastContact: '2026-07-16',
+      nextAction: 'Follow up — 5 days since meeting',
+      notes: 'Day 6 follow-up. No response yet. Send WhatsApp + email.',
+      priority: 'warning',
+      isTender: false
+    },
+    {
+      id: 'red-team-agent',
+      name: 'Red Team Agent',
+      company: 'Red Team',
+      value: 45000,
+      stage: 'Won',
+      lastContact: '2026-07-01',
+      nextAction: 'Monthly review — MRR stable',
+      notes: 'MRR: R45,000/mo. LIVE. Monthly check-in.',
+      priority: 'ok',
+      isTender: false
+    }
+  ];
+}
+
+function defaultActivities() {
+  return [
+    { date: '2026-07-21', text: 'KZN proposal drafted — intro email ready, awaiting Tumelo send' },
+    { date: '2026-07-21', text: 'R0 closed today. No outbound sent. Pipeline review initiated.' },
+    { date: '2026-07-18', text: 'Ghana Data Centre follow-up scheduled for Jul 21' },
+    { date: '2026-07-16', text: 'JustSA meeting held — ECHO/PULSE proposal sent' },
+    { date: '2026-07-14', text: 'Pharmasyntez initial outreach sent' },
+    { date: '2026-07-01', text: 'LAISA Phase A last confirmed contact' },
+    { date: '2026-07-01', text: 'Red Team Agent MRR LIVE — R45,000/mo' }
+  ];
+}
+
+function load() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    const data = JSON.parse(saved);
+    deals = data.deals || defaultDeals();
+    activities = data.activities || defaultActivities();
+  } else {
+    deals = defaultDeals();
+    activities = defaultActivities();
+  }
+  selectedDealId = null;
+  renderAll();
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ deals, activities }));
+}
+
+// ─── DAYS SINCE ─────────────────────────────────────────────────────────────
+function daysSince(dateStr) {
+  if (!dateStr) return 999;
+  const d = new Date(dateStr);
+  const diff = TODAY - d;
+  return Math.floor(diff / (1000 * 60 * 60 * 24));
+}
+
+function urgencyClass(deal) {
+  const days = daysSince(deal.lastContact);
+  if (deal.stage === 'Won') return 'ok';
+  if (deal.isTender && deal.tenderDeadline) {
+    const daysToDeadline = daysSince(deal.tenderDeadline) * -1;
+    if (days    if (daysToDeadline <= 0) return 'critical';
+  }
+  if (days >= 7) return 'critical';
+  if (days >= 3) return 'warning';
+  return 'ok';
+}
+
+function urgencyLabel(deal) {
+  const cls = urgencyClass(deal);
+  const days = daysSince(deal.lastContact);
+  if (deal.stage === 'Won') return '✅ Active MRR';
+  if (deal.isTender && deal.tenderDeadline) {
+    const daysToDeadline = daysSince(deal.tenderDeadline) * -1;
+    if (daysToDeadline <= 0) return `🔴 CLOSED — ${Math.abs(daysToDeadline)}d overdue`;
+    if (daysToDeadline <= 7) return `🔴 ${daysToDeadline}d to close`;
+    return `🟡 ${daysToDeadline}d to close`;
+  }
+  if (cls === 'critical') return `🔴 ${days}d — no contact`;
+  if (cls === 'warning') return `🟠 ${days}d — needs touch`;
+  if (cls === 'stale') return `⚪ ${days}d — stale`;
+  return `✅ ${days}d — healthy`;
+}
+
+function dealBarWidth(deal) {
+  const days = daysSince(deal.lastContact);
+  if (deal.stage === 'Won') return 100;
+  return Math.max(5, 100 - (days * 8));
+}
+
+// ─── RENDER ────────────────────────────────────────────────────────────────
+function renderAll() {
+  renderStats();
+  renderKanban();
+  renderFilterCounts();
+  renderDealList();
+  renderActivityLog();
+}
+
+function renderStats() {
+  const total = deals.reduce((s, d) => s + d.value, 0);
+  document.getElementById('totalValue').textContent = 'R' + total.toLocaleString('en-ZA');
+  document.getElementById('dealCount').textContent = deals.length;
+  document.getElementById('criticalCount').textContent = deals.filter(d => urgencyClass(d) === 'critical' && d.stage !== 'Won').length;
+  document.getElementById('warningCount').textContent = deals.filter(d => urgencyClass(d) === 'warning').length;
+  document.getElementById('healthyCount').textContent = deals.filter(d => urgencyClass(d) === 'ok').length;
+  const todayNeeded = deals.filter(d => urgencyClass(d) === 'critical' || urgencyClass(d) === 'warning').length;
+  document.getElementById('todayActions').textContent = todayNeeded;
+}
+
+function renderKanban() {
+  const stages = ['Lead', 'Proposal', 'Negotiation', 'Won', 'Lost'];
+  const ids = ['kLead', 'kProposal', 'kNegotiation', 'kWon', 'kStale'];
+  stages.forEach((s, i) => {
+    document.getElementById(ids[i]).textContent = deals.filter(d => d.stage === s).length;
+  });
+  document.getElementById('kStale').textContent = deals.filter(d => urgencyClass(d) === 'stale' && d.stage !== 'Won').length;
+}
+
+function renderFilterCounts() {
+  document.getElementById('fAll').textContent = deals.length;
+  document.getElementById('fCritical').textContent = deals.filter(d => urgencyClass(d) === 'critical' && d.stage !== 'Won').length;
+  document.getElementById('fWarning').textContent = deals.filter(d => urgencyClass(d) === 'warning').length;
+  document.getElementById('fOk').textContent = deals.filter(d => urgencyClass(d) === 'ok').length;
+  document.getElementById('fStale').textContent = deals.filter(d => urgencyClass(d) === 'stale' && d.stage !== 'Won').length;
+}
+
+function renderDealList() {
+  const list = document.getElementById('dealList');
+  let filtered = deals;
+  if (currentFilter === 'critical') filtered = deals.filter(d => urgencyClass(d) === 'critical' && d.stage !== 'Won');
+  else if (currentFilter === 'warning') filtered = deals.filter(d => urgencyClass(d) === 'warning');
+  else if (currentFilter === 'ok') filtered = deals.filter(d => urgencyClass(d) === 'ok');
+  else if (currentFilter === 'stale') filtered = deals.filter(d => urgencyClass(d) === 'stale' && d.stage !== 'Won');
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state">No deals in this category.</div>';
+    return;
+  }
+
+  filtered.sort((a, b) => {
+    const order = { critical: 0, warning: 1, stale: 2, ok: 3 };
+    return (order[urgencyClass(a)] || 9) - (order[urgencyClass(b)] || 9);
+  });
+
+  list.innerHTML = filtered.map(deal => {
+    const cls = urgencyClass(deal);
+    const label = urgencyLabel(deal);
+    const barW = dealBarWidth(deal);
+    const selected = selectedDealId === deal.id ? ' selected' : '';
+    const isTender = deal.isTender ? ' tender' : '';
+    const staleTag = cls === 'stale' && deal.stage !== 'Won' ? ' stale-tag' : '';
+    const days = daysSince(deal.lastContact);
+    return `
+    <div class="deal-card ${cls}${selected}" onclick="selectDeal('${deal.id}')" id="deal-${deal.id}">
+      <div class="deal-top">
+        <div>
+          <div class="deal-name">${deal.name}</div>
+          <div class="deal-company">${deal.company}</div>
+        </div>
+        <div style="text-align:right">
+          <div class="deal-value">R${deal.value.toLocaleString('en-ZA')}</div>
+          <div style="margin-top:4px">
+            <span class="urgency-badge ${cls}">${label}</span>
+          </div>
+        </div>
+      </div>
+      <div class="deal-meta">
+        <span class="deal-tag ${isTender}">${deal.stage}</span>
+        <span class="deal-tag${staleTag}">${days}d since contact</span>
+        <span class="deal-days ${cls}">${deal.nextAction}</span>
+      </div>
+      ${deal.notes ? `<div style="margin-top:8px;font-size:12px;color:var(--muted);font-family:var(--serif);font-style:italic">"${deal.notes}"</div>` : ''}
+      <div class="deal-bar"><div class="deal-bar-fill ${cls}" style="width:${barW}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+function renderActivityLog() {
+  const log = document.getElementById('activityLog');
+  if (activities.length === 0) {
+    log.innerHTML = '<div class="empty-state">No activity yet.</div>';
+    return;
+  }
+  log.innerHTML = activities.slice(0, 30).map(a => `
+    <div class="log-entry">
+      <div class="log-date">${a.date}</div>
+      <div class="log-text">${a.text}</div>
+    </div>`).join('');
+}
+
+// ─── DEAL SELECTION ────────────────────────────────────────────────────────
+function selectDeal(id) {
+  selectedDealId = selectedDealId === id ? null : id;
+  document.querySelectorAll('.deal-card').forEach(c => c.classList.remove('selected'));
+  if (selectedDealId) {
+    const el = document.getElementById('deal-' + selectedDealId);
+    if (el) el.classList.add('selected');
+  }
+  renderMessage();
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-filter="${f}"]`).classList.add('active');
+  renderDealList();
+}
+
+// ─── MESSAGE GENERATION ─────────────────────────────────────────────────────
+const MESSAGES = {
+  followup: (d) => `Hi ${d.name.split(' ')[0]},\n\nHope you're well! I wanted to follow up on our recent conversation about ${d.company}.\n\nJust checking in — is there anything I can help clarify or move forward? Happy to jump on a quick call if useful.\n\nLooking forward to hearing from you.\n\nBest,\nTumelo`,
+  urgent: (d) => `Hi ${d.name.split(' ')[0]},\n\nI hope this finds you well. I wanted to reach out urgently — ${d.company} has a tender/application closing soon (${d.tenderDeadline || 'in the coming days'}).\n\nOGRE is ready to submit and we'd love to partner with you on this. Can we connect today?\n\nBest,\nTumelo\n+27 82 123 4567`,
+  warm: (d) => `Hi ${d.name.split(' ')[0]},\n\nBeen thinking about ${d.company} — I think OGRE's AI infrastructure tools could really add value to your team.\n\nNo pressure at all, just wanted to share what we've been building and see if the timing makes sense.\n\nWarm regards,\nTumelo`,
+  proposal: (d) => `Hi ${d.name.split(' ')[0]},\n\nThank you for considering OGRE as your AI infrastructure partner.\n\nPlease find below a summary of our proposal for ${d.company}:\n\n• Project: ${d.name}\n• Investment: R${d.value.toLocaleString('en-ZA')}\n• Next Step: Discovery call to finalise scope\n\nI'm available this week — would you have 20 minutes for a quick call?\n\nBest regards,\nTumelo Ramaphosa\nCEO — OGRE Computer`
+};
+
+function setMsgType(type) {
+  msgType = type;
+  document.querySelectorAll('.msg-type-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-msg="${type}"]`).classList.add('active');
+  renderMessage();
+}
+
+function generateMessage(deal) {
+  if (!deal) return null;
+  let msg = MESSAGES[msgType] ? MESSAGES[msgType](deal) : MESSAGES.followup(deal);
+  const custom = document.getElementById('customNote')?.value?.trim();
+  if (custom) msg += `\n\n---\n${custom}`;
+  return msg;
+}
+
+function renderMessage() {
+  const placeholder = document.getElementById('msgPlaceholder');
+  const msgText = document.getElementById('messageText');
+  const footer = document.getElementById('msgFooter');
+  const meta = document.getElementById('msgMeta');
+
+  if (!selectedDealId) {
+    placeholder.style.display = 'block';
+    msgText.style.display = 'none';
+    footer.style.display = 'none';
+    return;
+  }
+
+  const deal = deals.find(d => d.id === selectedDealId);
+  if (!deal) return;
+
+  const msg = generateMessage(deal);
+  placeholder.style.display = 'none';
+  msgText.style.display = 'block';
+  msgText.textContent = msg;
+  footer.style.display = 'flex';
+  const days = daysSince(deal.lastContact);
+  meta.textContent = `${msgType.toUpperCase()} · ${days}d since last contact`;
+}
+
+function regenerateMessage() {
+  renderMessage();
+}
+
+// ─── ACTIONS ────────────────────────────────────────────────────────────────
+function copyMessage() {
+  const msg = document.getElementById('messageText').textContent;
+  if (!msg) return;
+  navigator.clipboard.writeText(msg).then(() => toast('Message copied!'));
+}
+
+function openWhatsApp() {
+  const msg = document.getElementById('messageText').textContent;
+  if (!msg) return;
+  const url = 'https://wa.me/?text=' + encodeURIComponent(msg);
+  window.open(url, '_blank');
+  logAction('WhatsApp message opened for ' + (deals.find(d => d.id === selectedDealId)?.name || 'deal'));
+}
+
+function openEmail() {
+  const deal = deals.find(d => d.id === selectedDealId);
+  if (!deal) return;
+  const msg = document.getElementById('messageText').textContent;
+  const subject = `Re: ${deal.company} — OGRE Partnership`;
+  const url = `mailto:${deal.email || 'info@' + deal.company.toLowerCase().replace(/\s+/g, '') + '.com'}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+  logAction('Email opened for ' + deal.name);
+}
+
+function markContacted() {
+  if (!selectedDealId) { toast('Select a deal first'); return; }
+  const deal = deals.find(d => d.id === selectedDealId);
+  if (!deal) return;
+  deal.lastContact = '2026-07-21';
+  logAction(`Marked as contacted: ${deal.name}`);
+  save();
+  renderAll();
+  toast(`${deal.name} — marked contacted today`);
+}
+
+function logActivity() {
+  const input = document.getElementById('logNoteInput');
+  const text = input.value.trim();
+  if (!text) return;
+  logAction(text);
+  input.value = '';
+  toast('Activity logged');
+}
+
+function logAction(text) {
+  activities.unshift({ date: '2026-07-21', text });
+  save();
+  renderActivityLog();
+}
+
+// ─── ADD DEAL ───────────────────────────────────────────────────────────────
+function addDeal() {
+  const name = document.getElementById('newDealName').value.trim();
+  const company = document.getElementById('newDealCompany').value.trim();
+  const value = parseFloat(document.getElementById('newDealValue').value) || 0;
+  const stage = document.getElementById('newDealStage').value.trim() || 'Lead';
+  const lastContact = document.getElementById('newDealLastContact').value.trim() || '2026-07-21';
+  const notes = document.getElementById('newDealNotes').value.trim();
+  if (!name) { toast('Deal name required'); return; }
+  const deal = { id: 'deal-' + Date.now(), name, company, value, stage, lastContact, nextAction: 'New deal — action needed', notes, priority: 'warning', isTender: false };
+  deals.push(deal);
+  logAction(`Added new deal: ${name} — R${value.toLocaleString('en-ZA')}`);
+  save();
+  ['newDealName','newDealCompany','newDealValue','newDealStage','newDealLastContact','newDealNotes'].forEach(id => document.getElementById(id).value = '');
+  renderAll();
+  toast(`Deal added: ${name}`);
+}
+
+// ─── KZN HELPERS ────────────────────────────────────────────────────────────
+function copyKZNIntro() {
+  const intro = `Subject: OGRE Computer — AI Infrastructure Partnership with KZN Growth Fund Agency\n\nDear KZN Growth Fund Team,\n\nI am Tumelo Ramaphosa, CEO of OGRE Computer. I am writing to formally introduce OGRE as a strategic AI infrastructure partner for your agency and your SME portfolio companies.\n\nOGRE builds automated AI systems for African enterprises. Our flagship product is the Dark Factory — a multi-agent AI development environment that designs, builds, and deploys enterprise-grade AI solutions at a fraction of traditional costs.\n\nI noted the KZN Growth Fund Agency's excellent work supporting high-growth SMEs across KwaZulu-Natal, and I believe OGRE's AI tools could significantly accelerate your agency's capacity to serve your clients.\n\nI would like to propose a brief 20-minute call to explore how OGRE can support your mission. I am available this week or next.\n\nContact: kzngf@thehotline.co.za | 031 372 3720\n\nKind regards,\nTumelo Ramaphosa\nCEO — OGRE Computer\nogre.studexmeat.com`;
+  navigator.clipboard.writeText(intro).then(() => toast('KZN intro email copied!'));
+}
+
+function copyKZNProposal() {
+  const prop = `OGRE COMPUTER — KZN GROWTH FUND PROPOSAL\n==========================================\n\nPROPOSAL: KZN Growth Fund AI Infrastructure Package\nCONTACT: kzngf@thehotline.co.za | 031 372 3720\nVALUE: R83,988/year\n\nWHAT OGRE PROVIDES:\n• Dedicated AI Development Agent (5 agents)\n• Automated Tender Monitoring & Response System\n• Document Drafting & Compliance Engine\n• Real-time Reporting Dashboard\n• Priority Support & Strategy Sessions\n\nWHY OGRE:\n• R83,988/year vs. R350,000+/year for equivalent in-house team\n• Automated tender discovery — never miss an opportunity\n• Full compliance documentation — POPIA, B-BBEE, PPPFA\n• GovTech experience: SA DoH R200M, SARS, NITDA Nigeria, Kenya ICT\n\nNEXT STEP: 20-minute discovery call\nContact: kzngf@thehotline.co.za | +27 82 123 4567`;
+  navigator.clipboard.writeText(prop).then(() => toast('KZN proposal summary copied!'));
+}
+
+// ─── TOAST ─────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── CLOCK ─────────────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toUTCString().slice(17, 25) + ' UTC';
+}
+
+// ─── INIT ──────────────────────────────────────────────────────────────────
+load();
+updateClock();
+setInterval(updateClock, 1000);
+</script>
+</body>
+</html>

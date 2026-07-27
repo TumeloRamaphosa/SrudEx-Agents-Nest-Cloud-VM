@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OGRE WhatsApp Campaign Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090e; --surface: #111118; --surface2: #1a1a24; --surface3: #222230;
+      --border: #2a2a3a; --border2: #353548;
+      --gold: #f59e0b; --gold-dim: rgba(245,158,11,0.15);
+      --green: #22c55e; --green-dim: rgba(34,197,94,0.12);
+      --red: #ef4444; --red-dim: rgba(239,68,68,0.12);
+      --cyan: #00d4ff; --cyan-dim: rgba(0,212,255,0.12);
+      --accent: #6c63ff; --accent-dim: rgba(108,99,255,0.15);
+      --text: #e8e8f0; --muted: #8888aa; --dim: #55556a;
+      --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', 'Courier New', monospace;
+      --serif: 'Newsreader', Georgia, serif;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+    a{color:var(--cyan);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(108,99,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,99,255,0.04) 1px,transparent 1px);background-size:60px 60px}
+    .topbar{position:sticky;top:0;z-index:100;background:rgba(9,9,14,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px}
+    .topbar-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:16px;height:56px}
+    .brand{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--gold);letter-spacing:1px;white-space:nowrap}
+    .brand span{color:var(--muted);font-weight:400}
+    .nav{display:flex;gap:2px;flex:1;overflow-x:auto}
+    .nav a{font-size:12px;font-weight:500;color:var(--muted);padding:6px 12px;border-radius:8px;white-space:nowrap;transition:all .15s}
+    .nav a:hover{background:var(--surface2);color:var(--text);text-decoration:none}
+    .nav a.active{background:var(--accent-dim);color:var(--accent)}
+    .clock{font-family:var(--mono);font-size:11px;color:var(--dim);white-space:nowrap}
+    .signal-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s ease-in-out infinite;flex-shrink:0}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .signal-band{background:linear-gradient(90deg,#6c63ff,#00d4ff);padding:5px 24px;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:2px;color:#000;font-weight:700;text-transform:uppercase}
+    .layout{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:28px 24px 60px}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+    .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    @media(max-width:900px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px}
+    .card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .card-title{font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+    .card-title.gold{color:var(--gold)}
+    .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+    @media(max-width:700px){.stat-grid{grid-template-columns:1fr 1fr}}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 16px;text-align:center}
+    .stat-value{font-family:var(--mono);font-size:28px;font-weight:700;line-height:1;margin-bottom:6px}
+    .stat-value.green{color:var(--green)}.stat-value.gold{color:var(--gold)}.stat-value.cyan{color:var(--cyan)}.stat-value.red{color:var(--red)}
+    .stat-label{font-size:11px;color:var(--muted);font-weight:500}
+    .stat-sub{font-family:var(--mono);font-size:10px;color:var(--dim);margin-top:4px}
+    .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:10px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .15s;white-space:nowrap}
+    .btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(0)}
+    .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .btn-primary:hover{background:#7b74ff;box-shadow:0 4px 16px rgba(108,99,255,.3)}
+    .btn-green{background:var(--green-dim);color:var(--green);border-color:rgba(34,197,94,.3)}
+    .btn-green:hover{background:rgba(34,197,94,.2)}
+    .btn-gold{background:var(--gold-dim);color:var(--gold);border-color:rgba(245,158,11,.3)}
+    .btn-gold:hover{background:rgba(245,158,11,.2)}
+    .btn-cyan{background:var(--cyan-dim);color:var(--cyan);border-color:rgba(0,212,255,.3)}
+    .btn-cyan:hover{background:rgba(0,212,255,.2)}
+    .btn-red{background:var(--red-dim);color:var(--red);border-color:rgba(239,68,68,.3)}
+    .btn-outline{background:transparent;color:var(--muted);border-color:var(--border)}
+    .btn-outline:hover{border-color:var(--dim);color:var(--text)}
+    .btn-sm{padding:6px 12px;font-size:12px;border-radius:8px}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+    .tabs{display:flex;gap:4px;background:var(--surface2);border-radius:12px;padding:4px;margin-bottom:20px}
+    .tab{flex:1;padding:9px 14px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;text-align:center;color:var(--muted);transition:all .15s;border:none;background:none}
+    .tab.active{background:var(--surface3);color:var(--text)}
+    .tab:hover:not(.active){color:var(--text)}
+    .tab-content{display:none}.tab-content.active{display:block}
+    .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--mono)}
+    .badge-green{background:var(--green-dim);color:var(--green)}.badge-gold{background:var(--gold-dim);color:var(--gold)}
+    .badge-red{background:var(--red-dim);color:var(--red)}.badge-cyan{background:var(--cyan-dim);color:var(--cyan)}
+    .badge-accent{background:var(--accent-dim);color:var(--accent)}.badge-muted{background:rgba(136,136,170,.12);color:var(--muted)}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;background:var(--surface2);border:1px solid var(--border);color:var(--muted);transition:all .15s;user-select:none}
+    .chip:hover{border-color:var(--border2);color:var(--text)}
+    .chip.selected{background:var(--accent-dim);border-color:rgba(108,99,255,.4);color:var(--accent)}
+    .form-group{margin-bottom:14px}
+    .form-label{display:block;font-size:11px;font-family:var(--mono);letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+    .form-input,.form-select,.form-textarea{width:100%;padding:10px 14px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:13px;transition:border-color .15s}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--accent)}
+    .form-textarea{resize:vertical;min-height:80px;font-family:var(--mono);font-size:12px}
+    .form-hint{font-size:11px;color:var(--dim);margin-top:5px}
+    .toast{position:fixed;bottom:28px;right:28px;z-index:9999;background:var(--surface3);border:1px solid var(--border);border-radius:12px;padding:14px 20px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.5);transform:translateY(120px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+    .toast.show{transform:translateY(0);opacity:1}
+    .toast.green{border-color:rgba(34,197,94,.4);color:var(--green)}.toast.red{border-color:rgba(239,68,68,.4);color:var(--red)}.toast.gold{border-color:rgba(245,158,11,.4);color:var(--gold)}
+    .msg-preview{background:#0d1418;border-radius:18px;padding:16px;max-width:340px;position:relative;margin:12px 0}
+    .msg-preview::before{content:'';position:absolute;bottom:-8px;left:18px;width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid #0d1418}
+    .msg-meta{font-size:10px;color:#53d9a8;margin-bottom:8px;font-family:var(--mono)}
+    .msg-body{font-size:14px;line-height:1.55;color:#e9edef;white-space:pre-wrap;word-break:break-word}
+    .msg-footer{font-size:10px;color:#53d9a8;text-align:right;margin-top:6px;font-family:var(--mono)}
+    .deal-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:all .15s}
+    .deal-item:hover{border-color:var(--accent);background:var(--accent-dim)}
+    .deal-item.selected{border-color:var(--accent);background:var(--accent-dim)}
+    .deal-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;flex-shrink:0}
+    .deal-info{flex:1;min-width:0}.deal-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .deal-company{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .deal-meta{text-align:right;flex-shrink:0}.deal-value{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--gold)}
+    .deal-stage{font-size:10px;color:var(--muted);margin-top:2px}
+    .msg-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+    .msg-type-btn{padding:14px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;text-align:left;transition:all .15s}
+    .msg-type-btn:hover{border-color:var(--accent)}
+    .msg-type-btn.selected{border-color:var(--accent);background:var(--accent-dim)}
+    .msg-type-btn .mt-label{font-size:13px;font-weight:700;margin-bottom:3px;display:block}
+    .msg-type-btn .mt-desc{font-size:11px;color:var(--muted)}
+    .lead-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);margin-bottom:7px;cursor:pointer;transition:all .15s}
+    .lead-item:hover{border-color:var(--border2)}
+    .lead-item.selected{border-color:var(--accent);background:var(--accent-dim)}
+    .lead-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:700;flex-shrink:0}
+    .lead-name{font-size:13px;font-weight:700}.lead-email{font-size:11px;color:var(--muted)}
+    .lead-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
+    .seq-step{display:flex;align-items:flex-start;gap:12px;padding:14px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);margin-bottom:10px}
+    .seq-num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:12px;font-weight:700;flex-shrink:0}
+    .seq-content{flex:1}.seq-title{font-size:13px;font-weight:700;margin-bottom:6px}
+    .seq-textarea{width:100%;padding:10px 12px;border-radius:10px;background:var(--surface3);border:1px solid var(--border);color:var(--text);font-family:var(--font);font-size:12px;resize:vertical;min-height:70px}
+    .seq-textarea:focus{outline:none;border-color:var(--accent)}
+    .log-item{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:var(--surface2);margin-bottom:6px}
+    .log-time{font-family:var(--mono);font-size:10px;color:var(--dim);min-width:140px}
+    .log-recipient{font-size:12px;font-weight:600;flex:1}
+    .log-type{font-size:11px;color:var(--muted)}
+    .log-status{font-family:var(--mono);font-size:10px;font-weight:700}
+    .log-status.sent{color:var(--green)}.log-status.pending{color:var(--gold)}.log-status.failed{color:var(--red)}
+    .api-status{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);margin-bottom:14px}
+    .api-dot{width:8px;height:8px;border-radius:50%}
+    .api-dot.connected{background:var(--green);box-shadow:0 0 8px var(--green)}
+    .api-dot.disconnected{background:var(--red)}
+    .api-dot.demo{background:var(--gold)}
+    .api-label{font-size:12px;font-weight:600;flex:1}
+    .char-counter{font-family:var(--mono);font-size:11px;color:var(--dim);text-align:right;margin-top:4px}
+    .char-counter.over{color:var(--red)}
+    .empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+    .empty-state p{font-size:13px}
+    .tone-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+    .tone-btn{padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;text-align:left;font-size:12px;font-weight:600;color:var(--muted);transition:all .15s}
+    .tone-btn.selected{border-color:var(--accent);background:var(--accent-dim);color:var(--accent)}
+    .section-title{font-family:var(--mono);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;margin-top:20px}
+    .section-title:first-child{margin-top:0}
+    .filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+    .filter-btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;transition:all .15s}
+    .filter-btn.active{background:var(--accent-dim);border-color:rgba(108,99,255,.4);color:var(--accent)}
+    .filter-btn:hover:not(.active){border-color:var(--border2);color:var(--text)}
+    .count-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-family:var(--mono);font-size:10px;font-weight:700}
+    .tag{display:inline-block;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:700;font-family:var(--mono)}
+    .tag-red{background:rgba(239,68,68,.15);color:var(--red)}.tag-gold{background:rgba(245,158,11,.15);color:var(--gold)}
+    .tag-green{background:rgba(34,197,94,.15);color:var(--green)}.tag-cyan{background:rgba(0,212,255,.15);color:var(--cyan)}
+    .tag-muted{background:rgba(136,136,170,.12);color:var(--muted)}
+    .recipients-list{max-height:320px;overflow-y:auto}
+    .recipient-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;background:var(--surface2);margin-bottom:6px;border:1px solid transparent;transition:all .15s}
+    .recipient-item.selected{border-color:var(--accent);background:var(--accent-dim)}
+    .recipient-check{width:18px;height:18px;border-radius:4px;border:1px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s}
+    .recipient-item.selected .recipient-check{background:var(--accent);border-color:var(--accent);color:#fff}
+    .recipient-info{flex:1;min-width:0}
+    .recipient-name{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .recipient-detail{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .recipients-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:12px;color:var(--muted)}
+    .preview-header{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+    .stage-tag{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:700;font-family:var(--mono)}
+    .stage-lead{background:rgba(108,99,255,.15);color:#a89eff}
+    .stage-proposal{background:rgba(245,158,11,.15);color:var(--gold)}
+    .stage-negotiation{background:rgba(0,212,255,.15);color:var(--cyan)}
+    .stage-won{background:rgba(34,197,94,.15);color:var(--green)}
+    .stage-stale{background:rgba(136,136,170,.12);color:var(--muted)}
+    .divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+    .api-key-note{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--gold);margin-top:14px}
+    .api-key-note code{font-family:var(--mono);background:rgba(245,158,11,.15);padding:1px 5px;border-radius:4px}
+  </style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">OGRE <span>/ WhatsApp Campaign</span></div>
+    <nav class="nav">
+      <a href="portal.html">Portal</a>
+      <a href="pipeline-crisis-manager.html">Pipeline</a>
+      <a href="email-sequence.html">Email Seq</a>
+      <a href="lead-response.html">Leads</a>
+      <a href="tender-scanner.html">Tenders</a>
+      <a href="proposal-generator.html">Proposals</a>
+    </nav>
+    <div class="signal-dot"></div>
+    <div class="clock" id="clock">--:-- UTC</div>
+  </div>
+</div>
+
+<div class="signal-band">Night 30 &nbsp;&middot;&nbsp; OGRE WhatsApp Campaign Hub &nbsp;&middot;&nbsp; Cipher Tr@ce &nbsp;&middot;&nbsp; Sent.dm Powered</div>
+
+<div class="layout">
+
+  <!-- STATS -->
+  <div class="stat-grid" style="margin-bottom:24px">
+    <div class="stat-card">
+      <div class="stat-value cyan" id="stat-campaigns">0</div>
+      <div class="stat-label">Campaigns Sent</div>
+      <div class="stat-sub">all time</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value gold" id="stat-contacts">0</div>
+      <div class="stat-label">Contacts Reached</div>
+      <div class="stat-sub">via WhatsApp</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value green" id="stat-open">~55%</div>
+      <div class="stat-label">Open Rate</div>
+      <div class="stat-sub">WhatsApp avg</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-queue">0</div>
+      <div class="stat-label">In Queue</div>
+      <div class="stat-sub">unsent</div>
+    </div>
+  </div>
+
+  <!-- 2-COLUMN LAYOUT -->
+  <div class="grid-2">
+
+    <!-- ==================== LEFT COLUMN ==================== -->
+    <div>
+
+      <!-- CAMPAIGN BUILDER -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-header">
+          <div class="card-title">Campaign Builder</div>
+          <span class="badge badge-accent">WhatsApp</span>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab(this,'tab-compose')">Compose</button>
+          <button class="tab" onclick="switchTab(this,'tab-sequence')">Sequence</button>
+          <button class="tab" onclick="switchTab(this,'tab-templates')">Templates</button>
+        </div>
+
+        <!-- COMPOSE -->
+        <div id="tab-compose" class="tab-content active">
+          <div class="form-group">
+            <div class="form-label">Campaign Name</div>
+            <input class="form-input" id="campaign-name" placeholder="e.g. KZN Follow-up — July 26" />
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">Message Type</div>
+            <div class="msg-type-grid">
+              <div class="msg-type-btn selected" onclick="selectMsgType(this,'intro')">
+                <span class="mt-label">Intro Message</span>
+                <span class="mt-desc">First contact / warm intro</span>
+              </div>
+              <div class="msg-type-btn" onclick="selectMsgType(this,'followup')">
+                <span class="mt-label">Follow-Up</span>
+                <span class="mt-desc">Nudge after proposal</span>
+              </div>
+              <div class="msg-type-btn" onclick="selectMsgType(this,'urgent')">
+                <span class="mt-label">Deadline Alert</span>
+                <span class="mt-desc">Tender / time-sensitive</span>
+              </div>
+              <div class="msg-type-btn" onclick="selectMsgType(this,'broadcast')">
+                <span class="mt-label">Broadcast</span>
+                <span class="mt-desc">General update to all</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">Tone</div>
+            <div class="tone-grid">
+              <button class="tone-btn selected" onclick="selectTone(this,'warm')">Warm &amp; Personal</button>
+              <button class="tone-btn" onclick="selectTone(this,'professional')">Professional</button>
+              <button class="tone-btn" onclick="selectTone(this,'urgent')">Urgent / Action</button>
+              <button class="tone-btn" onclick="selectTone(this,'casual')">Casual / Friendly</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">Merge Tags (click to insert)</div>
+            <div class="chips">
+              <span class="chip selected" onclick="insertTag('{name}',this)">&#128100; {name}</span>
+              <span class="chip selected" onclick="insertTag('{company}',this)">&#127970; {company}</span>
+              <span class="chip selected" onclick="insertTag('{deal_value}',this)">&#128176; {deal_value}</span>
+              <span class="chip" onclick="insertTag('{tender}',this)">&#128203; {tender}</span>
+              <span class="chip" onclick="insertTag('{deadline}',this)">&#9200; {deadline}</span>
+              <span class="chip" onclick="insertTag('{proposal_link}',this)">&#128279; {link}</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">Message Body</div>
+            <textarea class="form-textarea" id="msg-body" rows="6" maxlength="1024" placeholder="Hi {name}! Thanks for connecting — I work with companies like {company} on AI automation..." oninput="updatePreview();updateCharCount()"></textarea>
+            <div class="char-counter" id="char-counter">0 / 1024</div>
+          </div>
+
+          <!-- WhatsApp Preview -->
+          <div class="form-group">
+            <div class="form-label">Preview</div>
+            <div class="msg-preview">
+              <div class="msg-meta">OGRE Computer &middot; just now</div>
+              <div class="msg-body" id="preview-body">Your message will appear here. Type or generate above to see it in WhatsApp format.</div>
+              <div class="msg-footer">&#10003;&#10003;</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+            <button class="btn btn-primary" onclick="generateFromType()">&#10022; Generate Message</button>
+            <button class="btn btn-outline" onclick="clearCompose()">Clear</button>
+          </div>
+        </div>
+
+        <!-- SEQUENCE -->
+        <div id="tab-sequence" class="tab-content">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Build a multi-step WhatsApp follow-up sequence. Each message sends after a set delay.</p>
+          <div id="seq-container">
+            <div class="seq-step" data-step="1">
+              <div class="seq-num">1</div>
+              <div class="seq-content">
+                <div class="seq-title">Day 1 &mdash; Initial Contact</div>
+                <textarea class="seq-textarea" data-seq="1" placeholder="Hi {name}, great meeting you at [event]. I work with companies like {company} on AI infrastructure — happy to share how OGRE can help..."></textarea>
+              </div>
+            </div>
+            <div class="seq-step" data-step="2">
+              <div class="seq-num">2</div>
+              <div class="seq-content">
+                <div class="seq-title">Day 3 &mdash; Follow-Up</div>
+                <textarea class="seq-textarea" data-seq="2" placeholder="Hi {name}, just following up on our chat. The {company} opportunity looks really exciting — happy to share a quick proposal..."></textarea>
+              </div>
+            </div>
+            <div class="seq-step" data-step="3">
+              <div class="seq-num">3</div>
+              <div class="seq-content">
+                <div class="seq-title">Day 7 &mdash; Value Add</div>
+                <textarea class="seq-textarea" data-seq="3" placeholder="Hi {name}, I came across {company} — here's a relevant case study: [brief summary]. Would love to show you how OGRE delivers this..."></textarea>
+              </div>
+            </div>
+            <div class="seq-step" data-step="4">
+              <div class="seq-num">4</div>
+              <div class="seq-content">
+                <div class="seq-title">Day 14 &mdash; Final Nudge</div>
+                <textarea class="seq-textarea" data-seq="4" placeholder="Hi {name}, closing the loop — the {tender} tender closes {deadline}. If {company} is still looking at AI infrastructure, OGRE can help. Proposal attached..."></textarea>
+              </div>
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="addSeqStep()" style="margin-top:6px">+ Add Step</button>
+        </div>
+
+        <!-- TEMPLATES -->
+        <div id="tab-templates" class="tab-content">
+          <div class="template-item selected" onclick="loadTemplate(this,'intro-warm')">
+            <div class="template-name">Warm Intro</div>
+            <div class="template-use">First contact, warm lead</div>
+          </div>
+          <div class="template-item" onclick="loadTemplate(this,'followup-proposal')">
+            <div class="template-name">Proposal Follow-Up</div>
+            <div class="template-use">After sending a proposal</div>
+          </div>
+          <div class="template-item" onclick="loadTemplate(this,'tender-deadline')">
+            <div class="template-name">Tender Deadline Alert</div>
+            <div class="template-use">Urgent: tender closing soon</div>
+          </div>
+          <div class="template-item" onclick="loadTemplate(this,'meeting-request')">
+            <div class="template-name">Meeting Request</div>
+            <div class="template-use">Request a discovery call</div>
+          </div>
+          <div class="template-item" onclick="loadTemplate(this,'deal-won')">
+            <div class="template-name">Deal Won / Welcome</div>
+            <div class="template-use">After a deal closes</div>
+          </div>
+          <div class="template-item" onclick="loadTemplate(this,'broadcast-update')">
+            <div class="template-name">Weekly Update Broadcast</div>
+            <div class="template-use">General broadcast to pipeline</div>
+          </div>
+          <div class="template-item" onclick="loadTemplate(this,'kzn-followup')">
+            <div class="template-name">KZN Tender Follow-Up</div>
+            <div class="template-use">KZN Growth Fund Agency — 9-day deadline</div>
+          </div>
+          <div class="template-item" onclick="loadTemplate(this,'justsa-response')">
+            <div class="template-name">JustSA Response</div>
+            <div class="template-use">JustSA meeting follow-up</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API CONFIG -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">API Configuration</div>
+        </div>
+        <div class="api-status" id="api-status">
+          <div class="api-dot demo"></div>
+          <div class="api-label">Demo Mode</div>
+          <span style="font-size:11px;color:var(--muted)">No API key</span>
+        </div>
+        <div class="form-group">
+          <div class="form-label">Sent.dm API Key</div>
+          <input class="form-input" id="api-key" type="password" placeholder="sen_live_xxxxxxxxxxxxxxxxxxxx" />
+          <div class="form-hint">Get from <a href="https://sent.dm" target="_blank">sent.dm → Dashboard → API Keys</a></div>
+        </div>
+        <div class="form-group">
+          <div class="form-label">Sender Label</div>
+          <input class="form-input" id="sender-label" placeholder="OGRE Computer" />
+        </div>
+
+      <!-- API SEND + QUEUE BUTTONS -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px">
+        <button class="btn btn-green" onclick="sendCampaign()">&#9989; Send to Selected</button>
+        <button class="btn btn-gold" onclick="queueCampaign()">&#128228; Queue for Later</button>
+      </div>
+      <div class="api-key-note" style="margin-top:14px">
+        <strong>&#9888; Demo Mode:</strong> Messages are simulated without an API key. Add your <code>sen_live_...</code> key above to go live via <strong>Sent.dm</strong>. Cost: <strong>$0.015/contact/month</strong> — unlimited sends.
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== RIGHT COLUMN ==================== -->
+  <div>
+
+    <!-- AUDIENCE -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-title">Select Recipients</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-outline btn-sm" onclick="selectAll()">All</button>
+          <button class="btn btn-outline btn-sm" onclick="selectNone()">None</button>
+        </div>
+      </div>
+      <div class="recipients-meta">
+        <span id="recipients-count">0 selected</span>
+        <span id="filter-hint" style="font-size:11px;color:var(--dim)">Filter by stage</span>
+      </div>
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterRecipients('all',this)">All</button>
+        <button class="filter-btn" onclick="filterRecipients('lead',this)">Lead</button>
+        <button class="filter-btn" onclick="filterRecipients('proposal',this)">Proposal</button>
+        <button class="filter-btn" onclick="filterRecipients('negotiation',this)">Negotiation</button>
+        <button class="filter-btn" onclick="filterRecipients('won',this)">Won</button>
+      </div>
+      <div class="recipients-list" id="recipients-list">
+        <div class="empty-state"><p>Loading pipeline...</p></div>
+      </div>
+    </div>
+
+    <!-- QUEUE PANEL -->
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header">
+        <div class="card-title">&#128228; Campaign Queue</div>
+        <span class="badge badge-gold" id="queue-count">0</span>
+      </div>
+      <div id="queue-list">
+        <div class="empty-state"><p>No queued campaigns. Queue one to send later.</p></div>
+      </div>
+      <hr class="divider">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-green btn-sm" onclick="sendQueue()">Send All Queued</button>
+        <button class="btn btn-outline btn-sm" onclick="clearQueue()">Clear Queue</button>
+      </div>
+    </div>
+
+    <!-- DELIVERY LOG -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Delivery Log</div>
+        <span class="badge badge-muted" id="log-count">0 entries</span>
+      </div>
+      <div id="delivery-log">
+        <div class="empty-state"><p>No campaigns sent yet.</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toast-icon">&#10003;</span>
+  <span id="toast-msg">Done</span>
+</div>
+
+<script>
+'use strict';
+
+const state = {
+  msgType: 'intro', tone: 'warm',
+  selectedRecipients: [],
+  seqSteps: 4,
+  apiKey: localStorage.getItem('ogre_wa_apikey') || '',
+  senderLabel: localStorage.getItem('ogre_wa_sender') || 'OGRE Computer',
+  queue: JSON.parse(localStorage.getItem('ogre_wa_queue') || '[]'),
+  log: JSON.parse(localStorage.getItem('ogre_wa_log') || '[]'),
+  recipients: [],
+  filterStage: 'all',
+};
+
+const TEMPLATES = {
+  'intro-warm': {
+    name: 'Warm Intro', type: 'intro', tone: 'warm',
+    body: "Hi {name}! Great connecting at [event/referral]. I help companies like {company} automate with AI agents — OGRE is delivering serious results for clients right now.\n\nWould love to show you how this works. Open for a quick 15-min call this week?",
+  },
+  'followup-proposal': {
+    name: 'Proposal Follow-Up', type: 'followup', tone: 'professional',
+    body: "Hi {name}, just following up on the proposal I sent over for {company}. Happy to walk you through the numbers — OGRE clients typically see {deal_value} in annual savings.\n\nAny questions? I'm here to help.",
+  },
+  'tender-deadline': {
+    name: 'Tender Deadline Alert', type: 'urgent', tone: 'urgent',
+    body: "Hi {name} — urgent heads-up. The {tender} tender closes {deadline}. OGRE has a strong fit for this opportunity and can deliver fast.\n\nI've attached our capability statement. Let's schedule a quick call to discuss before the deadline.\n\nTime is running out — can we talk today?",
+  },
+  'meeting-request': {
+    name: 'Meeting Request', type: 'intro', tone: 'warm',
+    body: "Hi {name}! I'd love to show you what OGRE is building for companies like {company}. A 15-minute call this week could save you months of trial and error.\n\nAre you free Wednesday or Thursday afternoon? I'll send you a calendar link.",
+  },
+  'deal-won': {
+    name: 'Deal Won / Welcome', type: 'broadcast', tone: 'warm',
+    body: "Hi {name}! Welcome to OGRE — we're thrilled to have {company} on board.\n\nYour AI agent stack is being configured now. You'll hear from our team within 24 hours with your setup details.\n\nExcited to build with you!",
+  },
+  'broadcast-update': {
+    name: 'Weekly Update', type: 'broadcast', tone: 'professional',
+    body: "Hi {name}! Here's your weekly OGRE update for {company}:\n\nAI agent deployment: progressing\nNext milestone: on track\nQuestions? Reply here or book a call.\n\n— OGRE Computer",
+  },
+  'kzn-followup': {
+    name: 'KZN Tender Follow-Up', type: 'urgent', tone: 'urgent',
+    body: "Hi {name} — following up on the KZN Growth Fund Agency opportunity.\n\n{tender} closes in 9 days. OGRE has a strong fit and can deliver a full proposal by [date].\n\nI've attached our capability statement. Can we schedule a 20-min call this week to discuss?\n\nLet's not miss this.",
+  },
+  'justsa-response': {
+    name: 'JustSA Meeting Follow-Up', type: 'followup', tone: 'warm',
+    body: "Hi {name}! Great meeting with you and Thadebe yesterday. As discussed, here's the full proposal summary:\n\nBundle: R42K (Advisor Portal R28K + Data Dashboard R22K)\nECHO Voice: R2.5K/mo (3 months free)\n\nLooking forward to hearing from you. Let's make this happen!",
+  },
+};
+
+const PIPELINE_DEALS = [
+  { id: 'kzn', name: 'KZN Growth Fund Agency', company: 'KZN Growth Fund Agency', value: 83988, stage: 'proposal', tender: 'KZNGFA-RFQ-2026', deadline: 'Aug 4, 2026' },
+  { id: 'ghana', name: 'Ghana Data Centre RFP', company: 'Ghana Data Centre', value: 4500000, stage: 'proposal', tender: 'GDCRFP-2026', deadline: 'Jul 29, 2026' },
+  { id: 'laisa', name: 'LAISA Phase A', company: 'LAISA', value: 1800000, stage: 'negotiation' },
+  { id: 'pharmasyntez', name: 'Pharmasyntez Partnership', company: 'Pharmasyntez', value: 2990000, stage: 'lead' },
+  { id: 'justsa', name: 'JustSA ECHO/PULSE', company: 'JustSA', value: 50000, stage: 'proposal' },
+  { id: 'art-eng', name: 'ART Engineering', company: 'ART Engineering', value: 850000, stage: 'lead' },
+  { id: 'uvelka', name: 'Uvelka', company: 'Uvelka', value: 320000, stage: 'lead' },
+  { id: 'nt', name: 'NtechLab', company: 'NtechLab', value: 1200000, stage: 'lead' },
+];
+
+const STAGE_COLORS = { lead: '#a89eff', proposal: '#f59e0b', negotiation: '#00d4ff', won: '#22c55e' };
+const STAGE_LABELS = { lead: 'Lead', proposal: 'Proposal', negotiation: 'Negotiation', won: 'Won', stale: 'Stale' };
+
+function formatZAR(v) {
+  if (!v) return '—';
+  if (v >= 1000000) return 'R' + (v / 1000000).toFixed(1) + 'M';
+  if (v >= 1000) return 'R' + (v / 1000).toFixed(0) + 'K';
+  return 'R' + v;
+}
+
+function getPipelineData() {
+  try { return JSON.parse(localStorage.getItem('ogre_deals_v2') || '[]'); } catch { return []; }
+}
+function getLeadsData() {
+  try { return JSON.parse(localStorage.getItem('ogre_leads_v2') || '[]'); } catch { return []; }
+}
+
+function renderRecipients() {
+  const container = document.getElementById('recipients-list');
+  const live = [...PIPELINE_DEALS];
+  getPipelineData().forEach(d => { if (!live.find(m => m.id === d.id)) live.push(d); });
+  getLeadsData().forEach(l => { if (!live.find(m => m.id === l.id)) live.push(l); });
+  state.recipients = live;
+  const filtered = state.filterStage === 'all' ? live : live.filter(r => r.stage === state.filterStage);
+  if (!filtered.length) {
+    container.innerHTML = '<div class="empty-state"><p>No recipients in this stage.</p></div>';
+  } else {
+    container.innerHTML = filtered.map(r => {
+      const sel = state.selectedRecipients.includes(r.id);
+      return '<div class="recipient-item' + (sel ? ' selected' : '') + '" onclick="toggleRecipient(\'' + r.id + '\')" data-id="' + r.id + '">' +
+        '<div class="recipient-check">' + (sel ? '&#10003;' : '') + '</div>' +
+        '<div class="recipient-info"><div class="recipient-name">' + r.name + '</div>' +
+        '<div class="recipient-detail">' + r.company + (r.tender ? ' · ' + r.tender : '') + '</div></div>' +
+        '<div style="text-align:right;flex-shrink:0;margin-left:8px">' +
+          '<div style="font-family:var(--mono);font-size:12px;font-weight:700;color:var(--gold)">' + formatZAR(r.value) + '</div>' +
+          '<span class="stage-tag stage-' + r.stage + '">' + STAGE_LABELS[r.stage] + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+  updateRecipientCount();
+}
+
+function updateRecipientCount() {
+  document.getElementById('recipients-count').textContent = state.selectedRecipients.length + ' of ' + state.recipients.length + ' selected';
+  document.getElementById('stat-queue').textContent = state.queue.length;
+  document.getElementById('stat-campaigns').textContent = state.log.length;
+  document.getElementById('stat-contacts').textContent = state.log.reduce((s, l) => s + (l.contacts || 0), 0);
+  document.getElementById('log-count').textContent = state.log.length + ' entries';
+}
+
+function toggleRecipient(id) {
+  const idx = state.selectedRecipients.indexOf(id);
+  if (idx >= 0) state.selectedRecipients.splice(idx, 1);
+  else state.selectedRecipients.push(id);
+  const el = document.querySelector('[data-id="' + id + '"]');
+  if (el) {
+    const sel = state.selectedRecipients.includes(id);
+    el.classList.toggle('selected', sel);
+    el.querySelector('.recipient-check').innerHTML = sel ? '&#10003;' : '';
+  }
+  updateRecipientCount();
+}
+
+function selectAll() {
+  const f = state.filterStage === 'all' ? state.recipients : state.recipients.filter(r => r.stage === state.filterStage);
+  state.selectedRecipients = f.map(r => r.id);
+  renderRecipients();
+  updateRecipientCount();
+}
+
+function selectNone() {
+  state.selectedRecipients = [];
+  renderRecipients();
+  updateRecipientCount();
+}
+
+function filterRecipients(stage, btn) {
+  state.filterStage = stage;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderRecipients();
+}
+
+function generateFromType() {
+  const r = state.selectedRecipients.length
+    ? state.recipients.find(rec => state.selectedRecipients.includes(rec.id)) || PIPELINE_DEALS[0]
+    : PIPELINE_DEALS[0];
+  const rep = { '{name}': r.name || 'there', '{company}': r.company || 'your company', '{deal_value}': formatZAR(r.value), '{tender}': r.tender || 'the tender', '{deadline}': r.deadline || 'soon', '{link}': '[link]' };
+  const body = document.getElementById('msg-body');
+  if (state.msgType === 'intro') {
+    body.value = "Hi " + rep['{name}'] + "! Great connecting at [event]. I help companies like " + rep['{company}'] + " deploy AI agent infrastructure — OGRE is delivering serious results right now.\n\nWould love to show you how this works. Open for a quick 15-min call this week?";
+  } else if (state.msgType === 'followup') {
+    body.value = "Hi " + rep['{name}'] + ", just following up on our chat. For companies like " + rep['{company}'] + ", OGRE typically delivers " + rep['{deal_value}'] + " in annual labour savings. I've attached a summary — happy to walk you through the numbers.\n\nAre you available this week?";
+  } else if (state.msgType === 'urgent') {
+    body.value = "Hi " + rep['{name}'] + " — urgent heads-up. The " + rep['{tender}'] + " opportunity closes " + rep['{deadline}'] + ". OGRE has a strong fit and can deliver fast. I've attached our capability statement.\n\nCan we schedule a quick call before the deadline? Time is running out.";
+  } else {
+    body.value = "Hi " + rep['{name}'] + "! Here's your OGRE update for " + rep['{company}'] + ":\n\nAI agent deployment: progressing as planned\nNext milestone: on track\nQuestions? Reply here or book a call.\n\n— OGRE Computer";
+  }
+  updatePreview();
+  updateCharCount();
+  showToast('Message generated!', 'green');
+}
+
+function updatePreview() {
+  const body = document.getElementById('msg-body').value;
+  const r = state.selectedRecipients.length ? state.recipients.find(rec => state.selectedRecipients.includes(rec.id)) : null;
+  const rep = r ? { '{name}': r.name, '{company}': r.company, '{deal_value}': formatZAR(r.value), '{tender}': r.tender || 'the tender', '{deadline}': r.deadline || 'soon', '{link}': '[link]' } : { '{name}': 'there', '{company}': 'your company', '{deal_value}': 'R0', '{tender}': 'the tender', '{deadline}': 'soon', '{link}': '[link]' };
+  const preview = body.replace(/\{name\}/g, rep['{name}']).replace(/\{company\}/g, rep['{company}']).replace(/\{deal_value\}/g, rep['{deal_value}']).replace(/\{tender\}/g, rep['{tender}']).replace(/\{deadline\}/g, rep['{deadline}']).replace(/\{link\}/g, rep['{link}']);
+  document.getElementById('preview-body').textContent = preview || 'Your message will appear here.';
+}
+
+function updateCharCount() {
+  const el = document.getElementById('char-counter');
+  const len = document.getElementById('msg-body').value.length;
+  el.textContent = len + ' / 1024';
+  el.className = 'char-counter' + (len > 900 ? ' over' : '');
+}
+
+function insertTag(tag) {
+  const ta = document.getElementById('msg-body');
+  const start = ta.selectionStart;
+  ta.value = ta.value.slice(0, start) + tag + ta.value.slice(start);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = start + tag.length;
+  updatePreview();
+  updateCharCount();
+}
+
+function clearCompose() {
+  document.getElementById('msg-body').value = '';
+  document.getElementById('campaign-name').value = '';
+  updatePreview();
+  updateCharCount();
+}
+
+function switchTab(btn, id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(id).classList.add('active');
+}
+
+function selectMsgType(btn, type) {
+  document.querySelectorAll('.msg-type-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.msgType = type;
+}
+
+function selectTone(btn, tone) {
+  document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.tone = tone;
+}
+
+function loadTemplate(el, key) {
+  document.querySelectorAll('.template-item').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  const t = TEMPLATES[key];
+  if (!t) return;
+  document.getElementById('msg-body').value = t.body;
+  state.msgType = t.type;
+  state.tone = t.tone;
+  updatePreview();
+  updateCharCount();
+  showToast('Template loaded: ' + t.name, 'gold');
+}
+
+function addSeqStep() {
+  state.seqSteps++;
+  const c = document.getElementById('seq-container');
+  const step = document.createElement('div');
+  step.className = 'seq-step';
+  step.setAttribute('data-step', state.seqSteps);
+  step.innerHTML = '<div class="seq-num">' + state.seqSteps + '</div>' +
+    '<div class="seq-content"><div class="seq-title">Day ' + (state.seqSteps * 7) + ' &mdash; Follow-Up</div>' +
+    '<textarea class="seq-textarea" placeholder="Hi {name}, just checking in..."></textarea></div>';
+  c.appendChild(step);
+}
+
+function saveApiConfig() {
+  const key = document.getElementById('api-key').value.trim();
+  const sender = document.getElementById('sender-label').value.trim() || 'OGRE Computer';
+  if (key) {
+    localStorage.setItem('ogre_wa_apikey', key);
+    localStorage.setItem('ogre_wa_sender', sender);
+    state.apiKey = key;
+    state.senderLabel = sender;
+  }
+  updateApiStatus();
+  showToast('Config saved!', 'green');
+}
+
+function updateApiStatus() {
+  const el = document.getElementById('api-status');
+  if (state.apiKey && state.apiKey.startsWith('sen_live_')) {
+    el.innerHTML = '<div class="api-dot connected"></div><div class="api-label" style="color:var(--green)">Connected</div><span style="font-size:11px;color:var(--muted)">Sent.dm live</span>';
+  } else if (state.apiKey) {
+    el.innerHTML = '<div class="api-dot disconnected"></div><div class="api-label" style="color:var(--red)">Invalid Key</div><span style="font-size:11px;color:var(--muted)">Must start with sen_live_</span>';
+  } else {
+    el.innerHTML = '<div class="api-dot demo"></div><div class="api-label">Demo Mode</div><span style="font-size:11px;color:var(--muted)">No API key set</span>';
+  }
+}
+
+async function sendCampaign() {
+  if (!state.selectedRecipients.length) { showToast('Select at least one recipient', 'red'); return; }
+  const body = document.getElementById('msg-body').value.trim();
+  if (!body) { showToast('Write a message first', 'red'); return; }
+  const name = document.getElementById('campaign-name').value.trim() || 'WhatsApp Campaign';
+  const recs = state.recipients.filter(r => state.selectedRecipients.includes(r.id));
+
+  if (state.apiKey && state.apiKey.startsWith('sen_live_')) {
+    showToast('Sending via Sent.dm...', 'gold');
+    let sent = 0;
+    for (const rec of recs) {
+      if (!rec.phone) continue;
+      const msg = body.replace(/\{name\}/g, rec.name || 'there').replace(/\{company\}/g, rec.company || '').replace(/\{deal_value\}/g, formatZAR(rec.value)).replace(/\{tender\}/g, rec.tender || 'the tender').replace(/\{deadline\}/g, rec.deadline || 'soon');
+      try {
+        const res = await fetch('https://api.sent.dm/v1/messages', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + state.apiKey, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to: rec.phone, message: msg, from: state.senderLabel }),
+        });
+        if (res.ok) sent++;
+      } catch(e) { console.warn('send failed', rec.phone, e); }
+    }
+    state.log.unshift({ id: Date.now(), name, type: state.msgType, contacts: sent, failed: recs.length - sent, time: new Date().toISOString(), status: sent > 0 ? 'sent' : 'failed' });
+    showToast('Sent to ' + sent + '/' + recs.length + ' contacts!', 'green');
+  } else {
+    state.log.unshift({ id: Date.now(), name, type: state.msgType, contacts: recs.length, failed: 0, time: new Date().toISOString(), status: 'pending', demo: true });
+    showToast('Demo: ' + recs.length + ' messages queued (add API key to send live)', 'gold');
+  }
+  localStorage.setItem('ogre_wa_log', JSON.stringify(state.log.slice(0, 50)));
+  renderDeliveryLog();
+  updateStats();
+  state.selectedRecipients = [];
+  renderRecipients();
+}
+
+function queueCampaign() {
+  const body = document.getElementById('msg-body').value.trim();
+  const name = document.getElementById('campaign-name').value.trim() || 'Queued Campaign';
+  if (!body) { showToast('Write a message first', 'red'); return; }
+  if (!state.selectedRecipients.length) { showToast('Select recipients first', 'red'); return; }
+  state.queue.push({ id: Date.now(), name, body, type: state.msgType, tone: state.tone, recipients: [...state.selectedRecipients], queued: new Date().toISOString() });
+  localStorage.setItem('ogre_wa_queue', JSON.stringify(state.queue));
+  renderQueue();
+  updateStats();
+  state.selectedRecipients = [];
+  renderRecipients();
+  showToast('Campaign queued!', 'green');
+}
+
+async function sendQueue() {
+  if (!state.queue.length) { showToast('Queue is empty', 'red'); return; }
+  showToast('Sending all queued...', 'gold');
+  for (const q of state.queue) {
+    const savedRecipients = [...state.selectedRecipients];
+    state.selectedRecipients = q.recipients;
+    await sendCampaign();
+  }
+  state.queue = [];
+  localStorage.setItem('ogre_wa_queue', JSON.stringify(state.queue));
+  renderQueue();
+  showToast('All queued campaigns sent!', 'green');
+}
+
+function clearQueue() {
+  state.queue = [];
+  localStorage.setItem('ogre_wa_queue', JSON.stringify(state.queue));
+  renderQueue();
+  updateStats();
+  showToast('Queue cleared', 'gold');
+}
+
+function renderQueue() {
+  const c = document.getElementById('queue-list');
+  document.getElementById('queue-count').textContent = state.queue.length;
+  if (!state.queue.length) { c.innerHTML = '<div class="empty-state"><p>No queued campaigns.</p></div>'; return; }
+  c.innerHTML = state.queue.map(q => {
+    const d = new Date(q.queued);
+    const t = d.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short' });
+    return '<div class="log-item" style="flex-direction:column;align-items:flex-start;gap:4px">' +
+      '<div style="display:flex;align-items:center;gap:8px;width:100%">' +
+        '<div style="font-size:13px;font-weight:700;flex:1">' + q.name + '</div>' +
+        '<span class="badge badge-muted">' + q.recipients.length + ' contacts</span>' +
+        '<span class="badge badge-gold">' + t + '</span>' +
+      '</div>' +
+      '<div style="font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">' + q.body.slice(0, 80) + '...</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderDeliveryLog() {
+  const c = document.getElementById('delivery-log');
+  document.getElementById('log-count').textContent = state.log.length + ' entries';
+  if (!state.log.length) { c.innerHTML = '<div class="empty-state"><p>No campaigns sent yet.</p></div>'; return; }
+  c.innerHTML = state.log.slice(0, 20).map(e => {
+    const d = new Date(e.time);
+    const t = d.toLocaleDateString('en-ZA', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const st = e.demo ? 'Demo' : (e.status || 'pending');
+    return '<div class="log-item">' +
+      '<div class="log-time">' + t + '</div>' +
+      '<div class="log-recipient">' + e.name + '</div>' +
+      '<div class="log-type">' + e.contacts + ' sent' + (e.failed ? ' / ' + e.failed + ' failed' : '') + '</div>' +
+      '<div class="log-status ' + e.status + '">' + st + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function updateStats() {
+  document.getElementById('stat-campaigns').textContent = state.log.length;
+  document.getElementById('stat-contacts').textContent = state.log.reduce((s, l) => s + (l.contacts || 0), 0);
+  document.getElementById('stat-queue').textContent = state.queue.length;
+  document.getElementById('log-count').textContent = state.log.length + ' entries';
+}
+
+function showToast(msg, type) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  toast.className = 'toast ' + (type || '');
+  const icons = { green: '&#10003;', red: '&#10007;', gold: '&#9888;' };
+  document.getElementById('toast-icon').innerHTML = icons[type] || '&#10003;';
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+function updateClock() {
+  document.getElementById('clock').textContent = new Date().toUTCString().slice(17, 25) + ' UTC';
+}
+
+function init() {
+  updateClock();
+  setInterval(updateClock, 1000);
+  updateApiStatus();
+  renderRecipients();
+  renderQueue();
+  renderDeliveryLog();
+  updateStats();
+  updatePreview();
+}
+
+init();
+</script>
+</body>
+</html>

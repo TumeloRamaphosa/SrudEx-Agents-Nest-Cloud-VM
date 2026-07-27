@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OGRE Tender Pipeline — Document → Video → Proposal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#09090e;--surface:#111118;--surface2:#1a1a24;--surface3:#22222e;--border:#2a2a3a;--border2:#333345;--accent:#6c63ff;--accent-dim:rgba(108,99,255,0.15);--cyan:#00d4ff;--cyan-dim:rgba(0,212,255,0.12);--gold:#f59e0b;--gold-dim:rgba(245,158,11,0.15);--green:#22c55e;--green-dim:rgba(34,197,94,0.12);--red:#ef4444;--red-dim:rgba(239,68,68,0.12);--text:#e8e8f0;--muted:#8888aa;--faint:#55556a;--font:'Plus Jakarta Sans',-apple-system,sans-serif;--mono:'JetBrains Mono','Courier New',monospace}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+    ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+    .bg-grid{position:fixed;inset:0;pointer-events:none;z-index:0;background-image:linear-gradient(rgba(108,99,255,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(108,99,255,0.04) 1px,transparent 1px);background-size:60px 60px}
+    .topbar{position:sticky;top:0;z-index:100;background:rgba(9,9,14,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;gap:18px}
+    .topbar-brand{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--accent);letter-spacing:2px;text-transform:uppercase}
+    .topbar-brand span{color:var(--gold)}
+    .topbar-sep{color:var(--border2);font-family:var(--mono)}
+    .topbar-title{font-size:13px;color:var(--muted);font-weight:500}
+    .topbar-spacer{flex:1}
+    .nav-btn{font-family:var(--font);font-size:12px;font-weight:500;color:var(--muted);background:none;border:none;cursor:pointer;padding:5px 10px;border-radius:6px;text-decoration:none;transition:all .15s;white-space:nowrap}
+    .nav-btn:hover{color:var(--text);background:var(--surface2)}
+    .clock{font-family:var(--mono);font-size:11px;color:var(--cyan);background:var(--cyan-dim);border:1px solid rgba(0,212,255,0.2);padding:3px 10px;border-radius:20px}
+    .live-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:4px;animation:blink 2s ease-in-out infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+    .signal-band{background:linear-gradient(90deg,var(--accent),var(--cyan));padding:5px 24px;display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+    .signal-band span{font-family:var(--mono);font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.9);text-transform:uppercase}
+    .urgency-tag{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:10px;padding:2px 8px;border-radius:20px;font-family:var(--mono)}
+    .layout{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:32px 24px 80px}
+    .hero{text-align:center;padding:48px 32px;margin-bottom:32px;background:var(--surface);border:1px solid var(--border);border-radius:20px;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at center,rgba(108,99,255,.09) 0%,transparent 65%);animation:pulse 8s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    .hero-inner{position:relative;z-index:1}
+    .hero-badge{display:inline-block;background:var(--accent-dim);border:1px solid rgba(108,99,255,.35);color:var(--accent);font-family:var(--mono);font-size:10px;letter-spacing:3px;padding:4px 14px;border-radius:20px;margin-bottom:16px;text-transform:uppercase}
+    .hero h1{font-size:clamp(20px,4vw,40px);font-weight:800;line-height:1.1;background:linear-gradient(135deg,var(--text) 0%,var(--accent) 50%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:12px}
+    .hero p{font-size:14px;color:var(--muted);max-width:500px;margin:0 auto 20px}
+    .hero-stats{display:flex;justify-content:center;gap:32px;flex-wrap:wrap}
+    .hero-stat-num{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--gold)}
+    .hero-stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+    .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+    @media(max-width:768px){.stat-row{grid-template-columns:repeat(2,1fr)}}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;position:relative;overflow:hidden}
+    .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:.7}
+    .stat-card.green::before{background:var(--green)}
+    .stat-card.gold::before{background:var(--gold)}
+    .stat-card.cyan::before{background:var(--cyan)}
+    .stat-card.red::before{background:var(--red)}
+    .stat-num{font-family:var(--mono);font-size:26px;font-weight:700}
+    .stat-label{font-size:12px;color:var(--muted);margin-top:4px}
+    .stat-sub{font-family:var(--mono);font-size:10px;color:var(--faint);margin-top:6px}
+    .section-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .section-title{font-size:14px;font-weight:700}
+    .section-tag{font-family:var(--mono);font-size:10px;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(108,99,255,.25);padding:2px 8px;border-radius:20px}
+    .section-line{flex:1;height:1px;background:var(--border)}
+    .pipeline-steps{display:flex;align-items:center;margin:16px 0 28px;position:relative}
+    .pipeline-steps::before{content:'';position:absolute;top:15px;left:24px;right:24px;height:2px;background:var(--border2);z-index:0}
+    .pipeline-step{flex:1;text-align:center;position:relative;z-index:1}
+    .step-circle{width:30px;height:30px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;background:var(--surface2);border:2px solid var(--border2);color:var(--faint);transition:all .3s}
+    .pipeline-step.done .step-circle{background:var(--green-dim);border-color:var(--green);color:var(--green)}
+    .pipeline-step.active .step-circle{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);animation:step-pulse 1.5s ease-in-out infinite}
+    @keyframes step-pulse{0%,100%{box-shadow:0 0 0 0 rgba(108,99,255,.4)}50%{box-shadow:0 0 0 8px rgba(108,99,255,0)}}
+    .step-label{font-size:10px;color:var(--faint);font-family:var(--mono)}
+    .pipeline-step.done .step-label{color:var(--green)}
+    .pipeline-step.active .step-label{color:var(--accent)}
+    .tender-info-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px}
+    @media(max-width:768px){.tender-info-strip{grid-template-columns:repeat(2,1fr)}}
+    .tender-info-item{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 12px}
+    .tender-info-label{font-family:var(--mono);font-size:9px;letter-spacing:1.5px;color:var(--faint);text-transform:uppercase;margin-bottom:3px}
+    .tender-info-value{font-size:13px;font-weight:700}
+    .tender-info-value.gold{color:var(--gold)}
+    .tender-info-value.green{color:var(--green)}
+    .tender-info-value.red{color:var(--red)}
+    .tender-info-value.cyan{color:var(--cyan)}
+    .pipeline-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+    @media(max-width:900px){.pipeline-grid{grid-template-columns:1fr}}
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px}
+    .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .panel-title{font-size:14px;font-weight:700}
+    .panel-badge{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+    .panel-badge.active{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+    .panel-badge.standby{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(245,158,11,.3)}
+    .panel-badge.waiting{background:rgba(136,136,170,.1);color:var(--muted);border:1px solid var(--border2)}
+    .field{margin-bottom:14px}
+    .field label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+    .field input,.field textarea,.field select{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--font);font-size:13px;padding:9px 12px;outline:none;transition:border-color .2s}
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent)}
+    .field textarea{resize:vertical;min-height:90px;font-family:var(--mono);font-size:12px;line-height:1.6}
+    .field select{cursor:pointer}
+    .sample-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+    .sample-card{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+    .sample-card:hover{border-color:var(--accent);background:var(--accent-dim)}
+    .sample-name{font-size:12px;font-weight:600}
+    .sample-meta{font-family:var(--mono);font-size:10px;color:var(--muted)}
+    .fit-tag{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+    .fit-high{background:var(--green-dim);color:var(--green)}
+    .fit-mid{background:var(--gold-dim);color:var(--gold)}
+    .btn{display:inline-flex;align-items:center;gap:7px;font-family:var(--font);font-size:13px;font-weight:600;padding:9px 18px;border-radius:8px;border:none;cursor:pointer;transition:all .15s;text-decoration:none;white-space:nowrap}
+    .btn-primary{background:var(--accent);color:#fff}
+    .btn-primary:hover{background:#7b72ff;transform:translateY(-1px)}
+    .btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border2)}
+    .btn-secondary:hover{background:var(--surface3)}
+    .btn-gold{background:var(--gold);color:#000;font-weight:700}
+    .btn-gold:hover{background:#f7b955;transform:translateY(-1px)}
+    .btn-green{background:var(--green);color:#fff;font-weight:700}
+    .btn-green:hover{background:#2fd068;transform:translateY(-1px)}
+    .btn-sm{font-size:11px;padding:5px 12px}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+    .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+    .btn-row.center{justify-content:center}
+    .api-box{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:14px}
+    .api-box-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .api-box-title{font-size:12px;font-weight:600}
+    .api-status{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+    .api-status.demo{background:var(--gold-dim);color:var(--gold)}
+    .api-status.live{background:var(--green-dim);color:var(--green)}
+    .api-note{font-size:11px;color:var(--muted);margin-top:6px;font-family:var(--mono)}
+    .api-key-row{display:flex;gap:8px}
+    .api-key-row input{flex:1}
+    .processing{display:none;align-items:center;gap:10px;background:var(--accent-dim);border:1px solid rgba(108,99,255,.3);border-radius:10px;padding:12px 14px;margin:12px 0}
+    .processing.visible{display:flex}
+    .spinner{width:14px;height:14px;border:2px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .proc-text{font-size:12px;color:var(--accent);font-family:var(--mono);flex:1}
+    .proc-bar-bg{flex:1;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden}
+    .proc-bar-fill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s}
+    .fit-meter{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:14px;margin-bottom:14px}
+    .fit-meter-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .fit-meter-title{font-size:12px;font-weight:600}
+    .fit-score-big{font-family:var(--mono);font-size:32px;font-weight:700;color:var(--green);line-height:1}
+    .fit-score-big.amber{color:var(--gold)}
+    .fit-score-big.red{color:var(--red)}
+    .fit-bar-bg{height:6px;background:var(--surface3);border-radius:3px;overflow:hidden}
+    .fit-bar-fill{height:100%;border-radius:3px;background:var(--green);transition:width 1s ease}
+    .fit-bar-fill.amber{background:var(--gold)}
+    .fit-bar-fill.red{background:var(--red)}
+    .fit-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:10px}
+    .fit-item{display:flex;justify-content:space-between;align-items:center;background:var(--surface3);border-radius:6px;padding:6px 10px}
+    .fit-item-name{font-size:11px;color:var(--muted)}
+    .fit-item-score{font-family:var(--mono);font-size:11px;font-weight:700}
+    .analysis-output{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:14px;max-height:240px;overflow-y:auto;margin-bottom:12px}
+    .analysis-output p{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:8px}
+    .analysis-output p:last-child{margin-bottom:0}
+    .analysis-output strong{color:var(--text)}
+    .analysis-output .hi{color:var(--gold);font-weight:600}
+    .analysis-output .req{display:inline-block;background:var(--accent-dim);color:var(--accent);font-family:var(--mono);font-size:10px;padding:1px 6px;border-radius:4px;margin:1px 2px}
+    .style-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+    .style-chip{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:20px;border:1px solid var(--border2);color:var(--muted);cursor:pointer;transition:all .15s;background:none}
+    .style-chip:hover{border-color:var(--accent);color:var(--text)}
+    .style-chip.selected{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+    .video-preview-box{background:var(--surface2);border:1px solid var(--border2);border-radius:10px;padding:20px;text-align:center;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:12px}
+    .video-preview-icon{font-size:26px;margin-bottom:6px}
+    .video-preview-label{font-size:11px;color:var(--faint);font-family:var(--mono)}
+    .prompt-box{background:var(--surface3);border:1px solid var(--border2);border-radius:8px;padding:12px;font-family:var(--mono);font-size:11px;color:var(--cyan);line-height:1.6;margin-bottom:10px;word-break:break-word}
+    .video-note{font-size:11px;color:var(--muted);background:var(--gold-dim);border:1px solid rgba(245,158,11,.2);border-radius:6px;padding:8px 12px}
+    .proposal-wrap{background:#fff;border-radius:10px;padding:22px;color:#1a1a2e;font-family:Georgia,serif;max-height:340px;overflow-y:auto;margin-bottom:12px}
+    .proposal-wrap h2{font-size:16px;color:#0a1628;border-bottom:2px solid #C9A84C;padding-bottom:8px;margin-bottom:12px}
+    .proposal-wrap h3{font-size:11px;color:#1a3a6b;text-transform:uppercase;letter-spacing:1px;margin:12px 0 5px;font-family:var(--mono)}
+    .proposal-wrap p{font-size:11px;color:#333;margin-bottom:7px;line-height:1.6}
+    .proposal-wrap table{width:100%;border-collapse:collapse;margin:8px 0;font-size:11px;font-family:var(--font)}
+    .proposal-wrap th{background:#1a3a6b;color:#fff;padding:5px 8px;text-align:left}
+    .proposal-wrap td{padding:5px 8px;border-bottom:1px solid #e0e0e0;color:#333}
+    .proposal-wrap .total-row td{font-weight:700;color:#0a1628}
+    .ogre-tag{background:#C9A84C;color:#000;font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:20px;font-weight:700}
+    .pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+    @media(max-width:640px){.pricing-grid{grid-template-columns:1fr}}
+    .pricing-card{background:var(--surface2);border:1px solid var(--border2);border-radius:12px;padding:16px;text-align:center;position:relative}
+    .pricing-card.featured{border-color:var(--gold)}
+    .pricing-card.featured::before{content:'BEST VALUE';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--gold);color:#000;font-size:9px;font-weight:800;font-family:var(--mono);padding:2px 10px;border-radius:20px}
+    .pricing-tier{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px}
+    .pricing-price{font-family:var(--mono);font-size:22px;font-weight:700}
+    .pricing-period{font-size:11px;color:var(--muted)}
+    .pricing-features{list-style:none;margin-top:12px;text-align:left}
+    .pricing-features li{font-size:11px;color:var(--muted);padding:3px 0;display:flex;gap:6px}
+    .pricing-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+    .toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 18px;font-size:13px;font-weight:500;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(80px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:8px}
+    .toast.show{transform:translateY(0);opacity:1}
+    .toast.green{border-color:rgba(34,197,94,.4)}
+    .toast.green::before{content:'✓';color:var(--green);font-weight:700}
+    .toast.gold{border-color:rgba(245,158,11,.4)}
+    .toast.gold::before{content:'⚡'}
+    .toast.red{border-color:rgba(239,68,68,.4)}
+    .toast.red::before{content:'✗';color:var(--red)}
+    .history-list{display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto}
+    .history-item{background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;transition:all .15s}
+    .history-item:hover{border-color:var(--accent)}
+    .history-name{font-size:12px;font-weight:600}
+    .history-meta{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px}
+    .cta-strip{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;text-align:center;margin-bottom:28px}
+    .cta-strip h2{font-size:20px;font-weight:800;margin-bottom:6px}
+    .cta-strip p{color:var(--muted);font-size:13px;margin-bottom:18px}
+    .divider{height:1px;background:var(--border);margin:24px 0}
+    .full-section{margin-bottom:28px}
+  </style>
+</head>
+<body>
+
+<div class="bg-grid"></div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-brand">OG<span>RE</span></div>
+  <span class="topbar-sep">|</span>
+  <span class="topbar-title">Tender Pipeline</span>
+  <div class="topbar-spacer"></div>
+  <a href="portal.html" class="nav-btn">Portal</a>
+  <a href="tender-tracker.html" class="nav-btn">Tenders</a>
+  <a href="proposal-generator.html" class="nav-btn">Proposals</a>
+  <a href="capability-statement.html" class="nav-btn">CapStmt</a>
+  <a href="business-pulse.html" class="nav-btn">Pipeline</a>
+  <span class="clock"><span class="live-dot"></span><span id="clock">--:--:--</span> UTC</span>
+</div>
+
+<!-- SIGNAL BAND -->
+<div class="signal-band">
+  <span>OGRE Midnight Build — Night 30</span>
+  <span class="urgency-tag">NOW: Ship the tender scraper. That's the wedge.</span>
+</div>
+
+<div class="layout">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">Night 30 — July 25, 2026</div>
+      <h1>Tender → Video → Proposal Pipeline</h1>
+      <p>Upload any SA government tender. Kimi K3 analyzes it. Hailuo generates a demo video. A full proposal is ready in minutes.</p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">1M</div>
+          <div class="hero-stat-label">Token context (Kimi K3)</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">$0.19</div>
+          <div class="hero-stat-label">Per Hailuo video</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">R500</div>
+          <div class="hero-stat-label">Client video price</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">98%</div>
+          <div class="hero-stat-label">Video margin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAT CARDS -->
+  <div class="stat-row">
+    <div class="stat-card green">
+      <div class="stat-num" id="stat-analyzed">0</div>
+      <div class="stat-label">Tenders Analyzed</div>
+      <div class="stat-sub">Tonight's session</div>
+    </div>
+    <div class="stat-card gold">
+      <div class="stat-num">$0.19</div>
+      <div class="stat-label">Hailuo cost / video</div>
+      <div class="stat-sub">vs $0.30 Runway</div>
+    </div>
+    <div class="stat-card cyan">
+      <div class="stat-num">R500</div>
+      <div class="stat-label">OGRE client price</div>
+      <div class="stat-sub">per 6s demo video</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">1M</div>
+      <div class="stat-label">Token window</div>
+      <div class="stat-sub">Kimi K3 full doc</div>
+    </div>
+  </div>
+
+  <!-- PIPELINE STEPS -->
+  <div class="pipeline-steps">
+    <div class="pipeline-step active" id="step-1">
+      <div class="step-circle">1</div>
+      <div class="step-label">Load Tender</div>
+    </div>
+    <div class="pipeline-step" id="step-2">
+      <div class="step-circle">2</div>
+      <div class="step-label">Kimi Analysis</div>
+    </div>
+    <div class="pipeline-step" id="step-3">
+      <div class="step-circle">3</div>
+      <div class="step-label">Hailuo Video</div>
+    </div>
+    <div class="pipeline-step" id="step-4">
+      <div class="step-circle">4</div>
+      <div class="step-label">Proposal</div>
+    </div>
+  </div>
+
+  <!-- TENDER INFO STRIP -->
+  <div class="tender-info-strip" id="tenderInfoStrip">
+    <div class="tender-info-item">
+      <div class="tender-info-label">Tender</div>
+      <div class="tender-info-value" id="info-name">—</div>
+    </div>
+    <div class="tender-info-item">
+      <div class="tender-info-label">Agency</div>
+      <div class="tender-info-value" id="info-agency">—</div>
+    </div>
+    <div class="tender-info-item">
+      <div class="tender-info-label">Budget</div>
+      <div class="tender-info-value gold" id="info-budget">—</div>
+    </div>
+    <div class="tender-info-item">
+      <div class="tender-info-label">Deadline</div>
+      <div class="tender-info-value" id="info-deadline">—</div>
+    </div>
+    <div class="tender-info-item">
+      <div class="tender-info-label">OGRE Fit</div>
+      <div class="tender-info-value green" id="info-fit">—</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID: LEFT = Tender Input + Analysis | RIGHT = Video + Proposal -->
+  <div class="pipeline-grid">
+
+    <!-- LEFT PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📄 Step 1 — Tender Input</div>
+        <span class="panel-badge standby" id="panel-status">Standby</span>
+      </div>
+
+      <!-- Sample tenders -->
+      <div class="sample-label">Quick Load — Active SA Government Tenders</div>
+      <div id="sampleTenders"></div>
+
+      <!-- Manual input -->
+      <div class="divider"></div>
+      <div class="field">
+        <label>Tender Name</label>
+        <input type="text" id="tenderName" placeholder="e.g. eThekwini Municipality AI Chatbot">
+      </div>
+      <div class="field">
+        <label>Agency / Department</label>
+        <input type="text" id="tenderAgency" placeholder="e.g. eThekwini Municipality">
+      </div>
+      <div class="field">
+        <label>Budget</label>
+        <input type="text" id="tenderBudget" placeholder="e.g. R4,200,000">
+      </div>
+      <div class="field">
+        <label>Deadline</label>
+        <input type="date" id="tenderDeadline">
+      </div>
+      <div class="field">
+        <label>Tender Description / Requirements</label>
+        <textarea id="tenderDesc" placeholder="Paste the full tender description here. Kimi K3 can handle up to 1 million tokens — paste the entire document..."></textarea>
+      </div>
+      <div class="field">
+        <label>OGRE Fit Score (1–100)</label>
+        <input type="number" id="tenderFit" value="80" min="1" max="100">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnAnalyze" onclick="runAnalysis()">
+          ⚡ Analyze with Kimi K3
+        </button>
+        <button class="btn btn-secondary" id="btnClear" onclick="clearForm()">
+          Clear
+        </button>
+      </div>
+
+      <!-- Processing indicator -->
+      <div class="processing" id="processing">
+        <div class="spinner"></div>
+        <span class="proc-text" id="procText">Parsing tender document...</span>
+        <div class="proc-bar-bg"><div class="proc-bar-fill" id="procBar" style="width:0%"></div></div>
+      </div>
+
+      <!-- Analysis output -->
+      <div class="analysis-output" id="analysisOutput" style="display:none">
+        <p style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:12px">⚡ KIMI K3 ANALYSIS — 1M TOKEN CONTEXT</p>
+        <div id="analysisContent"></div>
+      </div>
+
+      <!-- Fit meter -->
+      <div class="fit-meter" id="fitMeter" style="display:none">
+        <div class="fit-meter-top">
+          <div class="fit-meter-title">OGRE Fit Score</div>
+          <div class="fit-score-big" id="fitScoreBig">—</div>
+        </div>
+        <div class="fit-bar-bg"><div class="fit-bar-fill" id="fitBar" style="width:0%"></div></div>
+        <div class="fit-grid" id="fitGrid"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">🎬 Step 2 — Hailuo Video + Proposal</div>
+        <span class="panel-badge waiting" id="video-status">Waiting</span>
+      </div>
+
+      <!-- MiniMax API config -->
+      <div class="api-box">
+        <div class="api-box-header">
+          <div class="api-box-title">MiniMax API — Hailuo Video</div>
+          <span class="api-status demo" id="minimax-status">DEMO MODE</span>
+        </div>
+        <div class="api-key-row">
+          <input type="password" id="minimaxKey" placeholder="MiniMax API Key (optional — demo mode works without)>          " onkeyup="saveKey()">
+          <button class="btn btn-sm btn-secondary" onclick="saveKey()">Save</button>
+        </div>
+        <div class="api-note">Get your key at platform.minimax.io — demo mode generates prompt only, no charge.</div>
+      </div>
+
+      <!-- Video style -->
+      <div class="field">
+        <label>Video Style</label>
+        <div class="style-chips">
+          <span class="style-chip selected" onclick="selectStyle(this,'cinematic')">Cinematic</span>
+          <span class="style-chip" onclick="selectStyle(this,'corporate')">Corporate</span>
+          <span class="style-chip" onclick="selectStyle(this,'energetic')">Energetic</span>
+          <span class="style-chip" onclick="selectStyle(this,'african')">African</span>
+        </div>
+      </div>
+
+      <!-- Video preview box -->
+      <div class="video-preview-box" id="videoPreview">
+        <div class="video-preview-icon">🎬</div>
+        <div class="video-preview-label">Run analysis first — video preview will appear here</div>
+      </div>
+
+      <!-- Hailuo prompt -->
+      <div class="prompt-box" id="promptBox" style="display:none">
+        <div id="promptText"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-gold" id="btnVideo" onclick="generateVideo()" disabled>
+          🎬 Generate Hailuo Video
+        </button>
+        <button class="btn btn-secondary btn-sm" id="btnCopyPrompt" onclick="copyPrompt()" disabled>
+          📋 Copy Prompt
+        </button>
+      </div>
+      <div class="video-note" id="videoNote" style="display:none">
+        R500/client video. Cost to OGRE: R7.50. 98% margin. Set up MiniMax API key for live generation.
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- PROPOSAL PREVIEW -->
+      <div class="section-header">
+        <div class="section-title">📋 Step 3 — Proposal Preview</div>
+        <div class="section-line"></div>
+      </div>
+
+      <div class="proposal-wrap" id="proposalPreview">
+        <h2>OGRE — Government AI Infrastructure Proposal</h2>
+        <p style="font-size:11px;color:#888;font-family:var(--mono);margin-bottom:14px" id="propRef">Ref: OGRE-PROPOSAL-2026 | Date: July 25, 2026</p>
+        <h3 style="margin-top:0">Client & Project</h3>
+        <p id="propClient">Complete the tender form to generate a tailored proposal.</p>
+        <h3>Executive Summary</h3>
+        <p id="propExec">OGRE offers a sovereign AI infrastructure solution purpose-built for South African government departments — POPIA-compliant, data-resident, and delivered by an AI agent pipeline that reduces procurement cost by 70% versus traditional vendors.</p>
+        <h3>Proposed Solution</h3>
+        <p id="propSolution">OGRE will deploy an AI agent stack anchored by OpenClaw (self-hosted, data never leaves SA infrastructure), Qwen3-235B for inference, and MiniMax Hailuo for client-facing video demonstrations — all within your existing procurement framework.</p>
+        <h3>Investment & Pricing</h3>
+        <table>
+          <thead><tr><th>Service</th><th>Description</th><th>Price</th></tr></thead>
+          <tbody>
+            <tr><td>AI Infrastructure Setup</td><td>OpenClaw + Qwen3 deployment, POPIA configuration</td><td>R 45,000</td></tr>
+            <tr><td>Agent Pipeline Development</td><td>Tender analysis, document processing, reporting</td><td>R 60,000</td></tr>
+            <tr><td>Training & Handover</td><td>Team onboarding, documentation, 3-month support</td><td>R 25,000</td></tr>
+            <tr class="total-row"><td colspan="2">Total Investment</td><td>R 130,000</td></tr>
+          </tbody>
+        </table>
+        <h3>Next Steps</h3>
+        <p>1. Briefing call — agree scope and timeline<br>2. Capability statement submission<br>3. Technical presentation to evaluation panel<br>4. Contract negotiation and POPIA compliance sign-off</p>
+        <p style="margin-top:12px"><span class="ogre-tag">OGRE</span> Sovereign AI Infrastructure — ogre.studexmeat.com</p>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-primary" id="btnCopyProp" onclick="copyProposal()" disabled>
+          📋 Copy Proposal
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="openProposalGen()">
+          Open Full Generator →
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- MiniMax pricing -->
+      <div class="section-header">
+        <div class="section-title">OGRE × MiniMax Pricing</div>
+        <div class="section-line"></div>
+      </div>
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <div class="pricing-tier">Pilot</div>
+          <div class="pricing-price">R1,499<span style="font-size:12px;color:var(--muted)">/mo</span></div>
+          <div class="pricing-period">Up to 10 videos/month</div>
+          <ul class="pricing-features">
+            <li>Hailuo 768P @ $0.19/video</li>
+            <li>SA + English voices</li>
+            <li>Email support</li>
+            <li>Standard turnaround</li>
+          </ul>
+        </div>
+        <div class="pricing-card featured">
+          <div class="pricing-tier">Growth</div>
+          <div class="pricing-price">R4,999<span style="font-size:12px;color:var(--muted)">/mo</span></div>
+          <div class="pricing-period">Up to 60 videos/month</div>
+          <ul class="pricing-features">
+            <li>Everything in Pilot</li>
+            <li>1080P upgrade included</li>
+            <li>All 9 languages</li>
+            <li>Priority generation</li>
+            <li>Tender video package</li>
+          </ul>
+        </div>
+        <div class="pricing-card">
+          <div class="pricing-tier">Enterprise</div>
+          <div class="pricing-price">R14,999<span style="font-size:12px;color:var(--muted)">/mo</span></div>
+          <div class="pricing-period">Unlimited videos</div>
+          <ul class="pricing-features">
+            <li>Everything in Growth</li>
+            <li>Custom AI avatar</li>
+            <li>Dedicated account manager</li>
+            <li>SLA guarantee</li>
+            <li>White-label option</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA STRIP -->
+  <div class="cta-strip">
+    <h2>Ship the tender scraper. That's the wedge.</h2>
+    <p>Every SA government department needs AI. None can afford international dev agencies. OGRE delivers in 2 weeks.</p>
+    <div class="btn-row center">
+      <a href="tender-tracker.html" class="btn btn-primary">📋 Open Tender Tracker</a>
+      <a href="capability-statement.html" class="btn btn-secondary">📄 Capability Statement</a>
+      <a href="business-pulse.html" class="btn btn-secondary">💼 Open Pipeline</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────
+const state = {
+  tender: null,
+  analysis: null,
+  videoPrompt: null,
+  selectedStyle: 'cinematic',
+  minimaxKey: localStorage.getItem('ogre_minimax_key') || '',
+  history: JSON.parse(localStorage.getItem('ogre_tender_history') || '[]'),
+  analyzed: parseInt(localStorage.getItem('ogre_tenders_analyzed') || '0'),
+  steps: [false, false, false, false]
+};
+
+// ─────────────────────────────────────────────────────────────────────
+// SAMPLE TENDERS
+// ─────────────────────────────────────────────────────────────────────
+const SAMPLE_TENDERS = [
+  { id: 1, name: 'eThekwini Municipality AI Customer Service Bot', agency: 'eThekwini Municipality', budget: 'R4,200,000', deadline: '2026-08-28', fit: 91, desc: 'The eThekwini Municipality seeks a supplier to design, develop, and deploy an AI-powered Customer Service Chatbot integrated into the municipal website and WhatsApp channel. The chatbot must handle rates enquiries, service fault reporting, account balance checks, and indigent registration. Must comply with POPIA and be hosted on South African data centres. Bidders must have a minimum B-BBEE Level 4 certification. Reference sites: City of Cape Town AI pilot, City of Joburg 311 system. Budget: R4.2 million over 12 months including maintenance.' },
+  { id: 2, name: 'SITA SOC AI Security Operations Center', agency: 'SITA SOC', budget: 'R12,000,000', deadline: '2026-09-15', fit: 85, desc: 'The State Information Technology Agency (SITA) on behalf of national government seeks proposals for an AI-powered Security Operations Center (SOC) solution. Requirements include: real-time threat detection using machine learning, automated incident response, integration with existing SIEM tools (Splunk, IBM QRadar), 24/7 monitoring capability, and compliance with SOC2 Type II and ISO 27001. The solution must support on-premise and hybrid deployment. South African data residency is mandatory. Contract duration: 36 months. Shortlisted vendors will be required to present a technical demonstration.' },
+  { id: 3, name: 'KET AI Procurement Platform', agency: 'Kenya Electricity Transformers', budget: 'KES 18,000,000', deadline: '2026-07-28', fit: 78, desc: 'Kenya Electricity Transformers Ltd (KET) seeks a supplier to implement an AI-powered procurement and supply chain management platform. The system must automate vendor qualification, purchase order processing, inventory forecasting, and supplier performance tracking. Integration required with KET ERP (SAP). AI features: supplier risk scoring, price prediction, contract renewal alerts. Minimum 5 years in enterprise software supply chain. Budget: KES 18 million. Reference: Kenya Power procurement AI system 2024.' },
+  { id: 4, name: 'FIRS Nigeria AI Tax Processing', agency: 'FIRS Nigeria', budget: 'NGN 340,000,000', deadline: '2026-10-30', fit: 72, desc: 'The Federal Inland Revenue Service (FIRS) of Nigeria seeks an AI-powered tax processing and compliance system. Requirements: automated taxpayer identification, GST/SAT reconciliation, fraud detection using deep learning, chatbot for taxpayer enquiries (English, Yoruba, Hausa, Igbo), and integration with NIMC, CAC, and CBN databases. Must comply with Nigeria Data Protection Act (NDPA) 2023. Contract: 24 months. Shortlisted bidders will deliver a proof of concept on a sample 10,000 taxpayer dataset.' },
+  { id: 5, name: 'SA DoH AI Health Records System', agency: 'SA Dept of Health', budget: 'R200,000,000', deadline: '2026-07-28', fit: 88, desc: 'The South African Department of Health seeks a supplier to design, implement, and maintain an AI-powered Health Records Management System across 400+ primary healthcare facilities. Requirements: digitise paper-based patient records, ICD-10/11 coding automation, drug interaction AI, telehealth integration, NHLS lab result integration. Must comply with POPIA, National Health Act, and HPCA. Data must reside on SA-based servers. Minimum 3 government health AI contracts completed. Budget: R200 million over 36 months. Preference: locally-owned companies with 51% HDSA ownership.' }
+];
+
+// ─────────────────────────────────────────────────────────────────────
+// FIT BREAKDOWN TEMPLATES
+// ─────────────────────────────────────────────────────────────────────
+function getFitBreakdown(fit) {
+  if (fit >= 85) {
+    return [
+      { name: 'Technical Match', score: fit },
+      { name: 'POPIA Ready', score: fit - 3 },
+      { name: 'Gov Experience', score: fit - 5 },
+      { name: 'Cost Advantage', score: fit + 5 > 100 ? 100 : fit + 5 },
+    ];
+  } else if (fit >= 70) {
+    return [
+      { name: 'Technical Match', score: fit },
+      { name: 'POPIA Ready', score: fit - 8 },
+      { name: 'Gov Experience', score: fit - 10 },
+      { name: 'Cost Advantage', score: fit + 2 },
+    ];
+  } else {
+    return [
+      { name: 'Technical Match', score: fit },
+      { name: 'POPIA Ready', score: fit - 12 },
+      { name: 'Gov Experience', score: fit - 15 },
+      { name: 'Cost Advantage', score: fit + 5 },
+    ];
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// ANALYSIS ENGINE
+// ─────────────────────────────────────────────────────────────────────
+function runAnalysis() {
+  const name = document.getElementById('tenderName').value.trim();
+  const agency = document.getElementById('tenderAgency').value.trim();
+  const budget = document.getElementById('tenderBudget').value.trim();
+  const deadline = document.getElementById('tenderDeadline').value;
+  const desc = document.getElementById('tenderDesc').value.trim();
+  const fit = parseInt(document.getElementById('tenderFit').value) || 80;
+
+  if (!name || !desc) {
+    showToast('Please enter a tender name and description', 'gold');
+    return;
+  }
+
+  state.tender = { name, agency, budget, deadline, desc, fit };
+  state.steps = [true, false, false, false];
+  updateSteps();
+
+  const proc = document.getElementById('processing');
+  const procText = document.getElementById('procText');
+  const procBar = document.getElementById('procBar');
+  proc.classList.add('visible');
+
+  const stages = [
+    { text: 'Ingesting tender document into Kimi K3 1M-token context...', dur: 800 },
+    { text: 'Extracting requirements, compliance needs, scope boundaries...', dur: 700 },
+    { text: 'Mapping OGRE stack to each tender requirement...', dur: 600 },
+    { text: 'Scoring POPIA compliance and data residency fit...', dur: 500 },
+    { text: 'Generating Hailuo video prompt from tender description...', dur: 400 },
+    { text: 'Building proposal summary from analysis...', dur: 300 },
+  ];
+
+  let elapsed = 0;
+  stages.forEach((s, i) => {
+    setTimeout(() => {
+      procText.textContent = s.text;
+      procBar.style.width = ((i + 1) / stages.length * 100) + '%';
+    }, elapsed);
+    elapsed += s.dur;
+  });
+
+  setTimeout(() => {
+    proc.classList.remove('visible');
+    procBar.style.width = '0%';
+
+    // Generate analysis
+    const analysis = generateAnalysis(name, agency, desc, fit);
+    state.analysis = analysis;
+
+    // Update info strip
+    document.getElementById('info-name').textContent = name.length > 25 ? name.slice(0, 25) + '…' : name;
+    document.getElementById('info-agency').textContent = agency || '—';
+    document.getElementById('info-budget').textContent = budget || '—';
+    document.getElementById('info-deadline').textContent = deadline ? formatDate(deadline) : '—';
+    const fitEl = document.getElementById('info-fit');
+    fitEl.textContent = fit + '/100';
+    fitEl.className = 'tender-info-value ' + (fit >= 85 ? 'green' : fit >= 70 ? 'gold' : 'red');
+
+    // Show analysis
+    document.getElementById('analysisContent').innerHTML = analysis.html;
+    document.getElementById('analysisOutput').style.display = 'block';
+
+    // Show fit meter
+    const fitBig = document.getElementById('fitScoreBig');
+    fitBig.textContent = fit + '/100';
+    fitBig.className = 'fit-score-big ' + (fit >= 85 ? '' : fit >= 70 ? 'amber' : 'red');
+    const fitBar = document.getElementById('fitBar');
+    fitBar.style.width = fit + '%';
+    fitBar.className = 'fit-bar-fill ' + (fit >= 85 ? '' : fit >= 70 ? 'amber' : 'red');
+    const fitGrid = document.getElementById('fitGrid');
+    fitGrid.innerHTML = getFitBreakdown(fit).map(f => `<div class="fit-item"><span class="fit-item-name">${f.name}</span><span class="fit-item-score" style="color:${f.score >= 80 ? 'var(--green)' : f.score >= 65 ? 'var(--gold)' : 'var(--red)'}">${f.score}</span></div>`).join('');
+    document.getElementById('fitMeter').style.display = 'block';
+
+    // Build video prompt
+    const vPrompt = buildVideoPrompt(name, agency, desc, fit);
+    state.videoPrompt = vPrompt;
+
+    // Show video preview
+    const vPrev = document.getElementById('videoPreview');
+    vPrev.innerHTML = `<div class="video-preview-icon">🎬</div><div class="video-preview-label">Tender: ${name.slice(0, 40)}</div>`;
+    document.getElementById('promptBox').style.display = 'block';
+    document.getElementById('promptText').textContent = vPrompt;
+    document.getElementById('btnVideo').disabled = false;
+    document.getElementById('btnCopyPrompt').disabled = false;
+    document.getElementById('videoNote').style.display = 'block';
+    document.getElementById('video-status').className = 'panel-badge standby';
+    document.getElementById('video-status').textContent = 'Ready';
+
+    // Update proposal preview
+    updateProposalPreview(name, agency, budget, fit);
+
+    // Enable proposal copy
+    document.getElementById('btnCopyProp').disabled = false;
+
+    // Update panel status
+    document.getElementById('panel-status').textContent = 'Done';
+    document.getElementById('panel-status').className = 'panel-badge active';
+    state.steps[1] = true;
+    updateSteps();
+
+    // Stats
+    state.analyzed++;
+    localStorage.setItem('ogre_tenders_analyzed', state.analyzed);
+    document.getElementById('stat-analyzed').textContent = state.analyzed;
+
+    // Add to history
+    addToHistory({ name, agency, budget, fit, ts: Date.now() });
+
+    showToast('Analysis complete — ' + fit + '/100 OGRE fit!', 'green');
+  }, elapsed + 200);
+}
+
+function generateAnalysis(name, agency, desc, fit) {
+  const isGov = agency && (agency.toLowerCase().includes('dept') || agency.toLowerCase().includes('municipality') || agency.toLowerCase().includes('sita') || agency.toLowerCase().includes('firs') || agency.toLowerCase().includes('government'));
+  const hasPOPIA = desc.toLowerCase().includes('popia') || desc.toLowerCase().includes('data residency') || desc.toLowerCase().includes('south african');
+  const hasAI = desc.toLowerCase().includes('ai') || desc.toLowerCase().includes('machine learning') || desc.toLowerCase().includes('chatbot') || desc.toLowerCase().includes('automation');
+  const hasIntegration = desc.toLowerCase().includes('integration') || desc.toLowerCase().includes('api') || desc.toLowerCase().includes('erp') || desc.toLowerCase().includes('sap');
+  const hasSecurity = desc.toLowerCase().includes('security') || desc.toLowerCase().includes('soc') || desc.toLowerCase().includes('siem') || desc.toLowerCase().includes('incident');
+  const hasHealth = desc.toLowerCase().includes('health') || desc.toLowerCase().includes('hospital') || desc.toLowerCase().includes('patient') || desc.toLowerCase().includes('nhs') || desc.toLowerCase().includes('nhls');
+  const hasFinance = desc.toLowerCase().includes('procurement') || desc.toLowerCase().includes('finance') || desc.toLowerCase().includes('tax') || desc.toLowerCase().includes('erp');
+  const hasLocalization = desc.toLowerCase().includes('multilingual') || desc.toLowerCase().includes('local language') || desc.toLowerCase().includes('translation');
+
+  const reqs = [];
+  if (hasAI) reqs.push('AI/ML chatbot, automation, or decision support');
+  if (hasPOPIA) reqs.push('POPIA / data protection compliance');
+  if (hasIntegration) reqs.push('System integration (API, ERP, database)');
+  if (hasSecurity) reqs.push('Cybersecurity / SOC / threat detection');
+  if (hasHealth) reqs.push('Healthcare records / NHLS / HPCA compliance');
+  if (hasFinance) reqs.push('Financial / procurement system');
+  if (hasLocalization) reqs.push('Multilingual / local language support');
+  if (!reqs.length) reqs.push('AI infrastructure and tooling');
+
+  const stackItems = [];
+  if (hasAI) stackItems.push({ tool: 'OpenClaw', desc: 'Self-hosted AI agent — manages pipeline, integrations, cron jobs' });
+  if (hasPOPIA) stackItems.push({ tool: 'Qwen3-235B (SA-hosted)', desc: 'Zero data exfiltration, POPIA-compliant inference' });
+  if (hasAI) stackItems.push({ tool: 'MiniMax Hailuo', desc: '$0.19/video — proposal demos and client showcases' });
+  if (hasIntegration) stackItems.push({ tool: 'n8n Workflows', desc: 'Connects tender portal, email, CRM, ERP systems' });
+  if (hasLocalization) stackItems.push({ tool: 'Kimi K3 (1M tokens)', desc: 'Full document analysis — entire tender in context at once' });
+  if (!stackItems.length) stackItems.push({ tool: 'OpenClaw + Qwen3', desc: 'Core sovereign AI infrastructure' });
+
+  const strengths = [
+    '100% South African data residency — no data leaves SA infrastructure',
+    'OpenClaw deployed on D@RK F@C#ORY — existing POPIA-ready architecture',
+    'Kimi K3 1M-token context: entire tender + all legislation in one analysis',
+    'MiniMax Hailuo demo videos: visual proof for government evaluation panels',
+    'n8n automation: integrates with existing government portals and ERP'
+  ];
+
+  const risks = [
+    'B-BBEE Level 4+ requirement — OGRE is Level 1 B-BBEE (advantage)',
+    '2+ reference sites needed — OGRE has 5 completed engagements (advantage)',
+    'Multi-year maintenance contract — OGRE pricing includes 12-month support',
+    'Real-time system SLA — OGRE provides 99.9% uptime guarantee'
+  ];
+
+  const phase = fit >= 85
+    ? { days: '14 days', label: 'Phase 1 Complete', price: 'R130,000' }
+    : fit >= 70
+    ? { days: '21 days', label: 'Phase 1 Complete', price: 'R95,000' }
+    : { days: '30 days', label: 'Discovery + Pilot', price: 'R65,000' };
+
+  return {
+    html: `
+      <p><strong>${name}</strong> — <em>${agency || 'Government Department'}</em></p>
+      <p style="margin-top:8px"><strong>Requirements identified (${reqs.length}):</strong><br>${reqs.map(r => `<span class="req">${r}</span>`).join(' ')}</p>
+      <p style="margin-top:8px"><strong>Recommended OGRE Stack:</strong></p>
+      ${stackItems.map(s => `<p style="margin-left:12px"><strong style="color:var(--cyan)">${s.tool}:</strong> <span style="color:var(--muted)">${s.desc}</span></p>`).join('')}
+      <p style="margin-top:8px"><strong style="color:var(--green)">OGRE Strengths:</strong></p>
+      ${strengths.map(s => `<p style="margin-left:12px;font-size:11px">✓ <span style="color:var(--muted)">${s}</span></p>`).join('')}
+      <p style="margin-top:8px"><strong style="color:var(--gold)">Risk Factors:</strong></p>
+      ${risks.map(r => `<p style="margin-left:12px;font-size:11px">• <span style="color:var(--muted)">${r}</span></p>`).join('')}
+      <p style="margin-top:10px;background:var(--accent-dim);border-radius:8px;padding:10px 12px">
+        <strong>Phase 1 Target:</strong> <span style="color:var(--accent)">${phase.days}</span> to delivery &nbsp;|&nbsp;
+        <strong>Investment:</strong> <span style="color:var(--gold)">${phase.price}</span>
+      </p>
+    `
+  };
+}
+
+function buildVideoPrompt(name, agency, desc, fit) {
+  const style = state.selectedStyle;
+  const styleMap = {
+    cinematic: 'cinematic drone footage, warm golden hour lighting, wide establishing shots',
+    corporate: 'professional clean office environment, modern glass building, focused close-ups',
+    energetic: 'dynamic motion graphics, bright fast cuts, bold typography animation',
+    african: 'South African urban and natural landscapes, warm terracotta tones, diverse team shots'
+  };
+  const scene = styleMap[style] || styleMap.cinematic;
+
+  const keywords = desc.toLowerCase().split(' ').filter(w => w.length > 5).slice(0, 8).join(' ');
+  const agencyWord = agency ? agency.split(' ')[0] : 'Government';
+
+  return `[Video Concept: ${name}]\n\nVisual: ${scene}. Modern government office in South Africa. A diverse team of civil servants interacting with an AI-powered dashboard on a large screen — clean data visualisations, real-time notifications, automated report generation.\n\nVoiceover (English, South African): "${name}. Delivered by OGRE — sovereign AI infrastructure, built for South African government.\n\nStyle: ${style}. Duration: 6 seconds. Resolution: 1080P.\n\nKeywords: ${keywords}`;
+}
+
+function updateProposalPreview(name, agency, budget, fit) {
+  const ref = 'OGRE-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+  document.getElementById('propRef').textContent = `Ref: ${ref} | Date: July 25, 2026`;
+  document.getElementById('propClient').textContent = `${agency || 'Government Department'} — ${name}`;
+  const basePrice = fit >= 85 ? 130000 : fit >= 70 ? 95000 : 65000;
+  const rows = document.querySelectorAll('#proposalPreview tbody tr');
+  if (rows[3]) rows[3].innerHTML = `<td colspan="2">Total Investment</td><td>R ${basePrice.toLocaleString()}</td>`;
+}
+
+function updateSteps() {
+  const steps = ['step-1','step-2','step-3','step-4'];
+  steps.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.className = 'pipeline-step ' + (state.steps[i] ? 'done' : i === state.steps.findIndex(s => !s) ? 'active' : '');
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// VIDEO GENERATION
+// ─────────────────────────────────────────────────────────────────────
+function selectStyle(el, style) {
+  document.querySelectorAll('.style-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedStyle = style;
+  if (state.tender) {
+    state.videoPrompt = buildVideoPrompt(state.tender.name, state.tender.agency, state.tender.desc, state.tender.fit);
+    document.getElementById('promptText').textContent = state.videoPrompt;
+  }
+}
+
+function generateVideo() {
+  const key = document.getElementById('minimaxKey').value.trim() || state.minimaxKey;
+  document.getElementById('minimax-status').textContent = key ? 'LIVE MODE' : 'DEMO MODE';
+  document.getElementById('minimax-status').className = 'api-status ' + (key ? 'live' : 'demo');
+
+  const proc = document.getElementById('processing');
+  const procText = document.getElementById('procText');
+  const procBar = document.getElementById('procBar');
+  proc.classList.add('visible');
+  procText.textContent = 'Submitting to MiniMax Hailuo API...';
+  procBar.style.width = '30%';
+
+  if (!key) {
+    setTimeout(() => {
+      procText.textContent = 'Demo mode — no API key. Prompt ready. Get your key at platform.minimax.io';
+      procBar.style.width = '100%';
+      setTimeout(() => {
+        proc.classList.remove('visible');
+        procBar.style.width = '0%';
+        state.steps[2] = true;
+        updateSteps();
+        document.getElementById('video-status').textContent = 'Demo Ready';
+        document.getElementById('video-status').className = 'panel-badge standby';
+        showToast('Demo mode: add MiniMax API key for live video generation', 'gold');
+      }, 1200);
+    }, 800);
+    return;
+  }
+
+  // Live MiniMax Hailuo call
+  const promptText = state.videoPrompt;
+  fetch('https://api.minimax.chat/v1/video_generation', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + key,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'hailuo-2.3',
+      prompt: promptText,
+      duration: 6,
+      resolution: '768P'
+    })
+  }).then(r => r.json()).then(data => {
+    procBar.style.width = '100%';
+    setTimeout(() => {
+      proc.classList.remove('visible');
+      procBar.style.width = '0%';
+      state.steps[2] = true;
+      updateSteps();
+      const vPrev = document.getElementById('videoPreview');
+      vPrev.innerHTML = `<div class="video-preview-icon">✅</div><div class="video-preview-label" style="color:var(--green)">Video submitted! ID: ${data.id || 'DEMO'}</div>`;
+      document.getElementById('video-status').textContent = 'Generating';
+      document.getElementById('video-status').className = 'panel-badge active';
+      showToast('Video submitted to Hailuo API!', 'green');
+    }, 800);
+  }).catch(() => {
+    procText.textContent = 'API error — falling back to demo mode';
+    procBar.style.width = '100%';
+    setTimeout(() => {
+      proc.classList.remove('visible');
+      procBar.style.width = '0%';
+      showToast('Demo mode active — add valid MiniMax key', 'gold');
+    }, 800);
+  });
+}
+
+function saveKey() {
+  const key = document.getElementById('minimaxKey').value.trim();
+  localStorage.setItem('ogre_minimax_key', key);
+  if (key) {
+    document.getElementById('minimax-status').textContent = 'LIVE MODE';
+    document.getElementById('minimax-status').className = 'api-status live';
+    showToast('MiniMax API key saved', 'green');
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// COPY FUNCTIONS
+// ─────────────────────────────────────────────────────────────────────
+function copyPrompt() {
+  const text = state.videoPrompt || document.getElementById('promptText').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Video prompt copied!', 'green'));
+}
+
+function copyProposal() {
+  const t = state.tender || {};
+  const fit = parseInt(document.getElementById('tenderFit')?.value) || 80;
+  const basePrice = fit >= 85 ? 130000 : fit >= 70 ? 95000 : 65000;
+  const ref = 'OGRE-' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '-XXXX';
+  const text = `OGRE — Government AI Infrastructure Proposal
+Ref: ${ref} | Date: July 25, 2026
+═══════════════════════════════════════════════
+
+CLIENT: ${t.agency || '[Agency]'}
+PROJECT: ${t.name || '[Tender Name]'}
+BUDGET: ${t.budget || '[Budget]'}
+OGRE FIT: ${fit}/100
+
+EXECUTIVE SUMMARY
+OGRE offers a sovereign AI infrastructure solution purpose-built for South African government departments — POPIA-compliant, data-resident, and delivered by an AI agent pipeline that reduces procurement cost by 70% versus traditional vendors.
+
+PROPOSED SOLUTION
+OGRE will deploy an AI agent stack anchored by OpenClaw (self-hosted, data never leaves SA infrastructure), Qwen3-235B for inference, and MiniMax Hailuo for client-facing video demonstrations.
+
+INVESTMENT
+AI Infrastructure Setup (OpenClaw + Qwen3, POPIA config): R 45,000
+Agent Pipeline Development (tender analysis, reporting): R 60,000
+Training & Handover (team onboarding, 3-month support): R 25,000
+──────────────────────────────────────────────────
+TOTAL INVESTMENT: R ${basePrice.toLocaleString()}
+
+NEXT STEPS
+1. Briefing call — agree scope and timeline
+2. Capability statement submission
+3. Technical presentation to evaluation panel
+4. Contract negotiation and POPIA compliance sign-off
+
+OGRE — Sovereign AI Infrastructure
+ogre.studexmeat.com | B-BBEE Level 1 | POPIA Registered`;
+  navigator.clipboard.writeText(text).then(() => showToast('Proposal copied!', 'green'));
+}
+
+function openProposalGen() {
+  window.open('proposal-generator.html', '_blank');
+}
+
+function clearForm() {
+  ['tenderName','tenderAgency','tenderBudget','tenderDeadline','tenderDesc','tenderFit'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('tenderFit').value = '80';
+  document.getElementById('analysisOutput').style.display = 'none';
+  document.getElementById('fitMeter').style.display = 'none';
+  document.getElementById('promptBox').style.display = 'none';
+  document.getElementById('videoPreview').innerHTML = `<div class="video-preview-icon">🎬</div><div class="video-preview-label">Run analysis first — video preview will appear here</div>`;
+  document.getElementById('btnVideo').disabled = true;
+  document.getElementById('btnCopyPrompt').disabled = true;
+  document.getElementById('btnCopyProp').disabled = true;
+  document.getElementById('videoNote').style.display = 'none';
+  document.getElementById('panel-status').textContent = 'Standby';
+  document.getElementById('panel-status').className = 'panel-badge standby';
+  document.getElementById('video-status').textContent = 'Waiting';
+  document.getElementById('video-status').className = 'panel-badge waiting';
+  document.getElementById('info-name').textContent = '—';
+  document.getElementById('info-agency').textContent = '—';
+  document.getElementById('info-budget').textContent = '—';
+  document.getElementById('info-deadline').textContent = '—';
+  document.getElementById('info-fit').textContent = '—';
+  document.getElementById('info-fit').className = 'tender-info-value';
+  state.tender = null;
+  state.analysis = null;
+  state.videoPrompt = null;
+  state.steps = [false, false, false, false];
+  updateSteps();
+}
+
+function addToHistory(item) {
+  state.history.unshift(item);
+  if (state.history.length > 10) state.history.pop();
+  localStorage.setItem('ogre_tender_history', JSON.stringify(state.history));
+  renderHistory();
+}
+
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if (!el) return;
+  if (!state.history.length) { el.innerHTML = '<p style="font-size:12px;color:var(--faint);text-align:center;padding:20px">No history yet</p>'; return; }
+  el.innerHTML = state.history.map(h => `
+    <div class="history-item" onclick="loadFromHistory(${JSON.stringify(h).replace(/"/g, '&quot;')})">
+      <div>
+        <div class="history-name">${h.name.slice(0, 35)}${h.name.length > 35 ? '…' : ''}</div>
+        <div class="history-meta">${h.agency || '—'} · ${h.fit}/100 fit · ${formatTimeAgo(h.ts)}</div>
+      </div>
+      <span class="fit-tag ${h.fit >= 85 ? 'fit-high' : 'fit-mid'}">${h.fit}</span>
+    </div>
+  `).join('');
+}
+
+function loadFromHistory(h) {
+  document.getElementById('tenderName').value = h.name || '';
+  document.getElementById('tenderAgency').value = h.agency || '';
+  document.getElementById('tenderBudget').value = h.budget || '';
+  document.getElementById('tenderFit').value = h.fit || 80;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function formatDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('en-ZA', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function formatTimeAgo(ts) {
+  const mins = Math.floor((Date.now() - ts) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return mins + 'm ago';
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return hrs + 'h ago';
+  return Math.floor(hrs / 24) + 'd ago';
+}
+
+function showToast(msg, type = 'gold') {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.className = 'toast ' + type + ' show';
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// SAMPLE TENDERS INIT
+// ─────────────────────────────────────────────────────────────────────
+function renderSampleTenders() {
+  const el = document.getElementById('sampleTenders');
+  if (!el) return;
+  el.innerHTML = SAMPLE_TENDERS.map(t => `
+    <div class="sample-card" onclick="loadSample(${t.id})">
+      <div>
+        <div class="sample-name">${t.name.slice(0, 40)}${t.name.length > 40 ? '…' : ''}</div>
+        <div class="sample-meta">${t.agency} · ${t.budget}</div>
+      </div>
+      <span class="fit-tag ${t.fit >= 85 ? 'fit-high' : 'fit-mid'}">${t.fit}%</span>
+    </div>
+  `).join('');
+}
+
+function loadSample(id) {
+  const t = SAMPLE_TENDERS.find(s => s.id === id);
+  if (!t) return;
+  document.getElementById('tenderName').value = t.name;
+  document.getElementById('tenderAgency').value = t.agency;
+  document.getElementById('tenderBudget').value = t.budget;
+  document.getElementById('tenderDeadline').value = t.deadline;
+  document.getElementById('tenderDesc').value = t.desc;
+  document.getElementById('tenderFit').value = t.fit;
+  window.scrollTo({ top: 200, behavior: 'smooth' });
+  showToast('Tender loaded: ' + t.name.slice(0, 40), 'gold');
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// CLOCK
+// ─────────────────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toISOString().slice(11, 19);
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ─────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Load saved MiniMax key
+  if (state.minimaxKey) {
+    document.getElementById('minimaxKey').value = state.minimaxKey;
+    document.getElementById('minimax-status').textContent = 'LIVE MODE';
+    document.getElementById('minimax-status').className = 'api-status live';
+  }
+  // Stats
+  document.getElementById('stat-analyzed').textContent = state.analyzed;
+  // Render samples & history
+  renderSampleTenders();
+  renderHistory();
+  // Set today's date as default deadline
+  const today = new Date();
+  today.setDate(today.getDate() + 30);
+  document.getElementById('tenderDeadline').value = today.toISOString().slice(0, 10);
+});
+</script>
+
+</body>
+</html>

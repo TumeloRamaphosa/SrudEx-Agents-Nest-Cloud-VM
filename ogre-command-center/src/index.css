@@ -1,0 +1,27 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #09090e;
+  color: #e8e8f0;
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+button:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+a {
+  text-decoration: none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(108,99,255,0.4); border-radius: 4px; }

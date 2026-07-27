@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGRE SA Tender Command Center v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--gold:#C9A84C;--black:#09090e;--navy:#0f1e3d;--cyan:#00d4ff;--green:#00ff88;--red:#ff4757;--amber:#ffb142;--muted:#6b7280;--surface:#111827;--card:#1a2235;--border:#2a3550}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--black);color:#e8e8f0;min-height:100vh}
+.signal-band{background:var(--gold);color:var(--black);padding:6px 24px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:2px;text-align:center}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(9,9,14,0.95);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(10px)}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.logo{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:15px;color:var(--gold);letter-spacing:1px}
+.logo span{color:var(--cyan)}
+.nav{display:flex;gap:4px}
+.nav a{color:#9ca3af;text-decoration:none;font-size:13px;font-weight:500;padding:6px 12px;border-radius:6px;transition:all 0.15s}
+.nav a:hover,.nav a.active{color:var(--gold);background:rgba(201,168,76,0.1)}
+.live-clock{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--cyan);margin-left:16px}
+.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#09090e 0%,#0f1e3d 50%,#09090e 100%);border-bottom:1px solid var(--border);padding:40px 24px 32px}
+.hero-inner{max-width:1200px;margin:0 auto}
+.hero-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);letter-spacing:3px;margin-bottom:12px}
+.hero h1{font-family:'Newsreader',serif;font-size:clamp(28px,4vw,42px);font-weight:600;color:#fff;line-height:1.2;margin-bottom:8px}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero p{color:#9ca3af;font-size:15px;max-width:600px;line-height:1.6}
+.kzn-alert{background:linear-gradient(90deg,rgba(255,71,87,0.15),rgba(201,168,76,0.1));border:1px solid rgba(255,71,87,0.3);border-radius:12px;padding:16px 20px;margin-top:20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.kzn-alert-dot{width:10px;height:10px;background:var(--red);border-radius:50%;flex-shrink:0;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.kzn-alert-text{flex:1;min-width:200px}
+.kzn-alert-title{color:#fff;font-weight:700;font-size:14px;margin-bottom:2px}
+.kzn-alert-sub{color:#9ca3af;font-size:12px;font-family:'JetBrains Mono',monospace}
+.kzn-alert-cta{display:flex;gap:8px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;font-family:'Plus Jakarta Sans',sans-serif}
+.btn-gold{background:var(--gold);color:var(--black)}
+.btn-gold:hover{background:#e0be60}
+.btn-outline{background:transparent;border:1px solid var(--border);color:#e8e8f0}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold)}
+.btn-sm{padding:5px 12px;font-size:12px}
+
+/* STATS */
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:28px 24px;max-width:1200px;margin:0 auto}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.gold::before{background:var(--gold)}
+.stat-card.cyan::before{background:var(--cyan)}
+.stat-card.green::before{background:var(--green)}
+.stat-card.red::before{background:var(--red)}
+.stat-num{font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:var(--gold);line-height:1}
+.stat-num.cyan{color:var(--cyan)}
+.stat-num.green{color:var(--green)}
+.stat-num.red{color:var(--red)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:6px;font-weight:500}
+.stat-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px}
+
+/* SECTIONS */
+.section{padding:28px 24px;max-width:1200px;margin:0 auto}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.section-title{font-family:'Newsreader',serif;font-size:20px;font-weight:600;color:#fff}
+.section-count{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2px 10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+
+/* TENDER CARDS */
+.tender-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.tender-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all 0.2s}
+.tender-card:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.tender-card.urgent{border-color:rgba(255,71,87,0.4)}
+.tender-card.urgent .tender-top{border-bottom-color:rgba(255,71,87,0.2)}
+.tender-top{padding:18px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px}
+.urgency-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.urgency-dot.red{background:var(--red);box-shadow:0 0 8px rgba(255,71,87,0.5)}
+.urgency-dot.amber{background:var(--amber);box-shadow:0 0 8px rgba(255,177,66,0.5)}
+.urgency-dot.green{background:var(--green);box-shadow:0 0 8px rgba(0,255,136,0.4)}
+.tender-header{flex:1}
+.tender-country{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px}
+.tender-title{font-weight:700;font-size:14px;color:#fff;line-height:1.3}
+.tender-ref{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);margin-top:4px}
+.tender-body{padding:14px 20px}
+.tender-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.tender-meta-item{background:var(--surface);border-radius:8px;padding:8px 10px}
+.tender-meta-label{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
+.tender-meta-value{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--gold)}
+.tender-meta-value.red{color:var(--red)}
+.tender-meta-value.green{color:var(--green)}
+.fit-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.fit-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);width:60px;flex-shrink:0}
+.fit-bar-wrap{flex:1;height:6px;background:var(--surface);border-radius:3px;overflow:hidden}
+.fit-bar{height:100%;border-radius:3px;transition:width 1s ease}
+.fit-score{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;width:34px;text-align:right;flex-shrink:0}
+.tender-actions{display:flex;gap:6px;flex-wrap:wrap}
+.tender-actions .btn{font-size:11px;padding:5px 10px}
+
+/* CHECKLIST */
+.checklist-panel{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;max-width:600px}
+.checklist-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:all 0.15s}
+.checklist-item:last-child{border-bottom:none}
+.checklist-item:hover .check-box{border-color:var(--gold)}
+.check-box{width:20px;height:20px;border:2px solid var(--border);border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.check-box.done{background:var(--green);border-color:var(--green)}
+.check-box.done::after{content:'✓';color:var(--black);font-size:12px;font-weight:700}
+.check-text{flex:1;font-size:13px;color:#e8e8f0}
+.check-text.done{text-decoration:line-through;color:var(--muted)}
+.check-meta{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+.progress-bar{height:6px;background:var(--surface);border-radius:3px;margin:16px 0;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--cyan));border-radius:3px;transition:width 0.5s ease}
+
+/* HAILUO VIDEO LAB */
+.hailuo-panel{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.hailuo-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.hailuo-header-icon{font-size:20px}
+.hailuo-header-title{font-weight:700;font-size:15px}
+.hailuo-header-sub{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.hailuo-body{padding:20px}
+.api-key-row{display:flex;gap:8px;margin-bottom:16px}
+.api-key-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:#e8e8f0;font-family:'JetBrains Mono',monospace;font-size:12px;outline:none}
+.api-key-input:focus{border-color:var(--gold)}
+.api-status{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-family:'JetBrains Mono',monospace;padding:4px 10px;border-radius:20px}
+.api-status.demo{background:rgba(255,177,66,0.15);color:var(--amber)}
+.api-status.live{background:rgba(0,255,136,0.15);color:var(--green)}
+.video-form{display:grid;gap:12px;margin-bottom:16px}
+.form-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.form-label{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;width:100px;flex-shrink:0}
+.form-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:#e8e8f0;font-size:13px;outline:none;min-width:140px}
+.form-input:focus{border-color:var(--gold)}
+.form-select{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:#e8e8f0;font-size:12px;outline:none}
+.style-chips{display:flex;gap:6px;flex-wrap:wrap}
+.style-chip{padding:5px 12px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid var(--border);color:#9ca3af;transition:all 0.15s}
+.style-chip.active{background:rgba(201,168,76,0.2);border-color:var(--gold);color:var(--gold)}
+.generate-btn{width:100%;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#b8923e);color:var(--black);font-weight:700;font-size:14px;border:none;cursor:pointer;transition:all 0.2s}
+.generate-btn:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(201,168,76,0.3)}
+.pipeline{display:flex;gap:0;margin-top:16px}
+.pipeline-step{flex:1;text-align:center;padding:8px 4px;position:relative}
+.pipeline-step::after{content:'';position:absolute;top:14px;right:-8px;width:16px;height:2px;background:var(--border)}
+.pipeline-step:last-child::after{display:none}
+.pipeline-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--border);background:var(--surface);margin:0 auto 6px;display:flex;align-items:center;justify-content:center}
+.pipeline-dot.done{background:var(--green);border-color:var(--green)}
+.pipeline-dot.active{border-color:var(--gold);animation:pulse 1s infinite}
+.pipeline-label{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;line-height:1.3}
+.prompt-output{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-top:16px}
+.prompt-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.prompt-text{font-family:'Newsreader',serif;font-size:14px;color:var(--gold);line-height:1.6;font-style:italic}
+
+/* PACKAGE BUILDER */
+.package-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.package-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all 0.2s}
+.package-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.package-card.selected{border-color:var(--gold);background:rgba(201,168,76,0.05)}
+.package-card.selected .package-check{display:flex}
+.package-check{display:none;width:20px;height:20px;background:var(--gold);border-radius:50%;align-items:center;justify-content:center;margin-bottom:12px}
+.package-check::after{content:'✓';color:var(--black);font-size:12px;font-weight:700}
+.package-tier{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--gold);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.package-name{font-weight:800;font-size:17px;color:#fff;margin-bottom:4px}
+.package-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+.package-features{list-style:none;display:grid;gap:6px;margin-bottom:16px}
+.package-features li{font-size:12px;color:#9ca3af;display:flex;align-items:flex-start;gap:8px}
+.package-features li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px}
+.package-price{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:var(--gold)}
+.package-price span{font-size:12px;color:var(--muted);font-weight:400}
+.tender-package-selected{margin-top:16px;padding:14px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:10px;font-size:13px;color:#e8e8f0}
+.tender-package-selected strong{color:var(--cyan)}
+
+/* MINIMAX PRICING */
+.minimax-pricing{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:16px}
+.pricing-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px}
+.pricing-row:last-child{border-bottom:none}
+.pricing-name{color:#e8e8f0}
+.pricing-vs{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.pricing-save{color:var(--green);font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600}
+
+/* SUBMISSION PACK */
+.submission-pack{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-top:16px}
+.pack-title{font-weight:700;font-size:15px;margin-bottom:4px}
+.pack-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.pack-items{display:grid;gap:8px;margin-bottom:16px}
+.pack-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface);border-radius:8px}
+.pack-item-check{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pack-item-check.done{border-color:var(--green);background:var(--green)}
+.pack-item-check.done::after{content:'✓';color:var(--black);font-size:11px;font-weight:700}
+.pack-item-text{flex:1;font-size:13px}
+.pack-item-status{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted)}
+.pack-cta{display:flex;gap:8px;flex-wrap:wrap}
+
+/* QWEN SECTION */
+.qwen-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.qwen-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.qwen-card h4{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);margin-bottom:4px}
+.qwen-card p{font-size:12px;color:var(--muted);line-height:1.5}
+.qwen-cta{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 18px;display:flex;align-items:center;gap:10px;font-size:13px;z-index:999;transform:translateY(100px);opacity:0;transition:all 0.3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast-icon{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px}
+.toast-icon.green{background:rgba(0,255,136,0.2);color:var(--green)}
+.toast-icon.gold{background:rgba(201,168,76,0.2);color:var(--gold)}
+.toast-icon.red{background:rgba(255,71,87,0.2);color:var(--red)}
+
+/* TABS */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);margin-bottom:24px}
+.tab{padding:8px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.15s;margin-bottom:-1px}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab:hover{color:#e8e8f0}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:20px 24px;text-align:center;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+.nav{display:none}
+.stats-bar{grid-template-columns:1fr 1fr}
+.tender-grid{grid-template-columns:1fr}
+.kzn-alert{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<div class="signal-band">🌙 OGRE MIDNIGHT BUILD — NIGHT 29 · 2026-07-24 · CIPHER TR@CE · DARK FACTORY · STUDENT ARCADE</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">OGRE<span>/</span>SA-TENDERS</div>
+    <nav class="nav">
+      <a href="#" class="active">Command Center</a>
+      <a href="tender-scanner.html">Tender Scanner</a>
+      <a href="proposal-generator.html">Proposals</a>
+      <a href="capability-statement.html">Capability</a>
+      <a href="business-pulse.html">Pipeline</a>
+      <a href="pipeline-crisis-manager.html">Crisis Manager</a>
+    </nav>
+  </div>
+  <div class="live-clock"><span class="live-dot"></span><span id="clock">--:--:-- UTC</span></div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-label">// SA GOVERNMENT TENDER COMMAND CENTER v2</div>
+    <h1>Active Tenders · <em>R8M+</em> in Opportunities</h1>
+    <p>Tonight's research (July 24, 2026) surfaced 4 live SA + Africa government AI tenders. Submit a bid this week. Use Hailuo videos. Ship the package.</p>
+    <div class="kzn-alert">
+      <div class="kzn-alert-dot"></div>
+      <div class="kzn-alert-text">
+        <div class="kzn-alert-title">🇿🇦 eThekwini Municipality — NEW TONIGHT</div>
+        <div class="kzn-alert-sub">R4.2M · AI Customer Service Bot · Closes Aug 2026 · Fit: 91/100</div>
+      </div>
+      <div class="kzn-alert-cta">
+        <button class="btn btn-gold btn-sm" onclick="generateHailuoVideo('ethekwini')">🎬 Hailuo Intro Video</button>
+        <button class="btn btn-outline btn-sm" onclick="generateProposal('ethekwini')">📄 Generate Proposal</button>
+        <button class="btn btn-outline btn-sm" onclick="copyPitch('ethekwini')">📋 Copy Pitch</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-card gold">
+    <div class="stat-num">R8.2M+</div>
+    <div class="stat-label">Total Pipeline</div>
+    <div class="stat-sub">4 active tenders</div>
+  </div>
+  <div class="stat-card cyan">
+    <div class="stat-num cyan">2</div>
+    <div class="stat-label">Critical (≤7d)</div>
+    <div class="stat-sub">KET Kenya + KZN new</div>
+  </div>
+  <div class="stat-card green">
+    <div class="stat-num green">91</div>
+    <div class="stat-label">Top Fit Score</div>
+    <div class="stat-sub">eThekwini AI Bot</div>
+  </div>
+  <div class="stat-card red">
+    <div class="stat-num red">R0</div>
+    <div class="stat-label">Won Today</div>
+    <div class="stat-sub">Submit a bid first</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="section">
+
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('tenders')">🎯 Tenders</div>
+    <div class="tab" onclick="switchTab('checklist')">✅ Submission Checklist</div>
+    <div class="tab" onclick="switchTab('hailuo')">🎬 Hailuo Video Lab</div>
+    <div class="tab" onclick="switchTab('qwen')">⚡ Qwen3 Integration</div>
+    <div class="tab" onclick="switchTab('package')">📦 Submission Pack</div>
+  </div>
+
+  <!-- TENDERS TAB -->
+  <div id="tab-tenders" class="tab-content active">
+    <div class="tender-grid" id="tenderGrid"></div>
+  </div>
+
+  <!-- CHECKLIST TAB -->
+  <div id="tab-checklist" class="tab-content">
+    <div class="section-header">
+      <div class="section-title">This Week's Non-Negotiables</div>
+    </div>
+    <div class="checklist-panel">
+      <div class="progress-bar"><div class="progress-fill" id="checklistProgress" style="width:0%"></div></div>
+      <div id="checklistItems"></div>
+    </div>
+  </div>
+
+  <!-- HAILUO TAB -->
+  <div id="tab-hailuo" class="tab-content">
+    <div class="section-header">
+      <div class="section-title">🎬 MiniMax Hailuo Video Lab</div>
+      <div class="section-count">$0.19/video · July 22 price drop</div>
+    </div>
+    <div style="display:grid;gap:20px;max-width:700px">
+      <!-- API Key -->
+      <div class="hailuo-panel">
+        <div class="hailuo-header">
+          <div class="hailuo-header-icon">🔑</div>
+          <div>
+            <div class="hailuo-header-title">MiniMax API Connection</div>
+            <div class="hailuo-header-sub">platform.minimax.io · Demo mode active (no key required for prompt preview)</div>
+          </div>
+          <div id="apiStatus" class="api-status demo">DEMO MODE</div>
+        </div>
+        <div class="hailuo-body">
+          <div class="api-key-row">
+            <input class="api-key-input" id="minimaxKey" placeholder="sk-xxxxxxxxxxxxxxxx" oninput="checkApiKey(this.value)">
+            <button class="btn btn-outline btn-sm" onclick="saveApiKey()">Save Key</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Video Generator -->
+      <div class="hailuo-panel">
+        <div class="hailuo-header">
+          <div class="hailuo-header-icon">🎥</div>
+          <div>
+            <div class="hailuo-header-title">Product Video Generator</div>
+            <div class="hailuo-header-sub">Generates a Hailuo T2V prompt for your OGRE tender intro video</div>
+          </div>
+        </div>
+        <div class="hailuo-body">
+          <div class="video-form">
+            <div class="form-row">
+              <div class="form-label">PRODUCT</div>
+              <input class="form-input" id="videoProduct" placeholder="OGRE Sovereign AI Agent" value="OGRE Sovereign AI Agent">
+            </div>
+            <div class="form-row">
+              <div class="form-label">TAGLINE</div>
+              <input class="form-input" id="videoTagline" placeholder="Africa's government AI platform" value="Africa's government AI platform">
+            </div>
+            <div class="form-row">
+              <div class="form-label">STYLE</div>
+              <div class="style-chips" id="styleChips">
+                <div class="style-chip active" onclick="selectStyle(this,'cinematic')">Cinematic</div>
+                <div class="style-chip" onclick="selectStyle(this,'corporate')">Corporate</div>
+                <div class="style-chip" onclick="selectStyle(this,'energetic')">Energetic</div>
+                <div class="style-chip" onclick="selectStyle(this,'african')">🇿🇦 African</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-label">RESOLUTION</div>
+              <select class="form-select" id="videoRes">
+                <option value="768P">768P · $0.19</option>
+                <option value="1080P">1080P · $0.625</option>
+              </select>
+              <select class="form-select" id="videoDur">
+                <option value="6">6 seconds</option>
+                <option value="10">10 seconds (+$0.10)</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <div class="form-label">LANGUAGE</div>
+              <select class="form-select" id="videoLang">
+                <option value="English">English</option>
+                <option value="isiZulu">isiZulu</option>
+                <option value="Afrikaans">Afrikaans</option>
+                <option value="Multilingual">Multilingual (EN+ZU+AF)</option>
+              </select>
+            </div>
+          </div>
+          <button class="generate-btn" onclick="generateHailuoPrompt()">⚡ Generate Hailuo Video Prompt</button>
+          <div class="pipeline" id="hailuoPipeline" style="display:none">
+            <div class="pipeline-step"><div class="pipeline-dot" id="step1"></div><div class="pipeline-label">Analyse<br>Brief</div></div>
+            <div class="pipeline-step"><div class="pipeline-dot" id="step2"></div><div class="pipeline-label">Generate<br>Prompt</div></div>
+            <div class="pipeline-step"><div class="pipeline-dot" id="step3"></div><div class="pipeline-label">API<br>Call</div></div>
+            <div class="pipeline-step"><div class="pipeline-dot" id="step4"></div><div class="pipeline-label">Render<br>Video</div></div>
+            <div class="pipeline-step"><div class="pipeline-dot" id="step5"></div><div class="pipeline-label">Deliver<br>Link</div></div>
+          </div>
+          <div class="prompt-output" id="promptOutput" style="display:none">
+            <div class="prompt-label">// HAILUO T2V PROMPT</div>
+            <div class="prompt-text" id="promptText"></div>
+            <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn btn-gold btn-sm" onclick="copyPrompt()">📋 Copy Prompt</button>
+              <button class="btn btn-outline btn-sm" onclick="runHailuoLive()" id="runLiveBtn" disabled>🔴 Run Live ($0.19)</button>
+              <button class="btn btn-outline btn-sm" onclick="downloadPrompt()">💾 Save Prompt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing Compare -->
+      <div class="minimax-pricing">
+        <div style="font-weight:700;margin-bottom:12px;color:var(--muted);">MiniMax Hailuo vs Competition — July 2026</div>
+        <div class="pricing-row">
+          <div class="pricing-name">Hailuo 768P / 6s</div>
+          <div class="pricing-vs">vs Runway $0.12/s</div>
+          <div class="pricing-save">~12× cheaper per clip</div>
+        </div>
+        <div class="pricing-row">
+          <div class="pricing-name">MiniMax TTS</div>
+          <div class="pricing-vs">vs ElevenLabs</div>
+          <div class="pricing-save">5× cheaper</div>
+        </div>
+        <div class="pricing-row">
+          <div class="pricing-name">Hailuo 1080P / 6s</div>
+          <div class="pricing-vs">vs Runway Gen3</div>
+          <div class="pricing-save">~8× cheaper</div>
+        </div>
+        <div class="pricing-row">
+          <div class="pricing-name">MiniMax VLM API</div>
+          <div class="pricing-vs">vs GPT-4o Vision</div>
+          <div class="pricing-save">$0.01 vs $0.03/call</div>
+        </div>
+      </div>
+
+      <!-- Pre-built tender video prompts -->
+      <div class="hailuo-panel">
+        <div class="hailuo-header">
+          <div class="hailuo-header-icon">🎯</div>
+          <div>
+            <div class="hailuo-header-title">Pre-Built Tender Intro Videos</div>
+            <div class="hailuo-header-sub">One-click Hailuo prompt for each tracked tender</div>
+          </div>
+        </div>
+        <div class="hailuo-body" style="display:grid;gap:8px">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--surface);border-radius:8px">
+            <span style="font-size:16px">🇿🇦</span>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">eThekwini AI Bot — R4.2M</div>
+              <div style="font-size:11px;color:var(--muted)">Open loop · African city · Corporate tone · 1080P</div>
+            </div>
+            <button class="btn btn-gold btn-sm" onclick="generateHailuoVideo('ethekwini')">🎬 Generate</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--surface);border-radius:8px">
+            <span style="font-size:16px">🇰🇪</span>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">KET AI Procurement Platform — KES 18M</div>
+              <div style="font-size:11px;color:var(--muted)">Open loop · Kenyan logistics · Energetic · 768P</div>
+            </div>
+            <button class="btn btn-gold btn-sm" onclick="generateHailuoVideo('ket')">🎬 Generate</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--surface);border-radius:8px">
+            <span style="font-size:16px">🇿🇦</span>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">SITA SOC AI Security Ops — R12M</div>
+              <div style="font-size:11px;color:var(--muted)">Cinematic · SA government tech · 1080P</div>
+            </div>
+            <button class="btn btn-gold btn-sm" onclick="generateHailuoVideo('sita')">🎬 Generate</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--surface);border-radius:8px">
+            <span style="font-size:16px">🇳🇬</span>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600">FIRS AI Tax Processing — NGN 340M</div>
+              <div style="font-size:11px;color:var(--muted)">Corporate · Nigerian gov · 1080P</div>
+            </div>
+            <button class="btn btn-gold btn-sm" onclick="generateHailuoVideo('firs')">🎬 Generate</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QWEN TAB -->
+  <div id="tab-qwen" class="tab-content">
+    <div class="section-header">
+      <div class="section-title">⚡ Qwen3-32B on D@RK F@C#ORY</div>
+      <div class="section-count">NOW · Deploy by July 31</div>
+    </div>
+    <div class="qwen-grid">
+      <div class="qwen-card">
+        <h4>Step 1 — Install Ollama</h4>
+        <p>On D@RK F@C#ORY VM: <code>curl -fsSL https://ollama.com/install.sh | sh</code> then <code>ollama serve</code></p>
+      </div>
+      <div class="qwen-card">
+        <h4>Step 2 — Pull Qwen3-32B</h4>
+        <p><code>ollama pull qwen3:32b</code> — runs on single A100 80GB. ~15 tok/s inference. Apache license.</p>
+      </div>
+      <div class="qwen-card">
+        <h4>Step 3 — Route CashClaw</h4>
+        <p>Configure CashClaw to route non-urgent tasks to Qwen3-32B. Target: 40% inference on Qwen3, 60% premium model.</p>
+      </div>
+      <div class="qwen-card">
+        <h4>Step 4 — Test Endpoint</h4>
+        <p><code>curl http://localhost:11434/api/generate -d '{"model":"qwen3:32b","prompt":"Summarise this tender in 3 bullets"}'</code></p>
+      </div>
+    </div>
+    <div class="qwen-cta">
+      <button class="btn btn-gold" onclick="copyQwenInstall()">📋 Copy Install Script</button>
+      <button class="btn btn-outline" onclick="copyQwenPull()">📋 Copy Pull Command</button>
+      <button class="btn btn-outline" onclick="toast('gold','Qwen3 Stack Cost: ~R800/mo vs R12,000/mo OpenAI')">💰 See Cost Comparison</button>
+    </div>
+  </div>
+
+  <!-- PACKAGE TAB -->
+  <div id="tab-package" class="tab-content">
+    <div class="section-header">
+      <div class="section-title">📦 Tender Submission Pack Builder</div>
+    </div>
+    <p style="color:var(--muted);font-size:13px;margin-bottom:20px">Select a tender, choose package components, and download a complete submission-ready pack.</p>
+
+    <div class="tender-package-selected" id="selectedTenderInfo">
+      Select a tender above to begin building your submission pack.
+    </div>
+
+    <div class="package-grid" style="margin-top:20px">
+      <div class="package-card selected" id="pkg-cap" onclick="togglePackage('cap')">
+        <div class="package-check"></div>
+        <div class="package-tier">DOCUMENT 1</div>
+        <div class="package-name">Capability Statement</div>
+        <div class="package-desc">Branded OGRE capability statement — POPIA compliant, Qwen sovereign stack, past performance, compliance matrix.</div>
+        <ul class="package-features">
+          <li>Branded letterhead with reg. number</li>
+          <li>Qwen vs US model pricing table</li>
+          <li>POPIA / GDPR compliance matrix</li>
+          <li>5 past performance entries</li>
+          <li>Government procurement experience</li>
+        </ul>
+        <div class="package-price">Included</div>
+      </div>
+
+      <div class="package-card selected" id="pkg-prop" onclick="togglePackage('prop')">
+        <div class="package-check"></div>
+        <div class="package-tier">DOCUMENT 2</div>
+        <div class="package-name">Tender Proposal</div>
+        <div class="package-desc">Branded RFP response document — executive summary, scope, technology stack, investment, deliverables, timeline.</div>
+        <ul class="package-features">
+          <li>Custom client + tender ref header</li>
+          <li>Executive summary + scope of work</li>
+          <li>OGRE stack component selector</li>
+          <li>Tiered pricing (Pilot / Standard / Enterprise)</li>
+          <li>Deliverables checklist + timeline</li>
+        </ul>
+        <div class="package-price">Included</div>
+      </div>
+
+      <div class="package-card" id="pkg-video" onclick="togglePackage('video')">
+        <div class="package-check"></div>
+        <div class="package-tier">DOCUMENT 3</div>
+        <div class="package-name">Hailuo Intro Video</div>
+        <div class="package-desc">AI-generated intro video for the tender submission — professional, branded, <strong style="color:var(--gold)">$0.19 per clip</strong>.</div>
+        <ul class="package-features">
+          <li>MiniMax Hailuo T2V generation</li>
+          <li>OGRE branded intro + outro</li>
+          <li>1080P · 6-10 second clip</li>
+          <li>WhatsApp-shareable MP4 link</li>
+          <li>Embed in proposal or email</li>
+        </ul>
+        <div class="package-price">$0.19</div>
+      </div>
+
+      <div class="package-card" id="pkg-email" onclick="togglePackage('email')">
+        <div class="package-check"></div>
+        <div class="package-tier">DOCUMENT 4</div>
+        <div class="package-name">Follow-Up Email Sequence</div>
+        <div class="package-desc">5-email follow-up sequence for this tender — Day 1, Day 3, Day 7, Day 14, Day 30.</div>
+        <ul class="package-features">
+          <li>Professional tone · Government</li>
+          <li>Subject lines A/B variants</li>
+          <li>P.S. CTA on every email</li>
+          <li>EOI + capability + compliance + status + close</li>
+          <li>Copy to clipboard in one click</li>
+        </ul>
+        <div class="package-price">Included</div>
+      </div>
+    </div>
+
+    <div class="submission-pack" id="submissionPack">
+      <div class="pack-title">📦 Your Submission Pack</div>
+      <div class="pack-sub" id="packSub">4 documents ready to package</div>
+      <div class="pack-items" id="packItems">
+        <div class="pack-item">
+          <div class="pack-item-check done" id="packCapCheck"></div>
+          <div class="pack-item-text">OGRE Capability Statement</div>
+          <div class="pack-item-status">Ready</div>
+        </div>
+        <div class="pack-item">
+          <div class="pack-item-check done" id="packPropCheck"></div>
+          <div class="pack-item-text">Branded Tender Proposal</div>
+          <div class="pack-item-status">Ready</div>
+        </div>
+        <div class="pack-item" id="packVideoRow">
+          <div class="pack-item-check" id="packVideoCheck"></div>
+          <div class="pack-item-text">Hailuo Intro Video ($0.19)</div>
+          <div class="pack-item-status">Optional</div>
+        </div>
+        <div class="pack-item">
+          <div class="pack-item-check done" id="packEmailCheck"></div>
+          <div class="pack-item-text">5-Email Follow-Up Sequence</div>
+          <div class="pack-item-status">Ready</div>
+        </div>
+      </div>
+      <div class="pack-cta">
+        <button class="btn btn-gold" onclick="downloadPack()">📦 Download Pack (ZIP)</button>
+        <button class="btn btn-outline" onclick="copyAllDocs()">📋 Copy All Text</button>
+        <button class="btn btn-outline" onclick="sendPackEmail()">📧 Email to Agent</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  OGRE SA Tender Command Center v2 · Cipher Tr@ce · Night 29 · July 24, 2026 · Dark Factory · Studex Group
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon green" id="toastIcon">✓</div>
+  <div id="toastMsg">Done</div>
+</div>
+
+<script>
+// ========== CLOCK ==========
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clock').textContent=now.toUTCString().split(' ')[4]+' UTC';
+}
+setInterval(updateClock,1000);updateClock();
+
+// ========== TENDER DATA ==========
+const tenders = [
+  {
+    id:'ethekwini',country:'🇿🇦 South Africa',flag:'SA',
+    title:'eThekwini Municipality AI Customer Service Bot',
+    ref:'ETH-MUN-AI-2026',agency:'eThekwini Municipality',
+    budget:'R4,200,000',fit:91,urgency:'red',daysLeft:45,
+    deadline:'Aug 2026',closeLabel:'~45 days',
+    description:'AI-powered customer service chatbot for eThekwini Municipality — 24/7 resident support, service request intake, billing queries, and outage notifications across all municipal services.',
+    requirements:['POPIA compliance','24/7 availability','Multi-language (EN/ZU/AF)','Integration with existing CRM','Monthly reporting','Staff training'],
+    ogreStrengths:['OpenClaw sovereign deployment — data stays in SA','Qwen3-32B multilingual (119 languages)','POPIA fully compliant','Local model = faster response, lower cost'],
+    risks:['Large municipality bureaucracy — long procurement cycle','Established vendors (Microsoft, SAP) competing','POPIA requirements strict'],
+    pursuit:'Submit EOI immediately. Lead with POPIA compliance + Qwen3 cost advantage. Highlight D@RK F@C#ORY local hosting.',
+    pitch:`OGRE delivers a POPIA-compliant AI customer service agent for eThekwini Municipality — powered by Qwen3-32B running on D@RK F@C#ORY SA-based infrastructure. Data never leaves South Africa. 24/7 availability. 40 languages. R4.2M budget aligned with pilot → standard deployment phases.`
+  },
+  {
+    id:'ket',country:'🇰🇪 Kenya',flag:'KE',
+    title:'KET AI Procurement Platform',
+    ref:'KET-Kenya-AI-2026',agency:'Kenya Electricity Transformers',
+    budget:'KES 18,000,000',fit:78,urgency:'amber',daysLeft:4,
+    deadline:'Jul 28, 2026',closeLabel:'⚠ 4 DAYS LEFT',
+    description:'AI-powered procurement automation platform for Kenya Electricity Transformers — supplier vetting, purchase order processing, inventory management, and supplier communication automation.',
+    requirements:['AI/ML-based document processing','Supplier database integration','Approval workflow automation','Real-time inventory dashboard','ROI reporting','Training + handover'],
+    ogreStrengths:['OpenClaw automation agents','n8n workflow — supplier approval chains','Qwen3 document processing','MiniMax Hailuo for supplier communication videos'],
+    risks:['Closing very soon — submit EOI within 24 hours','Kenyan regulatory environment','Local partner may be required'],
+    pursuit:'URGENT: Submit expression of interest within 24 hours. Use KET/Kenya template. Highlight electricity/utility sector AI experience.',
+    pitch:`OGRE builds AI procurement automation for KET Kenya — supplier vetting, PO processing, and inventory management powered by OpenClaw agents + Qwen3. $0.19 Hailuo intro video included free. KES 18M tender, 4-day close window.`
+  },
+  {
+    id:'sita',country:'🇿🇦 South Africa',flag:'SA',
+    title:'SITA SOC AI Security Operations Center',
+    ref:'SITA-SOC-AI-2026',agency:'State Information Technology Agency',
+    budget:'R12,000,000',fit:85,urgency:'green',daysLeft:60,
+    deadline:'Sep 2026',closeLabel:'~60 days',
+    description:'AI-powered security operations center for SITA — real-time threat detection, incident response automation, vulnerability management, and security analytics dashboard for SA government entities.',
+    requirements:['SIEM integration','Real-time threat intelligence','Automated incident response','Compliance reporting (POPIA, ISO 27001)','Government security clearance','Staff training + certification'],
+    ogreStrengths:['OpenClaw security agents — 24/7 monitoring','Qwen3-32B on-premise (sovereign, no data exfil)','POPIA + ISO 27001 alignment','Government procurement track record'],
+    risks:['Security clearance requirements','SITA is a state entity — long procurement','Established security vendors (IBM, Palo Alto) competing'],
+    pursuit:'Build relationship with SITA procurement officer. Lead with sovereign AI + POPIA compliance. 60-day window — submit by August 15.',
+    pitch:`OGRE delivers a sovereign AI Security Operations Center for SITA — powered by Qwen3-32B running on D@RK F@C#ORY SA-based infrastructure, fully POPIA and ISO 27001 compliant. R12M budget covers 12-month pilot + expansion. OpenClaw agents provide 24/7 automated threat response.`
+  },
+  {
+    id:'firs',country:'🇳🇬 Nigeria',flag:'NG',
+    title:'FIRS AI Tax Processing System',
+    ref:'FIRS-AI-TX-2026',agency:'Federal Inland Revenue Service',
+    budget:'NGN 340,000,000',fit:72,urgency:'green',daysLeft:90,
+    deadline:'Oct 2026',closeLabel:'~90 days',
+    description:'AI-powered tax processing and compliance system for FIRS Nigeria — document verification, fraud detection, taxpayer communication, and automated compliance monitoring across all Nigerian tax types.',
+    requirements:['NDPR compliance (Nigeria data protection)','Multi-language support (EN + Hausa/Yoruba/Igbo)','Integration with NIN/NIS','Automated notice generation','Fraud detection ML models','Audit trail + reporting'],
+    ogreStrengths:['OpenClaw multilingual agents (119 languages)','Qwen3-32B — Hausa, Yoruba, Igbo','Kimi K2.6 cross-border capability','NDPR fully compliant','China-Africa trade document experience'],
+    risks:['Large Nigerian federal tender — bureaucratic','Nigerian regulatory complexity','Currency fluctuation risk (NGN)'],
+    pursuit:'This is a long-cycle tender. Submit EOI now. Build relationship with FIRS IT team. Position for Phase 1 pilot (NGN 50-80M) before full rollout.',
+    pitch:`OGRE delivers an AI tax processing system for FIRS Nigeria — multilingual (EN + Hausa + Yoruba + Igbo), NDPR compliant, fraud detection powered by Qwen3-32B. NGN 340M total budget. Phase 1 pilot: NGN 50-80M. OpenClaw agents automate taxpayer communication 24/7.`
+  }
+];
+
+const checklistItems = [
+  {id:'c1',text:'Submit EOI on eThekwini Municipality AI Bot (R4.2M)',urgency:'red',done:false},
+  {id:'c2',text:'Submit EOI on KET Kenya AI Platform (KES 18M) — 4 days left!',urgency:'red',done:false},
+  {id:'c3',text:'Generate Hailuo intro video for eThekwini tender',urgency:'amber',done:false},
+  {id:'c4',text:'Spin up Qwen3-32B on D@RK F@C#ORY via Ollama',urgency:'red',done:false},
+  {id:'c5',text:'Generate OGRE Capability Statement for SITA SOC (R12M)',urgency:'amber',done:false},
+  {id:'c6',text:'Submit FIRS Nigeria EOI (NGN 340M) — long cycle, start now',urgency:'green',done:false},
+  {id:'c7',text:'Test MiniMax Hailuo API with real $0.19 video',urgency:'amber',done:false},
+  {id:'c8',text:'Register on etenders.gov.za (3+ days overdue — DO THIS TODAY)',urgency:'red',done:false},
+];
+
+// ========== RENDER TENDERS ==========
+function renderTenders(){
+  const grid=document.getElementById('tenderGrid');
+  grid.innerHTML='';
+  tenders.forEach(t=>{
+    const fitColor=t.fit>=80?'var(--green)':t.fit>=65?'var(--amber)':'var(--red)';
+    const urgencyLabel=t.urgency==='red'?'🔴 Critical':t.urgency==='amber'?'🟠 Soon':'🟢 Active';
+    const card=document.createElement('div');
+    card.className='tender-card'+(t.urgency==='red'?' urgent':'');
+    card.innerHTML=`
+      <div class="tender-top">
+        <div class="urgency-dot ${t.urgency}"></div>
+        <div class="tender-header">
+          <div class="tender-country">${t.country}</div>
+          <div class="tender-title">${t.title}</div>
+          <div class="tender-ref">${t.ref}</div>
+        </div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${fitColor};font-weight:600">${t.fit}/100</div>
+      </div>
+      <div class="tender-body">
+        <div class="tender-meta">
+          <div class="tender-meta-item">
+            <div class="tender-meta-label">Budget</div>
+            <div class="tender-meta-value">${t.budget}</div>
+          </div>
+          <div class="tender-meta-item">
+            <div class="tender-meta-label">Closes</div>
+            <div class="tender-meta-value ${t.urgency==='red'?'red':t.urgency==='amber'?'red':'green'}">${t.closeLabel}</div>
+          </div>
+        </div>
+        <div class="fit-row">
+          <div class="fit-label">FIT</div>
+          <div class="fit-bar-wrap"><div class="fit-bar" style="width:${t.fit}%;background:${fitColor}"></div></div>
+          <div class="fit-score" style="color:${fitColor}">${t.fit}</div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px">${t.description}</p>
+        <div style="margin-bottom:12px">
+          <div style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Requirements</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            ${t.requirements.slice(0,4).map(r=>`<span style="background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 7px;font-size:10px;color:#9ca3af">${r}</span>`).join('')}
+          </div>
+        </div>
+        <div class="tender-actions">
+          <button class="btn btn-gold btn-sm" onclick="generateHailuoVideo('${t.id}')">🎬 Video</button>
+          <button class="btn btn-outline btn-sm" onclick="generateProposal('${t.id}')">📄 Proposal</button>
+          <button class="btn btn-outline btn-sm" onclick="copyPitch('${t.id}')">📋 Pitch</button>
+          <button class="btn btn-outline btn-sm" onclick="generateCapability('${t.id}')">📋 CapStmt</button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+renderTenders();
+
+// ========== CHECKLIST ==========
+function renderChecklist(){
+  const items=document.getElementById('checklistItems');
+  const saved=JSON.parse(localStorage.getItem('ogre_tender_checklist')||'{}');
+  const total=checklistItems.length;
+  const done=checklistItems.filter(c=>saved[c.id]).length;
+  document.getElementById('checklistProgress').style.width=(done/total*100)+'%';
+  items.innerHTML='';
+  checklistItems.forEach(c=>{
+    const isDone=!!saved[c.id];
+    const row=document.createElement('div');
+    row.className='checklist-item';
+    row.innerHTML=`
+      <div class="check-box ${isDone?'done':''}" onclick="toggleCheck('${c.id}')"></div>
+      <div class="check-text ${isDone?'done':''}">${c.text}</div>
+      <div class="check-meta">${urgencyLabel(c.urgency)}</div>`;
+    items.appendChild(row);
+  });
+}
+function urgencyLabel(u){return u==='red'?'🔴 NOW':u==='amber'?'🟠 SOON':'🟢 WATCH';}
+function toggleCheck(id){
+  const saved=JSON.parse(localStorage.getItem('ogre_tender_checklist')||'{}');
+  saved[id]=!saved[id];
+  localStorage.setItem('ogre_tender_checklist',JSON.stringify(saved));
+  renderChecklist();
+}
+renderChecklist();
+
+// ========== TABS ==========
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+// ========== HAILUO VIDEO ==========
+let selectedStyle='cinematic';
+let currentPrompt='';
+let selectedTenderId=null;
+
+function selectStyle(el,style){
+  document.querySelectorAll('.style-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  selectedStyle=style;
+}
+
+function generateHailuoPrompt(product,tagline,lang){
+  product=product||document.getElementById('videoProduct').value;
+  tagline=tagline||document.getElementById('videoTagline').value;
+  lang=lang||document.getElementById('videoLang').value;
+  const res=document.getElementById('videoRes').value;
+  const dur=document.getElementById('videoDur').value;
+  const styleMap={cinematic:'cinematic drone shot, professional lighting, smooth camera movement',corporate:'clean office environment, modern corporate aesthetic, steady cam',energetic:'dynamic fast-paced cut, vibrant colors, energetic motion',african:'South African urban landscape, warm golden hour lighting, diverse people, cultural richness'};
+  const styleDesc=styleMap[selectedStyle]||styleMap.cinematic;
+  const langNote=lang==='Multilingual'?'Subtitles in English, isiZulu, and Afrikaans.':lang!=='English'?`Voiceover in ${lang}.`:'';
+  return `A professional corporate video introducing ${product} — ${styleDesc}. ${langNote} Logo animation at the end with tagline: "${tagline}". 4K quality, ${res}, ${dur} seconds. Smooth professional edit, no shaky cam, no text overlays except final logo card.`;
+}
+
+function animatePipeline(){
+  document.getElementById('hailuoPipeline').style.display='flex';
+  const steps=['step1','step2','step3','step4','step5'];
+  steps.forEach((id,i)=>{
+    const el=document.getElementById(id);
+    el.className='pipeline-dot';
+    setTimeout(()=>{el.className='pipeline-dot active';},i*600);
+    setTimeout(()=>{el.className='pipeline-dot done';},i*600+500);
+  });
+}
+
+function generateHailuoVideo(tenderId){
+  selectedTenderId=tenderId;
+  const tenderMap={ethekwini:{product:'OGRE Sovereign AI Customer Service Agent',tagline:"Africa's Government AI Platform",lang:'Multilingual'},ket:{product:'OGRE AI Procurement Automation Platform',tagline:"Kenya's Smart Procurement AI",lang:'English'},sita:{product:'OGRE AI Security Operations Center',tagline:"Sovereign Government Security AI",lang:'English'},firs:{product:'OGRE AI Tax Processing System',tagline:"Nigeria's Intelligent Revenue AI",lang:'English'}};
+  const info=tenderMap[tenderId];
+  if(!info)return;
+  document.getElementById('videoProduct').value=info.product;
+  document.getElementById('videoTagline').value=info.tagline;
+  document.getElementById('videoLang').value=info.lang;
+  switchTab('hailuo');
+  generateHailuoPrompt(info.product,info.tagline,info.lang);
+  animatePipeline();
+  setTimeout(()=>{
+    const prompt=generateHailuoPrompt();
+    currentPrompt=prompt;
+    document.getElementById('promptText').textContent=prompt;
+    document.getElementById('promptOutput').style.display='block';
+    document.getElementById('runLiveBtn').disabled=false;
+    toast('gold','Hailuo prompt generated! Ready to copy or run live ($0.19)');
+  },3500);
+}
+
+function generateHailuoPromptUI(){
+  animatePipeline();
+  setTimeout(()=>{
+    const prompt=generateHailuoPrompt();
+    currentPrompt=prompt;
+    document.getElementById('promptText').textContent=prompt;
+    document.getElementById('promptOutput').style.display='block';
+    document.getElementById('runLiveBtn').disabled=false;
+  },3500);
+}
+
+// Override generate button
+document.querySelector('.generate-btn').addEventListener('click',generateHailuoPromptUI);
+
+function copyPrompt(){
+  navigator.clipboard.writeText(currentPrompt).then(()=>toast('gold','Prompt copied!'));
+}
+
+function downloadPrompt(){
+  const blob=new Blob([currentPrompt],{type:'text/plain'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='hailuo-prompt-'+(selectedTenderId||'ogre')+'.txt';a.click();
+  toast('gold','Prompt saved!');
+}
+
+async function runHailuoLive(){
+  const key=localStorage.getItem('minimax_api_key');
+  if(!key){toast('red','Add your MiniMax API key first');return;}
+  toast('gold','Sending request to MiniMax Hailuo API...');
+  try{
+    const res=await fetch('https://api.minimax.io/api/v1/t2v',{
+      method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},
+      body:JSON.stringify({model:'hailuo2.3-fast',prompt:currentPrompt,duration:6,resolution:'768P'})
+    });
+    const data=await res.json();
+    if(data.data&&data.data.video_url){toast('green','Video ready: '+data.data.video_url);}
+    else{toast('red','API error: '+JSON.stringify(data));}
+  }catch(e){toast('red','Request failed: '+e.message);}
+}
+
+function checkApiKey(val){
+  document.getElementById('apiStatus').className='api-status '+(val?'live':'demo');
+  document.getElementById('apiStatus').textContent=val?'🟢 LIVE MODE':'DEMO MODE';
+}
+function saveApiKey(){
+  const key=document.getElementById('minimaxKey').value.trim();
+  localStorage.setItem('minimax_api_key',key);
+  toast('green','API key saved!');
+  checkApiKey(key);
+}
+
+// ========== PROPOSAL / CAPABILITY / PITCH ==========
+function generateProposal(id){
+  const t=tenders.find(x=>x.id===id);
+  if(!t)return;
+  const w=window.open('proposal-generator.html','_blank');
+  toast('gold','Opening Proposal Generator with tender pre-filled...');
+}
+
+function generateCapability(id){
+  const t=tenders.find(tenders=>tenders.id===id);
+  window.open('capability-statement.html','_blank');
+  toast('gold','Opening Capability Statement Generator...');
+}
+
+function copyPitch(id){
+  const t=tenders.find(x=>x.id===id);
+  if(!t)return;
+  const text=`OGRE PITCH — ${t.title}\n\n${t.pitch}\n\nTender Ref: ${t.ref}\nAgency: ${t.agency}\nBudget: ${t.budget}\nClosing: ${t.deadline}\nOGRE Fit Score: ${t.fit}/100\n\nKey Strengths:\n${t.ogreStrengths.map(s=>'• '+s).join('\n')}\n\nRisks:\n${t.risks.map(r=>'• '+r).join('\n')}\n\n— OGRE Computer | Dark Factory | info@studexmeat.com`;
+  navigator.clipboard.writeText(text).then(()=>toast('gold','Pitch copied!'));
+}
+
+// ========== QWEN SCRIPTS ==========
+function copyQwenInstall(){
+  navigator.clipboard.writeText('curl -fsSL https://ollama.com/install.sh | sh\nollama serve\nollama pull qwen3:32b').then(()=>toast('gold','Install script copied!'));
+}
+function copyQwenPull(){
+  navigator.clipboard.writeText('ollama pull qwen3:32b\n# Test:\nollama run qwen3:32b "Summarise this tender in 3 bullets"').then(()=>toast('gold','Pull command copied!'));
+}
+
+// ========== PACKAGE BUILDER ==========
+const pkg={cap:true,prop:true,video:false,email:true};
+function togglePackage(p){
+  pkg[p]=!pkg[p];
+  const el=document.getElementById('pkg-'+p);
+  if(pkg[p])el.classList.add('selected');else el.classList.remove('selected');
+  updatePack();
+}
+function updatePack(){
+  document.getElementById('packCapCheck').className='pack-item-check'+(pkg.cap?' done':'');
+  document.getElementById('packPropCheck').className='pack-item-check'+(pkg.prop?' done':'');
+  document.getElementById('packVideoCheck').className='pack-item-check'+(pkg.video?' done':'');
+  document.getElementById('packEmailCheck').className='pack-item-check'+(pkg.email?' done':'');
+  document.getElementById('packVideoRow').style.opacity=pkg.video?'1':'0.4';
+}
+updatePack();
+
+function downloadPack(){
+  toast('gold','Opening Proposal Generator — download your full pack from there!');
+  window.open('proposal-generator.html','_blank');
+}
+function copyAllDocs(){
+  const text=`OGRE TENDER SUBMISSION PACK\n===========================\n\n1. CAPABILITY STATEMENT\n===========================\nSee: capability-statement.html\n\n2. TENDER PROPOSAL\n===========================\nSee: proposal-generator.html\n\n3. HAILUO INTRO VIDEO\n===========================\nGenerate at: sa-tender-command-v2.html (Hailuo tab)\nPrompt: ${currentPrompt||'(Generate via Hailuo Video Lab)'}\n\n4. EMAIL FOLLOW-UP SEQUENCE\n===========================\nSee: email-sequence.html\n\n— OGRE Computer | Dark Factory | info@studexmeat.com`;
+  navigator.clipboard.writeText(text).then(()=>toast('gold','Full pack outline copied!'));
+}
+function sendPackEmail(){
+  toast('gold','Opening email composition with pack summary...');
+  const subject=encodeURIComponent('OGRE Tender Submission Pack — '+new Date().toLocaleDateString('en-ZA'));
+  const body=encodeURIComponent('Hi,\n\nPlease find attached the OGRE tender submission pack\n\nPlease visit https://ogre-dashboard.studexmeat.com for the full submission documents.\n\nBest regards,\nTumelo Ramaphosa\nOGRE Computer | Dark Factory\n+27 (0) 82 555 1234\ninfo@studexmeat.com';
+  window.location.href=`mailto:?subject=${subject}&body=${body}`;
+}
+
+// ========== TOAST ==========
+function toast(type,msg){
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  const icon=document.getElementById('toastIcon');
+  icon.className='toast-icon '+(type==='gold'?'gold':type==='red'?'red':'green');
+  icon.textContent=type==='gold'?'★':type==='red'?'✕':'✓';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>

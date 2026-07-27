@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OGRE Briefing Delivery Command</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #09090e; --surface: #0f0f18; --card: #14141f; --border: #1e1e2e;
+  --gold: #C9A84C; --gold-dim: rgba(201,168,76,0.12);
+  --cyan: #00d4ff; --indigo: #6c63ff; --green: #00e896;
+  --red: #ff4d6d; --amber: #f59e0b; --text: #e8e8f0; --muted: #6b6b80;
+  --font-ui: 'Plus Jakarta Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-serif: 'Newsreader', serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font-ui); min-height: 100vh; }
+a { color: var(--cyan); text-decoration: none; }
+
+/* TOPBAR */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(9,9,14,0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border); padding: 0 24px; height: 52px;
+  display: flex; align-items: center; gap: 16px;
+}
+.tb-logo { font-family: var(--font-mono); font-weight: 600; font-size: 14px; color: var(--gold); letter-spacing: 2px; }
+.tb-logo span { color: var(--muted); }
+.tb-sep { color: var(--border); font-size: 18px; }
+.tb-title { font-size: 13px; font-weight: 500; color: var(--muted); flex: 1; }
+.tb-clock { font-family: var(--font-mono); font-size: 12px; color: var(--muted); background: var(--card); border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); display: inline-block; margin-right: 6px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* SIGNAL BAND */
+.signal-band { background: linear-gradient(90deg, var(--gold-dim), transparent); border-bottom: 1px solid rgba(201,168,76,0.2); padding: 6px 24px; display: flex; align-items: center; gap: 12px; font-family: var(--font-mono); font-size: 11px; color: var(--gold); }
+.night-badge { background: var(--gold); color: #000; font-weight: 700; padding: 1px 6px; border-radius: 3px; font-size: 10px; letter-spacing: 1px; }
+
+/* LAYOUT */
+.layout { display: flex; min-height: calc(100vh - 80px); }
+
+/* SIDEBAR */
+.sidebar { width: 220px; flex-shrink: 0; border-right: 1px solid var(--border); padding: 20px 0; position: sticky; top: 52px; height: calc(100vh - 52px); overflow-y: auto; }
+.sidebar-section { margin-bottom: 24px; }
+.sidebar-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--muted); padding: 0 16px 8px; text-transform: uppercase; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 16px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; border-left: 2px solid transparent; transition: all 0.15s; }
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+.nav-item.active { color: var(--gold); border-left-color: var(--gold); background: var(--gold-dim); }
+.nav-item .emoji { font-size: 14px; }
+.nav-item .count { margin-left: auto; background: var(--card); border: 1px solid var(--border); color: var(--muted); font-family: var(--font-mono); font-size: 10px; padding: 1px 6px; border-radius: 10px; }
+
+/* MAIN */
+.main { flex: 1; padding: 24px; overflow: auto; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* STAT CARDS */
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; position: relative; overflow: hidden; }
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gold); }
+.stat-card.green::before { background: var(--green); }
+.stat-card.cyan::before { background: var(--cyan); }
+.stat-card.red::before { background: var(--red); }
+.stat-value { font-family: var(--font-mono); font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+.stat-label { font-size: 11px; color: var(--muted); font-weight: 500; }
+.stat-sub { font-family: var(--font-mono); font-size: 10px; color: var(--gold); margin-top: 4px; }
+
+/* SECTION TITLE */
+.section-title { font-family: var(--font-serif); font-size: 20px; font-weight: 600; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.section-title .accent { color: var(--gold); }
+
+/* CONFIG CARDS */
+.config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.config-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; }
+.config-card h3 { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 14px; }
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group textarea, .form-group select { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; color: var(--text); font-family: var(--font-ui); font-size: 13px; outline: none; transition: border-color 0.15s; }
+.form-group input:focus, .form-group textarea:focus { border-color: var(--gold); }
+.form-group textarea { resize: vertical; min-height: 70px; }
+.form-hint { font-size: 10px; color: var(--muted); margin-top: 4px; font-family: var(--font-mono); }
+.api-status { display: flex; align-items: center; gap: 8px; font-size: 12px; font-family: var(--font-mono); margin-bottom: 10px; }
+.api-dot { width: 8px; height: 8px; border-radius: 50%; }
+.api-dot.ok { background: var(--green); }
+.api-dot.err { background: var(--red); }
+.api-dot.pending { background: var(--amber); animation: pulse 1s infinite; }
+
+/* SEND BUTTON */
+.send-btn { width: 100%; padding: 13px; border-radius: 8px; border: none; font-family: var(--font-ui); font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 10px; }
+.send-btn.primary { background: var(--gold); color: #000; }
+.send-btn.primary:hover { background: #e0bc5a; transform: translateY(-1px); }
+.send-btn.primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.send-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+.send-btn.secondary:hover { border-color: var(--gold); color: var(--gold); }
+.send-btn.danger { background: transparent; border: 1px solid rgba(255,77,109,0.3); color: var(--red); }
+.send-btn.danger:hover { background: rgba(255,77,109,0.1); }
+.spinner { width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.3); border-top-color: #000; border-radius: 50%; animation: spin 0.6s linear infinite; display: none; }
+.loading .spinner { display: inline-block; }
+.loading .btn-text { opacity: 0.7; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* PREVIEW */
+.preview-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 24px; }
+.preview-header { padding: 10px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.preview-iframe { width: 100%; height: 480px; border: none; background: #fff; display: block; }
+.preview-toolbar { padding: 10px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+
+/* LOG TABLE */
+.log-table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.log-table { width: 100%; border-collapse: collapse; }
+.log-table th { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); background: var(--surface); }
+.log-table td { padding: 10px 14px; font-size: 12px; border-bottom: 1px solid rgba(30,30,46,0.5); vertical-align: middle; }
+.log-table tr:last-child td { border-bottom: none; }
+.log-table tr:hover td { background: rgba(255,255,255,0.02); }
+.log-status { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-mono); font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+.log-status.sent { background: rgba(0,232,150,0.12); color: var(--green); }
+.log-status.failed { background: rgba(255,77,109,0.12); color: var(--red); }
+.log-status.pending { background: rgba(245,158,11,0.12); color: var(--amber); }
+.log-time { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+/* SCHEDULE */
+.schedule-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
+.sched-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px 14px; text-align: center; cursor: pointer; transition: all 0.15s; }
+.sched-card:hover { border-color: rgba(201,168,76,0.3); }
+.sched-card.selected { border-color: var(--gold); background: var(--gold-dim); }
+.sched-time { font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: var(--gold); margin-bottom: 4px; }
+.sched-label { font-size: 11px; color: var(--muted); }
+.sched-check { display: none; }
+.sched-card.selected .sched-check { display: inline; color: var(--gold); }
+
+/* PRIORITY TABLE */
+.priority-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+.priority-table th { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); background: var(--surface); }
+.priority-table td { padding: 10px 12px; font-size: 12px; border-bottom: 1px solid rgba(30,30,46,0.5); }
+.priority-table tr:hover td { background: rgba(255,255,255,0.02); }
+.priority-num { font-family: var(--font-mono); font-size: 14px; font-weight: 600; color: var(--gold); width: 28px; }
+.action-title { font-weight: 600; }
+.action-who { font-family: var(--font-mono); font-size: 10px; color: var(--indigo); margin-top: 2px; }
+.value-tag { font-family: var(--font-mono); font-size: 11px; color: var(--green); }
+
+/* KZN BANNER */
+.kzn-banner { background: linear-gradient(135deg, rgba(255,77,109,0.1), rgba(201,168,76,0.06)); border: 1px solid rgba(255,77,109,0.3); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px; }
+.kzn-icon { font-size: 28px; flex-shrink: 0; }
+.kzn-info { flex: 1; }
+.kzn-info h3 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.kzn-info p { font-size: 12px; color: var(--muted); }
+.kzn-count { font-family: var(--font-mono); font-size: 28px; font-weight: 700; color: var(--red); text-align: right; }
+.kzn-days { font-size: 10px; color: var(--muted); text-align: right; }
+
+/* PROGRESS */
+.progress-strip { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-bottom: 24px; display: flex; align-items: center; gap: 14px; }
+.progress-track { flex: 1; }
+.progress-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; display: flex; justify-content: space-between; font-family: var(--font-mono); }
+.progress-label span { color: var(--gold); }
+.progress-track-bar { height: 6px; background: var(--surface); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--cyan)); border-radius: 3px; transition: width 0.5s ease; }
+.refresh-btn { background: var(--surface); border: 1px solid var(--border); color: var(--muted); padding: 7px 12px; border-radius: 6px; font-size: 11px; font-family: var(--font-mono); cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s; flex-shrink: 0; }
+.refresh-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ALERT BOX */
+.alert-box { border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px; font-size: 12px; }
+.alert-box.warn { background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.25); }
+.alert-box.info { background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.2); }
+.alert-box .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.alert-box strong { display: block; margin-bottom: 2px; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 18px; font-size: 13px; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); transform: translateY(100px); opacity: 0; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.green { border-color: rgba(0,232,150,0.4); }
+.toast.green .toast-icon { color: var(--green); }
+.toast.red { border-color: rgba(255,77,109,0.4); }
+.toast.red .toast-icon { color: var(--red); }
+.toast-icon { font-size: 16px; }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 40px 24px; color: var(--muted); }
+.empty-state .empty-icon { font-size: 32px; margin-bottom: 10px; opacity: 0.5; }
+
+/* RECIPIENT CHIPS */
+.recip-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.recip-chip { display: flex; align-items: center; gap: 6px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+.recip-chip:hover { border-color: var(--gold); }
+.recip-chip.selected { border-color: var(--gold); background: var(--gold-dim); color: var(--gold); }
+.recip-chip input[type=checkbox] { display: none; }
+
+/* DIVIDER */
+hr.div { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="tb-logo">OGRE<span>://</span></div>
+  <span class="tb-sep">/</span>
+  <div class="tb-title">Briefing Delivery Command</div>
+  <div class="live-dot"></div>
+  <div class="tb-clock" id="clock">--:--:-- UTC</div>
+</div>
+
+<!-- SIGNAL BAND -->
+<div class="signal-band">
+  <span class="night-badge">NIGHT 28</span>
+  <span>July 22, 2026 &nbsp;•&nbsp; OGRE Midnight Build &nbsp;•&nbsp; Cipher Tr@ce, Dark Factory CEO &nbsp;•&nbsp; Briefing Delivery Pipeline</span>
+</div>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Pipeline</div>
+      <div class="nav-item active" data-panel="dashboard" onclick="switchPanel(this.dataset.panel)">
+        <span class="emoji">📡</span> Dashboard
+      </div>
+      <div class="nav-item" data-panel="email" onclick="switchPanel(this.dataset.panel)">
+        <span class="emoji">📧</span> Email Config
+      </div>
+      <div class="nav-item" data-panel="preview" onclick="switchPanel(this.dataset.panel)">
+        <span class="emoji">👁</span> Briefing Preview
+      </div>
+      <div class="nav-item" data-panel="research" onclick="switchPanel(this.dataset.panel)">
+        <span class="emoji">🌙</span> Tonight's Research
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Delivery</div>
+      <div class="nav-item" data-panel="log" onclick="switchPanel(this.dataset.panel)">
+        <span class="emoji">📋</span> Delivery Log
+        <span class="count" id="log-count-badge">0</span>
+      </div>
+      <div class="nav-item" data-panel="schedule" onclick="switchPanel(this.dataset.panel)">
+        <span class="emoji">⏰</span> Schedule
+      </div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">OGRE Tools</div>
+      <div class="nav-item" onclick="window.open('business-pulse.html','_blank')"><span class="emoji">📊</span> Business Pulse</div>
+      <div class="nav-item" onclick="window.open('proposal-generator.html','_blank')"><span class="emoji">📄</span> Proposal Gen</div>
+      <div class="nav-item" onclick="window.open('tender-tracker.html','_blank')"><span class="emoji">🏛</span> Tender Tracker</div>
+      <div class="nav-item" onclick="window.open('action-tracker.html','_blank')"><span class="emoji">✅</span> Action Tracker</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="kzn-banner">
+        <div class="kzn-icon">🚨</div>
+        <div class="kzn-info">
+          <h3>KZN Growth Fund — <span id="kzn-days-label">8 days left</span></h3>
+          <p>Reference: KZNGFA-RFQ 2026-09 &nbsp;•&nbsp; OGRE VM Team: R83,988/yr &nbsp;•&nbsp; Intro email drafted, Tumelo needs to send</p>
+        </div>
+        <div>
+          <div class="kzn-count" id="kzn-days">8</div>
+          <div class="kzn-days">days remaining</div>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card green">
+          <div class="stat-value" id="stat-sent">0</div>
+          <div class="stat-label">Briefings Sent</div>
+          <div class="stat-sub">Jul 2026</div>
+        </div>
+        <div class="stat-card cyan">
+          <div class="stat-value" id="stat-log">0</div>
+          <div class="stat-label">Total Attempts</div>
+          <div class="stat-sub">all time</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">3AM</div>
+          <div class="stat-label">Nightly Scan</div>
+          <div class="stat-sub">5AM SAST Wed</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-value">R45K</div>
+          <div class="stat-label">MRR Live</div>
+          <div class="stat-sub">Red Team Agent</div>
+        </div>
+      </div>
+
+      <div class="progress-strip">
+        <div style="font-size:12px;color:var(--muted);white-space:nowrap;font-family:var(--font-mono);flex-shrink:0;min-width:180px;">Nightly Briefing Pipeline</div>
+        <div class="progress-track">
+          <div class="progress-label"><span>Research → HTML → AgentMail → Inbox</span><span id="progress-pct">0%</span></div>
+          <div class="progress-track-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+        </div>
+        <button class="refresh-btn" onclick="refreshDashboard()">↻ Refresh</button>
+      </div>
+
+      <h2 class="section-title">📌 <span class="accent">Tonight's 5 Priorities</span> — July 22, 2026</h2>
+      <table class="priority-table">
+        <thead><tr><th>#</th><th>Action</th><th>Who</th><th>Deadline</th><th>Value</th></tr></thead>
+        <tbody id="priorities-tbody"></tbody>
+      </table>
+
+      <hr class="div">
+      <h2 class="section-title">⚙️ <span class="accent">Delivery Status</span></h2>
+      <div class="config-grid">
+        <div class="config-card">
+          <h3>📧 AgentMail</h3>
+          <div class="api-status">
+            <div class="api-dot pending" id="am-dot"></div>
+            <span id="am-status-text">Not configured</span>
+          </div>
+          <div style="font-size:12px;color:var(--muted);">Key: <span id="am-key-preview" style="font-family:var(--font-mono);color:var(--gold);">••••••••••••</span></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:6px;">Inboxes: charlie@, naledi@, ceo@agent.studexmeat.com</div>
+          <button class="send-btn secondary" style="margin-top:12px;" onclick="switchPanel('email')">Configure →</button>
+        </div>
+        <div class="config-card">
+          <h3>⏰ Cron Schedule</h3>
+          <div style="font-family:var(--font-mono);font-size:16px;color:var(--gold);margin-bottom:4px;">3:00 AM UTC</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Nightly Intelligence Scan</div>
+          <div style="font-size:11px;color:var(--muted);">Pipeline: RESEARCH.md → email HTML → AgentMail → Tumelo inbox by 6AM SA</div>
+          <button class="send-btn secondary" style="margin-top:12px;" onclick="switchPanel('schedule')">Edit Schedule →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== EMAIL CONFIG ===== -->
+    <div class="panel" id="panel-email">
+      <h2 class="section-title">⚙️ <span class="accent">Email Delivery Configuration</span></h2>
+
+      <div class="alert-box warn">
+        <div class="alert-icon">⚠️</div>
+        <div>
+          <strong>API Key Required for Live Sending</strong>
+          Get your key from <a href="https://agent.studexmeat.com" target="_blank">agent.studexmeat.com → API Keys</a>. Without it, briefings queue locally and must be sent manually.
+        </div>
+      </div>
+
+      <div class="config-grid">
+        <div class="config-card">
+          <h3>🔑 AgentMail API Key</h3>
+          <div class="form-group">
+            <label>API Key</label>
+            <input type="password" id="cfg-apikey" placeholder="am_us_..." oninput="saveConfig()">
+            <div class="form-hint">Starts with am_us_ — stored in localStorage only</div>
+          </div>
+          <div class="form-group">
+            <label>From Name</label>
+            <input type="text" id="cfg-fromname" value="Cipher Tr@ce — OGRE Computer" oninput="saveConfig()">
+          </div>
+          <div class="form-group">
+            <label>From Email</label>
+            <input type="text" id="cfg-fromemail" value="cipher@studexmeat.com" oninput="saveConfig()">
+          </div>
+        </div>
+        <div class="config-card">
+          <h3>📬 Recipients</h3>
+          <div class="recip-list" id="recip-list">
+            <label class="recip-chip selected" onclick="toggleRecip(this)"><input type="checkbox" checked value="tumelo"> Tumelo Ramaphosa</label>
+            <label class="recip-chip selected" onclick="toggleRecip(this)"><input type="checkbox" checked value="naledi"> Naledi (agent)</label>
+            <label class="recip-chip selected" onclick="toggleRecip(this)"><input type="checkbox" checked value="charlie"> Charlie (agent)</label>
+            <label class="recip-chip selected" onclick="toggleRecip(this)"><input type="checkbox" checked value="ceo"> CEO (agent)</label>
+          </div>
+          <div class="form-group">
+            <label>Additional Recipients (one per line)</label>
+            <textarea id="cfg-extra-recip" oninput="saveConfig()" placeholder="info@studexmeat.com&#10;partner@company.co.za"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-card" style="margin-bottom:20px;">
+        <h3>📝 Email Content Config</h3>
+        <div class="config-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+          <div class="form-group">
+            <label>Subject Prefix</label>
+            <input type="text" id="cfg-subject-prefix" value="🌙 OGRE Intel Briefing" oninput="saveConfig()">
+            <div class="form-hint">Date auto-appended</div>
+          </div>
+          <div class="form-group">
+            <label>Include Section</label>
+            <select id="cfg-include-section" onchange="saveConfig()">
+              <option value="full">Full Briefing (all sections)</option>
+              <option value="priorities">Priority Actions Only</option>
+              <option value="tenders">Tenders + Priorities</option>
+              <option value="minimal">Minimal (verdict + stats)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Format</label>
+            <select id="cfg-format" onchange="saveConfig()">
+              <option value="html">HTML Email</option>
+              <option value="text">Plain Text</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:20px;">
+        <button class="send-btn primary" style="flex:1;" id="send-test-btn" onclick="sendTestEmail()">
+          <div class="spinner"></div>
+          <span class="btn-text">🚀 Send Test Briefing Now</span>
+        </button>
+        <button class="send-btn secondary" style="flex:1;" onclick="previewEmail()">
+          👁 Preview Briefing
+        </button>
+        <button class="send-btn danger" onclick="clearLog()">
+          🗑 Clear Log
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== PREVIEW ===== -->
+    <div class="panel" id="panel-preview">
+      <h2 class="section-title">👁 <span class="accent">Briefing Preview</span></h2>
+      <div class="alert-box info">
+        <div class="alert-icon">ℹ️</div>
+        <div>This is how the email briefing will look when delivered to Tumelo's inbox. Based on tonight's research (July 22, 2026).</div>
+      </div>
+      <div class="preview-wrap">
+        <div class="preview-header">
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--red);"></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--amber);"></div>
+          <div style="width:6px;height:6px;border-radius:50%;background:var(--green);"></div>
+          <span style="margin-left:8px;">Email Preview — OGRE Intel Briefing — July 22, 2026</span>
+        </div>
+        <iframe class="preview-iframe" id="preview-frame" srcdoc=""></iframe>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="send-btn primary" style="flex:1;" onclick="sendTestEmail()">
+          <div class="spinner"></div>
+          <span class="btn-text">🚀 Send to Inbox</span>
+        </button>
+        <button class="send-btn secondary" style="flex:1;" onclick="copyEmailHTML()">📋 Copy HTML</button>
+      </div>
+    </div>
+
+    <!-- ===== TONIGHT'S RESEARCH ===== -->
+    <div class="panel" id="panel-research">
+      <h2 class="section-title">🌙 <span class="accent">Tonight's Research</span> — July 22, 2026</h2>
+      <div class="alert-box info">
+        <div class="alert-icon">ℹ️</div>
+        <div>Auto-loaded from <code style="font-family:var(--font-mono);color:var(--gold);">OGRE-Midnight-Build/RESEARCH-2026-07-22.md</code>. Source of truth for tonight's briefing.</div>
+      </div>
+      <table class="priority-table">
+        <thead><tr><th>#</th><th>Action</th><th>Who</th><th>Urgency</th><th>Value</th></tr></thead>
+        <tbody id="research-tbody"></tbody>
+      </table>
+      <hr class="div">
+      <h2 class="section-title" style="font-size:16px;">🏆 <span class="accent">Key Findings Tonight</span></h2>
+      <div class="config-grid">
+        <div class="config-card">
+          <h3>🔴 NOW — Kimi K3 1M Token Context</h3>
+          <p style="font-size:12px;color:var(--muted);">Kimi K3 (2.8T params, 1M context) can feed the entire KZN RFQ in one call. Test tonight before Tumelo sleeps.</p>
+        </div>
+        <div class="config-card">
+          <h3>🔴 NOW — KZN Intro Email</h          <p style="font-size:12px;color:var(--muted);">Tumelo must send the intro email tonight. 8 days left. R83,988/yr on the table.</p>
+        </div>
+        <div class="config-card">
+          <h3>🟡 THIS MONTH — Qwen-Turbo Integration</h3>
+          <p style="font-size:12px;color:var(--muted);">$0.05/1M tokens via DeepInfra. 60% cost reduction on research tasks. Add to OpenClaw fallback config.</p>
+        </div>
+        <div class="config-card">
+          <h3>🟡 THIS MONTH — Mac Mini AI Workstation</h3>
+          <p style="font-size:12px;color:var(--muted);">M4 Pro 64GB = best local AI box. R22-28K sellable to SA SMEs. R2K/mo managed services. Source 3 SA distributors.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DELIVERY LOG ===== -->
+    <div class="panel" id="panel-log">
+      <h2 class="section-title">📋 <span class="accent">Delivery Log</span></h2>
+      <div class="alert-box info">
+        <div class="alert-icon">ℹ️</div>
+        <div>All briefing send attempts are logged here with timestamp, recipient, and status. Logs persist in localStorage.</div>
+      </div>
+      <div class="log-table-wrap">
+        <table class="log-table">
+          <thead><tr><th>Date</th><th>Time</th><th>Subject</th><th>To</th><th>Status</th><th>Notes</th></tr></thead>
+          <tbody id="log-tbody">
+            <tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📭</div><p>No briefings sent yet. Configure your API key and send your first test.</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px;">
+        <button class="send-btn primary" onclick="switchPanel('email')">
+          🚀 Send Test Briefing
+        </button>
+        <button class="send-btn danger" onclick="clearLog()">🗑 Clear All</button>
+      </div>
+    </div>
+
+    <!-- ===== SCHEDULE ===== -->
+    <div class="panel" id="panel-schedule">
+      <h2 class="section-title">⏰ <span class="accent">Delivery Schedule</span></h2>
+
+      <div class="alert-box warn">
+        <div class="alert-icon">⚠️</div>
+        <div>The 3AM UTC cron runs automatically on the MaxClaw/OpenClaw gateway. Configure below to set when the briefing email fires relative to the scan. This changes the cron expression sent to the gateway.</div>
+      </div>
+
+      <h3 style="font-size:13px;font-weight:700;margin-bottom:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-family:var(--font-mono);">Scan + Send Timing</h3>
+      <div class="schedule-grid" style="margin-bottom:24px;">
+        <div class="sched-card selected" data-sched="scan-only" onclick="selectSched(this)">
+          <div class="sched-time">3:00 AM UTC</div>
+          <div class="sched-label">Nightly Scan Only<br><span style="font-size:10px;color:var(--muted);">Send briefing manually</span></div>
+          <span class="sched-check">✓</span>
+        </div>
+        <div class="sched-card" data-sched="immediate" onclick="selectSched(this)">
+          <div class="sched-time">3:05 AM UTC</div>
+          <div class="sched-label">Immediate Send<br><span style="font-size:10px;color:var(--muted);">Auto-send after scan</span></div>
+          <span class="sched-check">✓</span>
+        </div>
+        <div class="sched-card" data-sched="morning" onclick="selectSched(this)">
+          <div class="sched-time">6:00 AM UTC<br><span style="font-size:10px;color:var(--gold);">5AM SAST</span></div>
+          <div class="sched-label">Morning Delivery<br><span style="font-size:10px;color:var(--muted);">Inbox by 8AM SA</span></div>
+          <span class="sched-check">✓</span>
+        </div>
+      </div>
+
+      <div class="config-card">
+        <h3>📅 Cron Configuration</h3>
+        <div class="config-grid" style="grid-template-columns:1fr 1fr;">
+          <div class="form-group">
+            <label>Cron Expression</label>
+            <input type="text" id="cfg-cron" value="0 3 * * *" oninput="saveConfig()">
+            <div class="form-hint">Standard 5-field cron. Current: daily 3AM UTC.</div>
+          </div>
+          <div class="form-group">
+            <label>Briefing Format</label>
+            <select id="cfg-briefing-format" onchange="saveConfig()">
+              <option value="full">Full (all 9 sections)</option>
+              <option value="tenders">Tenders + Priorities only</option>
+              <option value="executive">Executive Summary only</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Subject Line Template</label>
+          <input type="text" id="cfg-subject-tpl" value="🌙 OGRE Intel Briefing — {date}" oninput="saveConfig()">
+          <div class="form-hint">{date} auto-replaced with current date. {verdict} inserts first line of verdict.</div>
+        </div>
+        <hr class="div">
+        <h3 style="font-family:var(--font-mono);font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:12px;">📡 Active Cron Jobs</h3>
+        <table class="log-table">
+          <thead><tr><th>Job Name</th><th>Schedule</th><th>Last Run</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:600;">OGRE Midnight Build Scan</td>
+              <td><span style="font-family:var(--font-mono);font-size:11px;color:var(--gold);">0 3 * * *</span></td>
+              <td><span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">Jul 22, 3:00 AM UTC</span></td>
+              <td><span class="log-status sent">✓ Active</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600;">OGRE Briefing Email Delivery</td>
+              <td><span style="font-family:var(--font-mono);font-size:11px;color:var(--gold);" id="cron-display">0 3 * * *</span></td>
+              <td><span style="font-family:var(--font-mono);font-size:11px;color:var(--muted);">—</span></td>
+              <td><span class="log-status pending">⏳ Pending</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="margin-top:14px;display:flex;gap:10px;">
+          <button class="send-btn secondary" onclick="updateCron()">⏰ Update Cron Schedule</button>
+          <button class="send-btn primary" onclick="testCronNow()">▶ Test Cron Now</button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon">✓</div>
+  <span id="toast-text"></span>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────────────
+const STATE_KEY = 'ogre_briefing_v1';
+const LOG_KEY   = 'ogre_briefing_log_v1';
+const CRON_KEY  = 'ogre_briefing_cron_v1';
+
+const state = JSON.parse(localStorage.getItem(STATE_KEY) || '{}');
+const log   = JSON.parse(localStorage.getItem(LOG_KEY)   || '[]');
+
+const cfg = {
+  apikey:        state.apikey        || '',
+  fromName:      state.fromName      || 'Cipher Tr@ce — OGRE Computer',
+  fromEmail:     state.fromEmail     || 'cipher@studexmeat.com',
+  subjectPrefix: state.subjectPrefix || '🌙 OGRE Intel Briefing',
+  includeSection:state.includeSection|| 'full',
+  format:        state.format        || 'html',
+  cron:          state.cron          || '0 3 * * *',
+  schedMode:     state.schedMode     || 'scan-only',
+  recipients:    state.recipients    || ['tumelo','naledi','charlie','ceo'],
+  extraRecip:   state.extraRecip    || '',
+};
+
+// ─── PRIORITIES ──────────────────────────────────────────────────────────────
+const priorities = [
+  { num:1, action:'Send KZN intro email to kzngf@thehotline.co.za', who:'Tumelo', urgency:'🔴 NOW', value:'R83,988/yr' },
+  { num:2, action:'Register on etenders.gov.za — 3+ days overdue', who:'Cipher Tr@ce', urgency:'🔴 NOW', value:'R100M+ pipeline' },
+  { num:3, action:'Test Kimi K3 on KZN RFQ spec — full doc in one call', who:'Cipher Tr@ce', urgency:'🔴 NOW', value:'Faster proposal' },
+  { num:4, action:'Deploy OGRE Solopreneur Package page to portfolio', who:'Cipher Tr@ce', urgency:'🟡 THIS MONTH', value:'R8.5K/service' },
+  { num:5, action:'Add Qwen-Turbo as fallback model in OpenClaw', who:'Cipher Tr@ce', urgency:'🟡 THIS MONTH', value:'60% cost cut' },
+];
+
+// ─── AGENTMAIL API ───────────────────────────────────────────────────────────
+const AGENTMAIL_BASE = 'https://agent.studexmeat.com/api';
+const INBOXES = {
+  tumelo: 'tumelo@agent.studexmeat.com',
+  naledi:  'naledi@agent.studexmeat.com',
+  charlie: 'charlie@agent.studexmeat.com',
+  ceo:     'ceo@agent.studexmeat.com',
+};
+const EXTRA_RECIPIENTS = {
+  tumelo:   'tumelo@studexmeat.com',
+  naledi:   'naledi@agent.studexmeat.com',
+  charlie:  'charlie@agent.studexmeat.com',
+  ceo:      'ceo@agent.studexmeat.com',
+};
+
+// ─── EMAIL HTML TEMPLATE ──────────────────────────────────────────────────────
+function buildBriefingHTML() {
+  const date = new Date().toISOString().slice(0,10);
+  const mrr = 'R45,000'; const pipeline = 'R6-20M+';
+  return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><title>OGRE Intel Briefing — ${date}</title></head>
+<body style="margin:0;padding:0;background:#09090e;font-family:'Plus Jakarta Sans',Arial,sans-serif;color:#e8e8f0;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#09090e;padding:0;">
+<tr><td align="center" style="padding:0;">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#14141f;border:1px solid #1e1e2e;border-radius:8px;overflow:hidden;margin:20px auto;">
+
+<!-- HEADER -->
+<tr><td style="background:linear-gradient(135deg,#0f0f18,#1a1a2e);padding:20px 30px;border-bottom:2px solid #C9A84C;">
+  <div style="font-family:monospace;font-size:16px;font-weight:700;color:#C9A84C;letter-spacing:3px;">OGRE<span style="color:#6b6b80;">://</span></div>
+  <div style="font-family:monospace;font-size:11px;color:#6b6b80;margin-top:4px;">INTELLIGENCE BRIEFING &nbsp;•&nbsp; ${date} &nbsp;•&nbsp; CIPHER TR@CE, DARK FACTORY CEO</div>
+</td></tr>
+
+<!-- SIGNAL BAR -->
+<tr><td style="background:rgba(201,168,76,0.08);border-bottom:1px solid rgba(201,168,76,0.2);padding:8px 30px;">
+  <div style="font-family:monospace;font-size:11px;color:#C9A84C;">🌙 NIGHT 28 &nbsp;|&nbsp; OGRE MIDNIGHT BUILD &nbsp;|&nbsp; JULY 22, 2026</div>
+</td></tr>
+
+<!-- HERO VERDICT -->
+<tr><td style="padding:28px 30px 20px;border-bottom:1px solid #1e1e2e;">
+  <div style="font-family:Georgia,serif;font-size:16px;font-style:italic;color:#e8e8f0;line-height:1.6;border-left:3px solid #C9A84C;padding-left:16px;margin-bottom:16px;">"The best AI stack is the one that makes money while you sleep. The KZN tender closes in 8 days. Send the email tonight."</div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;">
+    <div style="background:#0f0f18;border:1px solid #1e1e2e;border-radius:8px;padding:12px 18px;text-align:center;flex:1;min-width:100px;">
+      <div style="font-family:monospace;font-size:20px;font-weight:700;color:#C9A84C;">R45K</div>
+      <div style="font-size:10px;color:#6b6b80;margin-top:2px;">MRR LIVE</div>
+    </div>
+    <div style="background:#0f0f18;border:1px solid #1e1e2e;border-radius:8px;padding:12px 18px;text-align:center;flex:1;min-width:100px;">
+      <div style="font-family:monospace;font-size:20px;font-weight:700;color:#00d4ff;">R6-20M</div>
+      <div style="font-size:10px;color:#6b6b80;margin-top:2px;">PIPELINE</div>
+    </div>
+    <div style="background:#0f0f18;border:1px solid rgba(255,77,109,0.3);border-radius:8px;padding:12px 18px;text-align:center;flex:1;min-width:100px;">
+      <div style="font-family:monospace;font-size:20px;font-weight:700;color:#ff4d6d;">8</div>
+      <div style="font-size:10px;color:#6b6b80;margin-top:2px;">DAYS — KZN</div>
+    </div>
+  </div>
+</td></tr>
+
+<!-- SECTION 1: PRIORITIES -->
+<tr><td style="padding:24px 30px;border-bottom:1px solid #1e1e2e;">
+  <div style="font-family:monospace;font-size:11px;color:#C9A84C;letter-spacing:2px;margin-bottom:14px;">📌 TOP 5 PRIORITIES — NEXT 72 HOURS</div>
+  <table width="100%" cellpadding="0" cellspacing="0">
+    <tr style="font-family:monospace;font-size:10px;color:#6b6b80;text-transform:uppercase;letter-spacing:1px;"><td style="padding:4px 8px;width:24px;">#</td><td style="padding:4px 8px;">Action</td><td style="padding:4px 8px;width:80px;">Who</td><td style="padding:4px 8px;width:80px;">Urgency</td><td style="padding:4px 8px;width:90px;">Value</td></tr>
+    ${priorities.map((p,i)=>`<tr style="border-top:1px solid #1e1e2e;">
+      <td style="padding:10px 8px;font-family:monospace;font-size:14px;font-weight:700;color:#C9A84C;">${p.num}</td>
+      <td style="padding:10px 8px;font-size:12px;font-weight:600;">${p.action}</td>
+      <td style="padding:10px 8px;font-family:monospace;font-size:10px;color:#6c63ff;">${p.who}</td>
+      <td style="padding:10px 8px;"><span style="font-family:monospace;font-size:10px;padding:2px 7px;border-radius:10px;${p.urgency.includes('NOW')?'background:rgba(255,77,109,0.15);color:#ff4d6d':p.urgency.includes('MONTH')?'background:rgba(245,158,11,0.15);color:#f59e0b':'background:rgba(0,212,255,0.1);color:#00d4ff'}">${p.urgency}</span></td>
+      <td style="padding:10px 8px;font-family:monospace;font-size:11px;color:#00e896;">${p.value}</td>
+    </tr>`).join('')}
+  </table>
+</td></tr>
+
+<!-- SECTION 2: KEY DEVELOPMENTS -->
+<tr><td style="padding:24px 30px;border-bottom:1px solid #1e1e2e;">
+  <div style="font-family:monospace;font-size:11px;color:#C9A84C;letter-spacing:2px;margin-bottom:14px;">🔬 KEY DEVELOPMENTS — JULY 22, 2026</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+    <div style="background:#0f0f18;border:1px solid #1e1e2e;border-radius:8px;padding:14px;">
+      <div style="font-weight:700;font-size:12px;margin-bottom:6px;">🤖 Kimi K3 Released</div>
+      <div style="font-size:11px;color:#6b6b80;line-height:1.5;">2.8T params, 1M token context. Feed entire KZN RFQ in one call. OGRE opportunity: tender analysis automation.</div>
+    </div>
+    <div style="background:#0f0f18;border:1px solid #1e1e2e;border-radius:8px;padding:14px;">
+      <div style="font-weight:700;font-size:12px;margin-bottom:6px;">🇨🇳 Qwen-Turbo $0.05/1M</div>
+      <div style="font-size:11px;color:#6b6b80;line-height:1.5;">97% cheaper than GPT-4o. Add to OpenClaw as fallback. Target: R0.003/task vs R0.12/task.</div>
+    </div>
+    <div style="background:#0f0f18;border:1px solid #1e1e2e;border-radius:8px;padding:14px;">
+      <div style="font-weight:700;font-size:12px;margin-bottom:6px;">💰 Mac Mini M4 Pro AI Workstation</div>
+      <div style="font-size:11px;color:#6b6b80;line-height:1.5;">64GB = $1,999 once-off. Break-even vs cloud in 8 months. OGRE package: R22-28K + R2K/mo managed.</div>
+    </div>
+    <div style="background:#0f0f18;border:1px solid #1e1e2e;border-radius:8px;padding:14px;">
+      <div style="font-weight:700;font-size:12px;margin-bottom:6px;">🌍 200+ AI Startups in Africa</div>
+      <div style="font-size:11px;color:#6b6b80;line-height:1.5;">Nigeria + SA lead. Kenya 42% growth. OGRE moat: sovereign AI infrastructure for government + enterprise.</div>
+    </div>
+  </div>
+</td></tr>
+
+<!-- SECTION 3: KZN TENDER STATUS -->
+<tr><td style="padding:24px 30px;border-bottom:1px solid #1e1e2e;">
+  <div style="font-family:monospace;font-size:11px;color:#ff4d6d;letter-spacing:2px;margin-bottom:14px;">🚨 ACTIVE TENDER — KZN GROWTH FUND</div>
+  <div style="background:linear-gradient(135deg,rgba(255,77,109,0.08),rgba(201,168,76,0.05));border:1px solid rgba(255,77,109,0.3);border-radius:8px;padding:18px;">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <div style="font-family:monospace;font-size:32px;font-weight:700;color:#ff4d6d;">8</div>
+      <div>
+        <div style="font-weight:700;font-size:14px;">Days Until Close</div>
+        <div style="font-size:11px;color:#6b6b80;">Reference: KZNGFA-RFQ 2026-09 &nbsp;|&nbsp; Agency: KZN Growth Fund Agency</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
+      <div style="text-align:center;"><div style="font-family:monospace;font-size:16px;font-weight:700;color:#00e896;">R83,988</div><div style="font-size:10px;color:#6b6b80;">OGRE VM Team / yr</div></div>
+      <div style="text-align:center;"><div style="font-family:monospace;font-size:16px;font-weight:700;color:#C9A84C;">5</div><div style="font-size:10px;color:#6b6b80;">AI Agents</div></div>
+      <div style="text-align:center;"><div style="font-family:monospace;font-size:16px;font-weight:700;color:#00d4ff;">88%</div><div style="font-size:10px;color:#6b6b80;">OGRE Fit Score</div></div>
+    </div>
+    <div style="font-size:12px;color:#6b6b80;padding:10px;background:#0f0f18;border-radius:6px;text-align:center;">📧 Intro email drafted — Tumelo needs to send to <span style="color:#C9A84C;font-family:monospace;">kzngf@thehotline.co.za</span> by tonight</div>
+  </div>
+</td></tr>
+
+<!-- CTA -->
+<tr><td style="padding:24px 30px;border-bottom:1px solid #1e1e2e;">
+  <div style="background:#C9A84C;border-radius:8px;padding:18px;text-align:center;">
+    <div style="font-weight:800;font-size:16px;color:#000;margin-bottom:4px;">Take Action Tonight</div>
+    <div style="font-size:12px;color:rgba(0,0,0,0.6);">KZN intro email → Kimi K3 tender analysis → etenders registration → Qwen-Turbo integration</div>
+  </div>
+</td></tr>
+
+<!-- FOOTER -->
+<tr><td style="padding:16px 30px;background:#0a0a0f;border-top:1px solid #1e1e2e;">
+  <div style="font-family:monospace;font-size:10px;color:#6b6b80;text-align:center;">OGRE COMPUTER INTELLIGENCE &nbsp;|&nbsp; Dark Factory, Studex Group &nbsp;|&nbsp; Nightly scan by Cipher Tr@ce &nbsp;|&nbsp; Next: Aug 22, 2026</div>
+</td></tr>
+
+</table></td></tr></table></body></html>`;
+}
+
+// ─── AGENTMAIL SEND ──────────────────────────────────────────────────────────
+async function sendBriefingEmail(toEmail, toName) {
+  const html = buildBriefingHTML();
+  const date = new Date().toISOString().slice(0,10);
+  const subject = `🌙 OGRE Intel Briefing — ${date}`;
+
+  if (!cfg.apikey) {
+    return { ok: false, error: 'No API key configured' };
+  }
+
+  try {
+    const res = await fetch(`${AGENTMAIL_BASE}/send`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${cfg.apikey}` },
+      body: JSON.stringify({
+        to: [{ email: toEmail, name: toName }],
+        from: { name: cfg.fromName, email: cfg.fromEmail },
+        subject,
+        html,
+        tags: ['ogre-intel', 'nightly-briefing'],
+      }),
+    });
+    const data = await res.json();
+    return { ok: res.ok, data };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+// ─── SEND TEST ───────────────────────────────────────────────────────────────
+async function sendTestEmail() {
+  const btn = document.getElementById('send-test-btn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  const targets = cfg.recipients.map(r => ({ email: EXTRA_RECIPIENTS[r] || INBOXES[r], name: r }));
+  const results = [];
+
+  for (const target of targets) {
+    const result = await sendBriefingEmail(target.email, target.name);
+    results.push({ target, result });
+    addLogEntry(target.email, cfg.subjectPrefix + ' — ' + new Date().toISOString().slice(0,10), result.ok ? 'sent' : 'failed', result.error || 'OK');
+  }
+
+  btn.classList.remove('loading');
+  btn.disabled = false;
+
+  const allOk = results.every(r => r.result.ok);
+  showToast(allOk ? 'green' : 'red', allOk
+    ? `✓ All ${results.length} briefings sent to inbox`
+    : `⚠ ${results.filter(r=>r.result.ok).length}/${results.length} sent — check API key`);
+  refreshDashboard();
+  if (!allOk && !cfg.apikey) {
+    showToast('red', '⚠ Set AgentMail API key in Email Config first');
+  }
+}
+
+// ─── PREVIEW ─────────────────────────────────────────────────────────────────
+function previewEmail() {
+  switchPanel('preview');
+  const frame = document.getElementById('preview-frame');
+  frame.srcdoc = buildBriefingHTML();
+}
+
+// ─── LOG ─────────────────────────────────────────────────────────────────────
+function addLogEntry(to, subject, status, notes) {
+  const entry = {
+    id: Date.now(),
+    date: new Date().toISOString().slice(0,10),
+    time: new Date().toTimeString().slice(0,8),
+    subject: subject || cfg.subjectPrefix,
+    to,
+    status,
+    notes: notes || '',
+  };
+  log.unshift(entry);
+  if (log.length > 50) log.pop();
+  localStorage.setItem(LOG_KEY, JSON.stringify(log));
+  renderLog();
+}
+
+function renderLog() {
+  const tbody = document.getElementById('log-tbody');
+  if (!log.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">📭</div><p>No briefings sent yet.</p></div></td></tr>';
+    document.getElementById('log-count-badge').textContent = '0';
+    return;
+  }
+  tbody.innerHTML = log.map(e => `
+    <tr>
+      <td><span class="log-time">${e.date}</span></td>
+      <td><span class="log-time">${e.time}</span></td>
+      <td style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.subject}</td>
+      <td style="font-family:var(--font-mono);font-size:11px;color:var(--gold);">${e.to}</td>
+      <td><span class="log-status ${e.status}">${e.status === 'sent' ? '✓ Sent' : e.status === 'failed' ? '✗ Failed' : '⏳ Pending'}</span></td>
+      <td style="font-size:11px;color:var(--muted);">${e.notes || '—'}</td>
+    </tr>`).join('');
+  document.getElementById('log-count-badge').textContent = log.length;
+  document.getElementById('stat-log').textContent = log.length;
+}
+
+// ─── CRON UPDATE ─────────────────────────────────────────────────────────────
+function updateCron() {
+  const cronVal = document.getElementById('cfg-cron').value;
+  state.cron = cronVal;
+  localStorage.setItem(STATE_KEY, JSON.stringify(state));
+  document.getElementById('cron-display').textContent = cronVal;
+  showToast('green', `✓ Cron updated to ${cronVal}. Restart gateway to apply.`);
+}
+
+// ─── PANEL SWITCH ────────────────────────────────────────────────────────────
+function switchPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector(`[data-panel="${name}"]`)?.classList.add('active');
+  if (name === 'preview') previewEmail();
+}
+
+// ─── RECIPIENT TOGGLE ───────────────────────────────────────────────────────
+function toggleRecip(el) {
+  const input = el.querySelector('input');
+  input.checked = !input.checked;
+  el.classList.toggle('selected', input.checked);
+  cfg.recipients = [...document.querySelectorAll('#recip-list input:checked')].map(i => i.value);
+  saveConfig();
+}
+
+// ─── SCHEDULE SELECT ─────────────────────────────────────────────────────────
+function selectSched(el) {
+  document.querySelectorAll('.sched-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  cfg.schedMode = el.dataset.sched;
+  const cronMap = { 'scan-only':'0 3 * * *', 'immediate':'5 3 * * *', 'morning':'0 6 * * *' };
+  cfg.cron = cronMap[cfg.schedMode] || cfg.cron;
+  document.getElementById('cfg-cron').value = cfg.cron;
+  document.getElementById('cron-display').textContent = cfg.cron;
+  saveConfig();
+}
+
+// ─── SAVE CONFIG ──────────────────────────────────────────────────────────────
+function saveConfig() {
+  cfg.apikey        = document.getElementById('cfg-apikey')?.value || cfg.apikey;
+  cfg.fromName      = document.getElementById('cfg-fromname')?.value || cfg.fromName;
+  cfg.fromEmail     = document.getElementById('cfg-fromemail')?.value || cfg.fromEmail;
+  cfg.subjectPrefix = document.getElementById('cfg-subject-prefix')?.value || cfg.subjectPrefix;
+  cfg.includeSection= document.getElementById('cfg-include-section')?.value || cfg.includeSection;
+  cfg.format        = document.getElementById('cfg-format')?.value || cfg.format;
+  cfg.cron          = document.getElementById('cfg-cron')?.value || cfg.cron;
+  cfg.extraRecip    = document.getElementById('cfg-extra-recip')?.value || cfg.extraRecip;
+  localStorage.setItem(STATE_KEY, JSON.stringify(cfg));
+  updateAgentMailStatus();
+}
+
+// ─── AGENTMAIL STATUS ────────────────────────────────────────────────────────
+function updateAgentMailStatus() {
+  const dot = document.getElementById('am-dot');
+  const text = document.getElementById('am-status-text');
+  const preview = document.getElementById('am-key-preview');
+  if (cfg.apikey) {
+    dot.className = 'api-dot ok';
+    text.textContent = 'Configured ✓';
+    preview.textContent = cfg.apikey.slice(0, 6) + '••••••••••';
+  } else {
+    dot.className = 'api-dot pending';
+    text.textContent = 'Not configured';
+    preview.textContent = '••••••••••••';
+  }
+}
+
+// ─── REFRESH DASHBOARD ──────────────────────────────────────────────────────
+function refreshDashboard() {
+  // KZN countdown
+  const kznClose = new Date('2026-07-30T23:59:59Z');
+  const now = new Date();
+  const days = Math.max(0, Math.ceil((kznClose - now) / 86400000));
+  document.getElementById('kzn-days').textContent = days;
+  document.getElementById('kzn-days-label').textContent = `${days} day${days!==1?'s':''} left`;
+  document.getElementById('kzn-count').textContent = days + 'd';
+
+  // Stats
+  const sent = log.filter(e => e.status === 'sent').length;
+  const failed = log.filter(e => e.status === 'failed').length;
+  document.getElementById('stat-sent').textContent = sent;
+  document.getElementById('stat-log').textContent = log.length;
+
+  // Progress
+  const pipeline = cfg.apikey ? 100 : 50;
+  document.getElementById('progress-pct').textContent = pipeline + '%';
+  document.getElementById('progress-fill').style.width = pipeline + '%';
+
+  // Priorities
+  document.getElementById('priorities-tbody').innerHTML = priorities.map(p => `
+    <tr>
+      <td class="priority-num">${p.num}</td>
+      <td class="action-title">${p.action}</td>
+      <td class="action-who">${p.who}</td>
+      <td><span style="font-family:var(--font-mono);font-size:10px;padding:2px 7px;border-radius:10px;${p.urgency.includes('NOW')?'background:rgba(255,77,109,0.15);color:#ff4d6d':p.urgency.includes('MONTH')?'background:rgba(245,158,11,0.15);color:#f59e0b':'background:rgba(0,212,255,0.1);color:#00d4ff'}">${p.urgency}</span></td>
+      <td class="value-tag">${p.value}</td>
+    </tr>`).join('');
+}
+
+// ─── COPY EMAIL HTML ─────────────────────────────────────────────────────────
+function copyEmailHTML() {
+  navigator.clipboard.writeText(buildBriefingHTML()).then(() => {
+    showToast('green', '✓ Email HTML copied to clipboard');
+  });
+}
+
+// ─── CLEAR LOG ───────────────────────────────────────────────────────────────
+function clearLog() {
+  if (!confirm('Clear all delivery log entries?')) return;
+  log.length = 0;
+  localStorage.setItem(LOG_KEY, JSON.stringify(log));
+  renderLog();
+  showToast('green', '✓ Log cleared');
+}
+
+// ─── TEST CRON NOW ──────────────────────────────────────────────────────────
+function testCronNow() {
+  showToast('green', '✓ Cron triggered — briefing being generated and queued for sending');
+  setTimeout(() => sendTestEmail(), 1000);
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+function showToast(type, msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  t.className = 'toast ' + type;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ─── CLOCK ────────────────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = now.toUTCString().slice(17,25) + ' UTC';
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+function init() {
+  // Restore form values
+  if (document.getElementById('cfg-apikey')) {
+    document.getElementById('cfg-apikey').value        = cfg.apikey;
+    document.getElementById('cfg-fromname').value      = cfg.fromName;
+    document.getElementById('cfg-fromemail').value     = cfg.fromEmail;
+    document.getElementById('cfg-subject-prefix').value = cfg.subjectPrefix;
+    document.getElementById('cfg-include-section').value = cfg.includeSection;
+    document.getElementById('cfg-format').value        = cfg.format;
+    document.getElementById('cfg-cron').value          = cfg.cron;
+    document.getElementById('cfg-extra-recip').value   = cfg.extraRecip;
+  }
+
+  // Recipient chips
+  document.querySelectorAll('#recip-list .recip-chip').forEach(chip => {
+    const input = chip.querySelector('input');
+    if (input) chip.classList.toggle('selected', cfg.recipients.includes(input.value));
+  });
+
+  // Schedule
+  document.querySelectorAll('.sched-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.sched === cfg.schedMode);
+  });
+
+  updateClock();
+  setInterval(updateClock, 1000);
+  updateAgentMailStatus();
+  renderLog();
+  refreshDashboard();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
