@@ -13,7 +13,7 @@
  *  - PAYFAST_PASSPHRASE        (optional; set the same value in the PayFast dashboard)
  *  - PAYFAST_ENV               ("sandbox" | "live", default "sandbox")
  *  - PAYFAST_RETURN_URL / PAYFAST_CANCEL_URL / PAYFAST_NOTIFY_URL (optional overrides)
- *  - USD_TO_ZAR                (conversion rate for USD-quoted prices, default 18.5)
+ *  - USD_TO_ZAR                (conversion rate for USD-quoted prices; required in production, fallback 18.5 in dev)
  */
 
 import { createHash } from "crypto";
@@ -78,7 +78,14 @@ export function signature(
 }
 
 export function usdToZar(usd: number): number {
-  const rate = Number(process.env.USD_TO_ZAR || "18.5");
+  const raw = process.env.USD_TO_ZAR;
+  if (!raw) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("USD_TO_ZAR is required in production. Set it in your environment.");
+    }
+    console.warn("[payfast] USD_TO_ZAR not set — using fallback rate of 18.5");
+  }
+  const rate = Number(raw || "18.5");
   return Math.round(usd * rate * 100) / 100;
 }
 
