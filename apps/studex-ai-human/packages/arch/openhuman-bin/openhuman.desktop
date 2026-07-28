@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=StudEx AI Human
+Comment=StudEx AI Human — personal AI desktop assistant
+Exec=/usr/bin/openhuman %U
+Terminal=false
+Type=Application
+Icon=openhuman
+Categories=Utility;Office;Network;
+StartupNotify=true
+StartupWMClass=StudEx AI Human
+MimeType=x-scheme-handler/openhuman;

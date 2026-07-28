@@ -1,0 +1,36 @@
+{
+  "name": "studex-ai-human",
+  "version": "0.0.0",
+  "description": "StudEx AI Human — AI assistant CLI",
+  "keywords": [
+    "studex",
+    "ai",
+    "cli",
+    "assistant",
+    "community"
+  ],
+  "homepage": "https://github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM.git",
+    "directory": "apps/studex-ai-human/packages/npm"
+  },
+  "bugs": {
+    "url": "https://github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM/issues"
+  },
+  "license": "MIT",
+  "bin": {
+    "openhuman": "./bin/openhuman.js"
+  },
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "files": [
+    "bin/",
+    "install.js",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  }
+}
