@@ -6,24 +6,27 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PrivacyProvider } from "@/contexts/PrivacyContext";
 import { AnalyticsStrip } from "@/components/AnalyticsStrip";
-import ContentQueue from "@/pages/ContentQueue";
-import ContentCalendar from "@/pages/ContentCalendar";
-import GenerateContent from "@/pages/GenerateContent";
-import Analytics from "@/pages/Analytics";
-import AgentNetwork from "@/pages/AgentNetwork";
-import FacebookAds from "@/pages/FacebookAds";
-import DeliveryTeam from "@/pages/DeliveryTeam";
-import Communications from "@/pages/Communications";
-import ShopifyStore from "@/pages/ShopifyStore";
-import GlobalMarkets from "@/pages/GlobalMarkets";
-import SuperAgents from "@/pages/SuperAgents";
-import Payments from "@/pages/Payments";
-import RevenueEngine from "@/pages/RevenueEngine";
-import NalediAI from "@/pages/NalediAI";
-import AICredits from "@/pages/AICredits";
 import NotFound from "@/pages/not-found";
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { LayoutGrid, Calendar, Sparkles, TrendingUp, ShoppingBag, CheckSquare, Bot, Megaphone, Truck, MessageSquare, Globe, Cpu, CreditCard, MessageCircle, Coins } from "lucide-react";
+
+// Route-level code-splitting: each page ships as its own chunk and only loads
+// when its tab is opened, keeping the initial bundle small.
+const ContentQueue = lazy(() => import("@/pages/ContentQueue"));
+const ContentCalendar = lazy(() => import("@/pages/ContentCalendar"));
+const GenerateContent = lazy(() => import("@/pages/GenerateContent"));
+const Analytics = lazy(() => import("@/pages/Analytics"));
+const AgentNetwork = lazy(() => import("@/pages/AgentNetwork"));
+const FacebookAds = lazy(() => import("@/pages/FacebookAds"));
+const DeliveryTeam = lazy(() => import("@/pages/DeliveryTeam"));
+const Communications = lazy(() => import("@/pages/Communications"));
+const ShopifyStore = lazy(() => import("@/pages/ShopifyStore"));
+const GlobalMarkets = lazy(() => import("@/pages/GlobalMarkets"));
+const SuperAgents = lazy(() => import("@/pages/SuperAgents"));
+const Payments = lazy(() => import("@/pages/Payments"));
+const RevenueEngine = lazy(() => import("@/pages/RevenueEngine"));
+const NalediAI = lazy(() => import("@/pages/NalediAI"));
+const AICredits = lazy(() => import("@/pages/AICredits"));
 
 const TABS = [
   { id: "queue", label: "Queue", icon: LayoutGrid },
@@ -138,6 +141,7 @@ function MainLayout() {
 
       {/* Main content */}
       <main className="max-w-screen-xl mx-auto px-4 py-6">
+        <Suspense fallback={<ComingSoonPage title="Loading…" />}>
         {activeTab === "queue" && <ContentQueue />}
         {activeTab === "calendar" && <ContentCalendar />}
         {activeTab === "generate" && <GenerateContent />}
@@ -154,6 +158,7 @@ function MainLayout() {
         {activeTab === "payments" && <Payments />}
         {activeTab === "revenue" && <RevenueEngine />}
         {activeTab === "ai-credits" && <AICredits />}
+        </Suspense>
       </main>
     </div>
   );
