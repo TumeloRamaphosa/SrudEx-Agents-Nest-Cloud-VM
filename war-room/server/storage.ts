@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import Database from "better-sqlite3";
 import { eq, desc, or } from "drizzle-orm";
-import { contentItems, calendarEvents, analyticsCache, cachedMessages, type ContentItem, type CalendarEvent, type InsertContentItem, type InsertCachedMessage } from "../shared/schema";
+import { contentItems, calendarEvents, analyticsCache, cachedMessages, factoryProjects, factoryServices, type ContentItem, type CalendarEvent, type InsertContentItem, type InsertCachedMessage, type InsertFactoryProject, type InsertFactoryService, type FactoryProject } from "../shared/schema";
 
 const sqlite = new Database("data.db");
 export const db = drizzle(sqlite);
@@ -52,6 +52,42 @@ sqlite.exec(`
     is_read INTEGER NOT NULL DEFAULT 0,
     labels TEXT NOT NULL DEFAULT '[]',
     synced_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS factory_projects (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug TEXT NOT NULL UNIQUE,
+    client_name TEXT NOT NULL,
+    client_email TEXT NOT NULL,
+    service_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'intake',
+    tier TEXT NOT NULL DEFAULT 'custom',
+    quoted_price_usd REAL,
+    deposit_paid INTEGER NOT NULL DEFAULT 0,
+    build_paid INTEGER NOT NULL DEFAULT 0,
+    final_paid INTEGER NOT NULL DEFAULT 0,
+    voice_note_url TEXT,
+    transcription TEXT,
+    attachments TEXT NOT NULL DEFAULT '[]',
+    links TEXT NOT NULL DEFAULT '[]',
+    linear_issue_id TEXT,
+    github_repo TEXT,
+    review_round INTEGER NOT NULL DEFAULT 0,
+    max_reviews INTEGER NOT NULL DEFAULT 3,
+    agent_notes TEXT NOT NULL DEFAULT '[]',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS factory_services (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    tier TEXT NOT NULL,
+    starting_price_usd REAL,
+    turnaround TEXT NOT NULL,
+    features TEXT NOT NULL DEFAULT '[]',
+    is_active INTEGER NOT NULL DEFAULT 1
   );
 `);
 
@@ -192,6 +228,66 @@ if (existingCal.length === 0) {
   }
 }
 
+// Seed factory services if empty
+const existingServices = db.select().from(factoryServices).all();
+if (existingServices.length === 0) {
+  const serviceSeed = [
+    {
+      id: "quick-fix",
+      title: "Quick Fix",
+      description: "Bug fixes, small code changes, dependency updates, configuration tweaks",
+      tier: "quick-fix",
+      startingPriceUsd: 150,
+      turnaround: "24-48 hours",
+      features: JSON.stringify(["Single bug fix or code change", "Code review via CodeRabbit", "1 revision round", "Delivered as PR"]),
+      isActive: true,
+    },
+    {
+      id: "micro-build",
+      title: "Micro Build",
+      description: "Landing pages, single features, API endpoints, UI components",
+      tier: "micro-build",
+      startingPriceUsd: 500,
+      turnaround: "3-5 days",
+      features: JSON.stringify(["Single feature or page", "Responsive design", "Code review + testing", "2 revision rounds", "Deployed or PR'd"]),
+      isActive: true,
+    },
+    {
+      id: "mini-project",
+      title: "Mini Project",
+      description: "Multi-page sites, API integrations, dashboard features, automation workflows",
+      tier: "mini-project",
+      startingPriceUsd: 1500,
+      turnaround: "1-2 weeks",
+      features: JSON.stringify(["Multiple pages or features", "Database setup", "API integration", "Code review + QA", "3 revision rounds", "Full deployment"]),
+      isActive: true,
+    },
+    {
+      id: "mvp-build",
+      title: "MVP Build",
+      description: "Full application MVPs, complex features, complete system builds",
+      tier: "mvp-build",
+      startingPriceUsd: 5000,
+      turnaround: "2-4 weeks",
+      features: JSON.stringify(["Complete application", "Architecture planning", "Database + API + frontend", "Auth & payments", "Code review + QA", "3 revision rounds", "Deployment + docs"]),
+      isActive: true,
+    },
+    {
+      id: "custom-project",
+      title: "Custom Project",
+      description: "Enterprise solutions, complex integrations, ongoing development",
+      tier: "custom",
+      startingPriceUsd: null,
+      turnaround: "Custom timeline",
+      features: JSON.stringify(["Custom scoping call", "Dedicated agent team", "Priority queue", "Unlimited revisions", "Managed deployment", "Ongoing support"]),
+      isActive: true,
+    },
+  ];
+  for (const svc of serviceSeed) {
+    db.insert(factoryServices).values(svc).run();
+  }
+}
+
 export const storage = {
   // Content
   getAllContent: () => db.select().from(contentItems).all(),
@@ -240,4 +336,26 @@ export const storage = {
       db.insert(analyticsCache).values({ key, value, updatedAt: new Date().toISOString() }).run();
     }
   },
+
+  // Dark Factory — Projects
+  getAllProjects: () => db.select().from(factoryProjects).orderBy(desc(factoryProjects.id)).all(),
+  getProjectById: (id: number) => db.select().from(factoryProjects).where(eq(factoryProjects.id, id)).get(),
+  getProjectBySlug: (slug: string) => db.select().from(factoryProjects).where(eq(factoryProjects.slug, slug)).get(),
+  createProject: (project: InsertFactoryProject) => {
+    db.insert(factoryProjects).values(project).run();
+    return db.select().from(factoryProjects).where(eq(factoryProjects.slug, project.slug)).get();
+  },
+  updateProjectStatus: (id: number, status: string) => {
+    db.update(factoryProjects).set({ status, updatedAt: new Date().toISOString() }).where(eq(factoryProjects.id, id)).run();
+    return db.select().from(factoryProjects).where(eq(factoryProjects.id, id)).get();
+  },
+  updateProject: (id: number, updates: Partial<FactoryProject>) => {
+    db.update(factoryProjects).set({ ...updates, updatedAt: new Date().toISOString() }).where(eq(factoryProjects.id, id)).run();
+    return db.select().from(factoryProjects).where(eq(factoryProjects.id, id)).get();
+  },
+
+  // Dark Factory — Services
+  getAllServices: () => db.select().from(factoryServices).all(),
+  getActiveServices: () => db.select().from(factoryServices).where(eq(factoryServices.isActive, true)).all(),
+  getServiceById: (id: string) => db.select().from(factoryServices).where(eq(factoryServices.id, id)).get(),
 };
