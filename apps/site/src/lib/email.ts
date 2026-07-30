@@ -41,6 +41,19 @@ export async function sendEmail(opts: {
   return { sent: true };
 }
 
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>'"]/g, (character) => {
+    const entities: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      "'": "&#39;",
+      '"': "&quot;",
+    };
+    return entities[character];
+  });
+}
+
 export function invoiceEmailHtml(opts: {
   clientName: string;
   projectTitle: string;
@@ -48,18 +61,23 @@ export function invoiceEmailHtml(opts: {
   amountZar: number;
   invoiceNumber?: string;
 }): string {
+  const clientName = escapeHtml(opts.clientName || "there");
+  const projectTitle = escapeHtml(opts.projectTitle);
+  const stageLabel = escapeHtml(opts.stageLabel);
+  const invoiceNumber = opts.invoiceNumber ? escapeHtml(opts.invoiceNumber) : undefined;
+
   return `<!DOCTYPE html><html><body style="font-family:Helvetica,Arial,sans-serif;background:#0a0a0a;color:#f5ecd0;padding:32px;margin:0">
     <div style="max-width:520px;margin:0 auto">
       <div style="font-size:10px;letter-spacing:6px;text-transform:uppercase;color:#9a8a5a">StudEx Group · Dark Factory</div>
       <h1 style="font-weight:300;color:#f5ecd0;margin:12px 0 4px">Payment received ✓</h1>
       <p style="color:#8a8a8a;font-size:14px;line-height:1.7">
-        Hi ${opts.clientName || "there"}, we've received your <strong style="color:#C9A84C">${opts.stageLabel}</strong>
+        Hi ${clientName}, we've received your <strong style="color:#C9A84C">${stageLabel}</strong>
         payment of <strong style="color:#4CFFA8">R${opts.amountZar.toLocaleString()}</strong> for
-        <strong>${opts.projectTitle}</strong>.
+        <strong>${projectTitle}</strong>.
       </p>
       ${
-        opts.invoiceNumber
-          ? `<p style="color:#8a8a8a;font-size:13px">QuickBooks invoice <strong style="color:#f5ecd0">#${opts.invoiceNumber}</strong> has been generated for your records.</p>`
+        invoiceNumber
+          ? `<p style="color:#8a8a8a;font-size:13px">QuickBooks invoice <strong style="color:#f5ecd0">#${invoiceNumber}</strong> has been generated for your records.</p>`
           : ""
       }
       <p style="color:#8a8a8a;font-size:13px;line-height:1.7">Your project will now advance to the next stage. We'll keep you posted.</p>

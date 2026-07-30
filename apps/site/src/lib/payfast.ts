@@ -16,7 +16,7 @@
  *  - USD_TO_ZAR                (conversion rate for USD-quoted prices, default 18.5)
  */
 
-import { createHash } from "crypto";
+import { createHash, timingSafeEqual } from "crypto";
 
 const PF_ENV = process.env.PAYFAST_ENV === "live" ? "live" : "sandbox";
 
@@ -31,16 +31,21 @@ const HOSTS = {
       : "https://sandbox.payfast.co.za/eng/query/validate",
 };
 
-// PayFast sandbox defaults so the flow works with zero credentials.
-function merchantId(): string {
-  return process.env.PAYFAST_MERCHANT_ID || "10000100";
+// PayFast sandbox defaults so the local flow works with zero credentials.
+export function expectedMerchantId(): string {
+  const value = process.env.PAYFAST_MERCHANT_ID;
+  if (PF_ENV === "live" && !value) throw new Error("PAYFAST_MERCHANT_ID is required in live mode");
+  return value || "10000100";
 }
 function merchantKey(): string {
-  return process.env.PAYFAST_MERCHANT_KEY || "46f0cd694581a";
+  const value = process.env.PAYFAST_MERCHANT_KEY;
+  if (PF_ENV === "live" && !value) throw new Error("PAYFAST_MERCHANT_KEY is required in live mode");
+  return value || "46f0cd694581a";
 }
 function passphrase(): string | null {
-  const p = process.env.PAYFAST_PASSPHRASE;
-  return p && p.length > 0 ? p : null;
+  const value = process.env.PAYFAST_PASSPHRASE;
+  if (PF_ENV === "live" && !value) throw new Error("PAYFAST_PASSPHRASE is required in live mode");
+  return value && value.length > 0 ? value : null;
 }
 
 const SITE = process.env.PAYFAST_SITE_URL || "https://factory.studex-group.com";
@@ -78,7 +83,11 @@ export function signature(
 }
 
 export function usdToZar(usd: number): number {
+  if (PF_ENV === "live" && !process.env.USD_TO_ZAR) {
+    throw new Error("USD_TO_ZAR is required in live mode");
+  }
   const rate = Number(process.env.USD_TO_ZAR || "18.5");
+  if (!Number.isFinite(rate) || rate <= 0) throw new Error("USD_TO_ZAR must be a positive number");
   return Math.round(usd * rate * 100) / 100;
 }
 
@@ -101,7 +110,7 @@ export function buildCheckout(input: CheckoutInput): { url: string; fields: Reco
   const { returnUrl, cancelUrl, notifyUrl } = urlBase();
 
   const pairs: Array<[string, string]> = [
-    ["merchant_id", merchantId()],
+    ["merchant_id", expectedMerchantId()],
     ["merchant_key", merchantKey()],
     ["return_url", returnUrl],
     ["cancel_url", cancelUrl],
@@ -139,6 +148,28 @@ export function buildCheckout(input: CheckoutInput): { url: string; fields: Reco
  * Validate an ITN payload received at the notify_url.
  * Returns true only if signature matches AND PayFast server-side validation passes.
  */
+export function validateItnDetails(
+  params: Record<string, string>,
+  expected: { paymentId: string; amountZar: number }
+): { valid: boolean; reason?: string } {
+  if (params.merchant_id !== expectedMerchantId()) {
+    return { valid: false, reason: "merchant_mismatch" };
+  }
+  if (params.m_payment_id !== expected.paymentId) {
+    return { valid: false, reason: "payment_id_mismatch" };
+  }
+
+  const actualAmountZar = Number(params.amount_gross);
+  if (
+    !Number.isFinite(actualAmountZar) ||
+    Math.round(actualAmountZar * 100) !== Math.round(expected.amountZar * 100)
+  ) {
+    return { valid: false, reason: "amount_mismatch" };
+  }
+
+  return { valid: true };
+}
+
 export async function validateItn(
   rawParams: Record<string, string>
 ): Promise<{ valid: boolean; reason?: string }> {
@@ -151,7 +182,13 @@ export async function validateItn(
   // order received, plus the passphrase — unlike checkout where we only send
   // (and sign) the non-empty fields.
   const expected = signature(pairs, { includeEmpty: true });
-  if (!received || received !== expected) {
+  if (!received) return { valid: false, reason: "signature_missing" };
+  const receivedBuffer = Buffer.from(received);
+  const expectedBuffer = Buffer.from(expected);
+  if (
+    receivedBuffer.length !== expectedBuffer.length ||
+    !timingSafeEqual(receivedBuffer, expectedBuffer)
+  ) {
     return { valid: false, reason: "signature_mismatch" };
   }
 
