@@ -3,6 +3,9 @@ main = "worker/index.ts"
 compatibility_date = "2025-06-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Set auth credentials with: wrangler secret put AUTH_USERNAME,
+# wrangler secret put AUTH_PASSWORD, and wrangler secret put AUTH_SECRET.
+
 # Static frontend (Vite build output) served by Workers Static Assets.
 # API requests (/api/*) hit the Worker first; everything else is served as a
 # static asset, with unmatched routes falling back to index.html (SPA).

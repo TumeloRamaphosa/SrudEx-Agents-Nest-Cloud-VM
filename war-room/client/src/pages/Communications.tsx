@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { authenticatedFetch } from "@/lib/queryClient";
 
 interface MockMessage {
   platform: "discord" | "slack";
@@ -150,7 +151,7 @@ function GmailWidget() {
 
   useEffect(() => {
     // Fetch Gmail messages from SQLite cache (synced by Perplexity Computer)
-    fetch("/api/messages?source=gmail")
+    authenticatedFetch("/api/messages?source=gmail")
       .then((r) => r.json())
       .then((data: any[]) => {
         if (Array.isArray(data)) {

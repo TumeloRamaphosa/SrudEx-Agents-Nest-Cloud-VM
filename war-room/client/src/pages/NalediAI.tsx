@@ -7,6 +7,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { authenticatedFetch } from "@/lib/queryClient";
 import {
   Send, Bot, Zap, TrendingUp, ShoppingBag, MessageSquare,
   ChevronRight, Loader2, Copy, CheckCheck, ExternalLink, X, Menu
@@ -170,7 +171,7 @@ function useStreamingChat() {
 
     try {
       // Route to OpenAI-compatible chat endpoint (server-side proxy)
-      const response = await fetch("/api/chat/stream", {
+      const response = await authenticatedFetch("/api/chat/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

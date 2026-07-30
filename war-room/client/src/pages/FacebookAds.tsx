@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { authenticatedFetch } from "@/lib/queryClient";
 
 interface FbAccount {
   id: string;
@@ -219,7 +220,7 @@ export default function FacebookAds() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/facebook/ads")
+    authenticatedFetch("/api/facebook/ads")
       .then((r) => r.json())
       .then((d) => {
         setData(d);

@@ -1,4 +1,5 @@
 import { usePrivacy } from "@/contexts/PrivacyContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Eye, EyeOff, Mail } from "lucide-react";
 import studexLogoGold from "@assets/studex-logo-gold.png";
 import { useQuery } from "@tanstack/react-query";
@@ -17,6 +18,7 @@ interface ShopifyToday {
 
 export function AnalyticsStrip() {
   const { isPrivate, togglePrivacy, mask } = usePrivacy();
+  const { logout } = useAuth();
 
   const { data: shopify } = useQuery<ShopifyStats>({
     queryKey: ["/api/analytics/shopify"],
@@ -159,6 +161,22 @@ export function AnalyticsStrip() {
         >
           {isPrivate ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
           <span className="hidden sm:block">{isPrivate ? "Reveal" : "Privacy"}</span>
+        </button>
+        <button
+          onClick={logout}
+          className="px-3 py-1.5 transition-colors shrink-0"
+          style={{
+            background: "transparent",
+            border: "1px solid rgba(166,138,46,0.25)",
+            color: "#7a6e52",
+            fontSize: "9px",
+            letterSpacing: "2px",
+            textTransform: "uppercase",
+            fontFamily: "'Helvetica Neue', sans-serif",
+          }}
+          data-testid="button-sign-out"
+        >
+          Sign out
         </button>
       </div>
     </div>
