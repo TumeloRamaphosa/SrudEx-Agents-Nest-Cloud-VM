@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getProject } from "@/lib/store";
 import { buildCheckout, usdToZar } from "@/lib/payfast";
 import { stageAmounts } from "@/lib/quickbooks";
-import { requireAdmin } from "@/lib/admin-auth";
+import { canAccessProject } from "@/lib/access";
 
 export const dynamic = "force-dynamic";
 
@@ -14,13 +14,11 @@ const STAGE_LABEL: Record<string, string> = {
 
 // POST { projectId, stage } -> { url } redirect to PayFast checkout
 export async function POST(request: NextRequest) {
-  const authError = await requireAdmin(request);
-  if (authError) return authError;
-
   const body = await request.json();
-  const { projectId, stage } = body as {
+  const { projectId, stage, accessToken } = body as {
     projectId?: string;
     stage?: "deposit" | "build" | "final";
+    accessToken?: string;
   };
 
   if (!projectId || !stage || !["deposit", "build", "final"].includes(stage)) {
@@ -31,9 +29,19 @@ export async function POST(request: NextRequest) {
   }
 
   const project = await getProject(projectId);
-  if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  if (!project || !accessToken || !canAccessProject(project, accessToken)) {
+    return NextResponse.json({ error: "Project not found" }, { status: 404 });
+  }
   if (!project.quotedPriceUsd) {
     return NextResponse.json({ error: "Project has no quoted price" }, { status: 400 });
+  }
+
+  const unavailable =
+    (stage === "deposit" && project.depositPaid) ||
+    (stage === "build" && (!project.depositPaid || project.buildPaid)) ||
+    (stage === "final" && (!project.buildPaid || project.finalPaid));
+  if (unavailable) {
+    return NextResponse.json({ error: "Payment stage is not available" }, { status: 409 });
   }
 
   const amountUsd = stageAmounts(project.quotedPriceUsd)[stage];

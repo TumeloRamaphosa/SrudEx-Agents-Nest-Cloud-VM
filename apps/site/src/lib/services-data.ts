@@ -32,6 +32,8 @@ export type FactoryProject = {
   reviewRound: number;
   maxReviews: number;
   agentNotes: string;
+  clientAccessTokenHash?: string;
+  processedPaymentIds?: string[];
   createdAt: string;
   updatedAt: string;
 };

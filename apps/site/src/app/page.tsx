@@ -8,6 +8,10 @@ import {
 } from "lucide-react";
 import type { FactoryService, FactoryProject } from "@/lib/services-data";
 
+type ProjectCredential = { id: string; token: string };
+
+const PROJECT_CREDENTIALS_KEY = "dark-factory-project-credentials";
+
 const STATUS_STEPS = [
   { key: "intake", label: "Intake", icon: FileText },
   { key: "scope", label: "Scoping", icon: Zap },
@@ -58,14 +62,14 @@ function StatusPipeline({ status }: { status: string }) {
   );
 }
 
-function PaymentStages({ project }: { project: FactoryProject }) {
+function PaymentStages({ project, accessToken }: { project: FactoryProject; accessToken: string }) {
   const price = project.quotedPriceUsd;
   const [payingStage, setPayingStage] = useState<string | null>(null);
   if (!price) return null;
   const stages = [
-    { label: "10% Plan Deposit", amount: price * 0.1, paid: project.depositPaid, stage: "deposit" },
-    { label: "40% Build Payment", amount: price * 0.4, paid: project.buildPaid, stage: "build" },
-    { label: "50% Final Delivery", amount: price * 0.5, paid: project.finalPaid, stage: "final" },
+    { label: "10% Plan Deposit", amount: price * 0.1, paid: project.depositPaid, available: !project.depositPaid, stage: "deposit" },
+    { label: "40% Build Payment", amount: price * 0.4, paid: project.buildPaid, available: project.depositPaid && !project.buildPaid, stage: "build" },
+    { label: "50% Final Delivery", amount: price * 0.5, paid: project.finalPaid, available: project.buildPaid && !project.finalPaid, stage: "final" },
   ];
 
   const pay = async (stage: string) => {
@@ -74,7 +78,7 @@ function PaymentStages({ project }: { project: FactoryProject }) {
       const res = await fetch("/api/payfast/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId: project.id, stage }),
+        body: JSON.stringify({ projectId: project.id, stage, accessToken }),
       });
       const data = await res.json();
       if (data.url) {
@@ -110,7 +114,7 @@ function PaymentStages({ project }: { project: FactoryProject }) {
           {!s.paid && (
             <button
               onClick={() => pay(s.stage)}
-              disabled={payingStage !== null}
+              disabled={payingStage !== null || !s.available}
               className="mt-2 w-full py-1.5 rounded transition-all"
               style={{
                 background: payingStage === s.stage ? "rgba(201,168,76,0.2)" : "#C9A84C",
@@ -119,11 +123,11 @@ function PaymentStages({ project }: { project: FactoryProject }) {
                 letterSpacing: "1px",
                 textTransform: "uppercase",
                 fontWeight: 600,
-                cursor: payingStage !== null ? "not-allowed" : "pointer",
-                opacity: payingStage !== null && payingStage !== s.stage ? 0.4 : 1,
+                cursor: payingStage !== null || !s.available ? "not-allowed" : "pointer",
+                opacity: !s.available || (payingStage !== null && payingStage !== s.stage) ? 0.4 : 1,
               }}
             >
-              {payingStage === s.stage ? "Redirecting…" : "Pay with PayFast"}
+              {payingStage === s.stage ? "Redirecting…" : s.available ? "Pay with PayFast" : "Previous stage required"}
             </button>
           )}
         </div>
@@ -168,7 +172,13 @@ function ServiceCard({ service, selected, onSelect }: { service: FactoryService;
   );
 }
 
-function IntakeForm({ services, onSubmitted }: { services: FactoryService[]; onSubmitted: () => void }) {
+function IntakeForm({
+  services,
+  onSubmitted,
+}: {
+  services: FactoryService[];
+  onSubmitted: (project: FactoryProject, accessToken: string) => void;
+}) {
   const [selectedService, setSelectedService] = useState("");
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
@@ -248,6 +258,7 @@ function IntakeForm({ services, onSubmitted }: { services: FactoryService[]; onS
         }),
       });
       if (!res.ok) throw new Error("Submission failed");
+      const data = (await res.json()) as { project: FactoryProject; accessToken: string };
       setClientName("");
       setClientEmail("");
       setTitle("");
@@ -255,7 +266,7 @@ function IntakeForm({ services, onSubmitted }: { services: FactoryService[]; onS
       setLinks("");
       setTranscription("");
       setSelectedService("");
-      onSubmitted();
+      onSubmitted(data.project, data.accessToken);
     } catch {
       setError("Submission failed. Please try again.");
     }
@@ -371,7 +382,7 @@ function IntakeForm({ services, onSubmitted }: { services: FactoryService[]; onS
   );
 }
 
-function ProjectCard({ project }: { project: FactoryProject }) {
+function ProjectCard({ project, accessToken }: { project: FactoryProject; accessToken: string }) {
   return (
     <div className="p-4 rounded" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
       <div className="flex items-start justify-between mb-3">
@@ -400,7 +411,7 @@ function ProjectCard({ project }: { project: FactoryProject }) {
           {project.description.slice(0, 200)}{project.description.length > 200 ? "..." : ""}
         </p>
       )}
-      <PaymentStages project={project} />
+      <PaymentStages project={project} accessToken={accessToken} />
       <div className="flex items-center justify-between mt-3">
         <span style={{ fontSize: "10px", color: "#555" }}>
           {new Date(project.createdAt).toLocaleDateString("en-ZA", { day: "2-digit", month: "short", year: "numeric" })}
@@ -422,6 +433,7 @@ export default function DarkFactoryPage() {
   const [view, setView] = useState<"intake" | "projects">("intake");
   const [services, setServices] = useState<FactoryService[]>([]);
   const [projects, setProjects] = useState<FactoryProject[]>([]);
+  const [projectCredentials, setProjectCredentials] = useState<ProjectCredential[]>([]);
 
   const fetchServices = useCallback(async () => {
     const res = await fetch("/api/factory/services");
@@ -429,18 +441,42 @@ export default function DarkFactoryPage() {
   }, []);
 
   const fetchProjects = useCallback(async () => {
-    const res = await fetch("/api/factory/projects");
-    if (res.ok) setProjects(await res.json());
-  }, []);
+    const loaded = await Promise.all(
+      projectCredentials.map(async ({ id, token }) => {
+        const params = new URLSearchParams({ id });
+        const res = await fetch(`/api/factory/projects?${params.toString()}`, {
+          headers: { "X-Project-Access-Token": token },
+        });
+        return res.ok ? ((await res.json()) as FactoryProject) : null;
+      })
+    );
+    setProjects(loaded.filter((project): project is FactoryProject => project !== null));
+  }, [projectCredentials]);
+
+  const rememberProject = useCallback((project: FactoryProject, accessToken: string) => {
+    const next = [
+      ...projectCredentials.filter((credential) => credential.id !== project.id),
+      { id: project.id, token: accessToken },
+    ];
+    localStorage.setItem(PROJECT_CREDENTIALS_KEY, JSON.stringify(next));
+    setProjectCredentials(next);
+    setProjects((current) => [project, ...current.filter((item) => item.id !== project.id)]);
+    setView("projects");
+  }, [projectCredentials]);
 
   useEffect(() => {
     fetchServices();
-    fetchProjects();
-  }, [fetchServices, fetchProjects]);
+    try {
+      const saved = JSON.parse(localStorage.getItem(PROJECT_CREDENTIALS_KEY) || "[]");
+      if (Array.isArray(saved)) setProjectCredentials(saved);
+    } catch {
+      localStorage.removeItem(PROJECT_CREDENTIALS_KEY);
+    }
+  }, [fetchServices]);
 
   useEffect(() => {
-    if (view === "projects") fetchProjects();
-  }, [view, fetchProjects]);
+    if (view === "projects" || projectCredentials.length > 0) fetchProjects();
+  }, [view, projectCredentials.length, fetchProjects]);
 
   return (
     <div className="min-h-screen" style={{ background: "#0a0a0a" }}>
@@ -490,7 +526,7 @@ export default function DarkFactoryPage() {
         </div>
 
         {view === "intake" ? (
-          <IntakeForm services={services} onSubmitted={() => { setView("projects"); fetchProjects(); }} />
+          <IntakeForm services={services} onSubmitted={rememberProject} />
         ) : (
           <div className="space-y-4">
             {projects.length === 0 ? (
@@ -504,7 +540,12 @@ export default function DarkFactoryPage() {
                 </button>
               </div>
             ) : (
-              projects.map((p) => <ProjectCard key={p.id} project={p} />)
+              projects.map((project) => {
+                const accessToken = projectCredentials.find((item) => item.id === project.id)?.token;
+                return accessToken ? (
+                  <ProjectCard key={project.id} project={project} accessToken={accessToken} />
+                ) : null;
+              })
             )}
           </div>
         )}
