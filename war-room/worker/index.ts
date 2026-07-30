@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import OpenAI from "openai";
 import { createStorage, type Storage } from "./storage";
+import { constantTimeEqual, createToken, verifyToken } from "../shared/auth";
 
 export interface Env {
   DB: D1Database;
@@ -10,15 +11,47 @@ export interface Env {
   HIGGSFIELD_KEY_ID?: string;
   HIGGSFIELD_KEY_SECRET?: string;
   AGENTMAIL_TOKEN?: string;
+  AUTH_USERNAME?: string;
+  AUTH_PASSWORD?: string;
+  AUTH_SECRET?: string;
 }
 
 type Vars = { storage: Storage };
 
 const app = new Hono<{ Bindings: Env; Variables: Vars }>();
+let warnedCredentialDefaults = false;
+let warnedSecretDefault = false;
+
+function warnAuthDefaults(env: Env): void {
+  if ((!env.AUTH_USERNAME || !env.AUTH_PASSWORD) && !warnedCredentialDefaults) {
+    console.warn("AUTH_USERNAME/AUTH_PASSWORD not set — using insecure defaults");
+    warnedCredentialDefaults = true;
+  }
+  if (!env.AUTH_SECRET && !warnedSecretDefault) {
+    console.warn("AUTH_SECRET not set — using insecure default");
+    warnedSecretDefault = true;
+  }
+}
 
 // Attach a per-request D1-backed storage instance.
 app.use("/api/*", async (c, next) => {
   c.set("storage", createStorage(c.env.DB));
+  await next();
+});
+
+app.use("/api/*", async (c, next) => {
+  warnAuthDefaults(c.env);
+  const path = new URL(c.req.url).pathname;
+  if (path === "/api/auth/login" || path === "/api/webhooks/payfast") {
+    return next();
+  }
+
+  const secret = c.env.AUTH_SECRET || "dev-insecure-secret-change-me";
+  const authorization = c.req.header("Authorization") || "";
+  const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+  const user = token ? await verifyToken(token, secret) : null;
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+
   await next();
 });
 
@@ -67,6 +100,34 @@ const CREDIT_COSTS: Record<string, number> = {
   "chat-gemini": 2,
   "chat-perplexity": 2,
 };
+
+app.post("/api/auth/login", async (c) => {
+  const { username: submittedUsername, password: submittedPassword } = await c.req.json<{
+    username?: string;
+    password?: string;
+  }>();
+  const username = c.env.AUTH_USERNAME || "admin";
+  const password = c.env.AUTH_PASSWORD || "changeme";
+  const validCredentials =
+    typeof submittedUsername === "string" &&
+    typeof submittedPassword === "string" &&
+    constantTimeEqual(submittedUsername, username) &&
+    constantTimeEqual(submittedPassword, password);
+
+  if (!validCredentials) return c.json({ error: "Invalid credentials" }, 401);
+
+  const token = await createToken({ username }, c.env.AUTH_SECRET || "dev-insecure-secret-change-me");
+  return c.json({ token, user: { username } });
+});
+
+app.get("/api/auth/me", async (c) => {
+  const secret = c.env.AUTH_SECRET || "dev-insecure-secret-change-me";
+  const authorization = c.req.header("Authorization") || "";
+  const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+  const user = token ? await verifyToken(token, secret) : null;
+  if (!user) return c.json({ error: "Unauthorized" }, 401);
+  return c.json({ user });
+});
 
 // ── Content ──────────────────────────────────────────────────────────
 app.get("/api/content", async (c) => {

@@ -3,6 +3,7 @@ import { createServer } from 'node:http';
 import type { Server } from 'node:http';
 import { storage } from "./storage";
 import OpenAI from "openai";
+import { constantTimeEqual, createToken, verifyToken } from "@shared/auth";
 
 function getOpenAI() {
   return new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "no-key" });
@@ -32,6 +33,55 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  const username = process.env.AUTH_USERNAME || "admin";
+  const password = process.env.AUTH_PASSWORD || "changeme";
+  const secret = process.env.AUTH_SECRET || "dev-insecure-secret-change-me";
+
+  if (!process.env.AUTH_USERNAME || !process.env.AUTH_PASSWORD) {
+    console.warn("AUTH_USERNAME/AUTH_PASSWORD not set — using insecure defaults");
+  }
+  if (!process.env.AUTH_SECRET) {
+    console.warn("AUTH_SECRET not set — using insecure default");
+  }
+
+  app.use("/api/", async (req, res, next) => {
+    const path = req.originalUrl.split("?")[0];
+    if (path === "/api/auth/login" || path === "/api/webhooks/payfast") {
+      return next();
+    }
+
+    const authorization = req.header("authorization") || "";
+    const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+    const user = token ? await verifyToken(token, secret) : null;
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+
+    next();
+  });
+
+  app.post("/api/auth/login", async (req, res) => {
+    const { username: submittedUsername, password: submittedPassword } = req.body as {
+      username?: string;
+      password?: string;
+    };
+    const validCredentials =
+      typeof submittedUsername === "string" &&
+      typeof submittedPassword === "string" &&
+      constantTimeEqual(submittedUsername, username) &&
+      constantTimeEqual(submittedPassword, password);
+
+    if (!validCredentials) return res.status(401).json({ error: "Invalid credentials" });
+
+    const token = await createToken({ username }, secret);
+    res.json({ token, user: { username } });
+  });
+
+  app.get("/api/auth/me", async (req, res) => {
+    const authorization = req.header("authorization") || "";
+    const token = authorization.startsWith("Bearer ") ? authorization.slice(7) : "";
+    const user = token ? await verifyToken(token, secret) : null;
+    if (!user) return res.status(401).json({ error: "Unauthorized" });
+    res.json({ user });
+  });
 
   // GET all content items
   app.get("/api/content", (_req, res) => {

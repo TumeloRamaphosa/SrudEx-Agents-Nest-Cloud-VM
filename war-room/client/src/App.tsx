@@ -5,7 +5,9 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { PrivacyProvider } from "@/contexts/PrivacyContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { AnalyticsStrip } from "@/components/AnalyticsStrip";
+import Login from "@/pages/Login";
 import ContentQueue from "@/pages/ContentQueue";
 import ContentCalendar from "@/pages/ContentCalendar";
 import GenerateContent from "@/pages/GenerateContent";
@@ -168,7 +170,22 @@ function AppRouter() {
   );
 }
 
-function App() {
+function AuthenticatedApp() {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center"
+        style={{ background: "#faf8f4", color: "#7a6e52", fontSize: "10px", letterSpacing: "3px" }}
+      >
+        LOADING…
+      </div>
+    );
+  }
+
+  if (!user) return <Login />;
+
   return (
     <QueryClientProvider client={queryClient}>
       <PrivacyProvider>
@@ -180,6 +197,14 @@ function App() {
         </TooltipProvider>
       </PrivacyProvider>
     </QueryClientProvider>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AuthenticatedApp />
+    </AuthProvider>
   );
 }
 

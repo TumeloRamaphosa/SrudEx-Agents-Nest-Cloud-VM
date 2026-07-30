@@ -5,6 +5,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { authenticatedFetch } from "@/lib/queryClient";
 import {
   Coins, Plus, Minus, ArrowUpRight, ArrowDownRight,
   CreditCard, Zap, Users, RefreshCw, ExternalLink
@@ -70,18 +71,18 @@ export default function AICredits() {
 
   const { data: clientsList = [] } = useQuery<Client[]>({
     queryKey: ["/api/clients"],
-    queryFn: () => fetch("/api/clients").then((r) => r.json()),
+    queryFn: () => authenticatedFetch("/api/clients").then((r) => r.json()),
   });
 
   const { data: creditData } = useQuery<ClientCredits>({
     queryKey: ["/api/clients", selectedClientId, "credits"],
-    queryFn: () => fetch(`/api/clients/${selectedClientId}/credits`).then((r) => r.json()),
+    queryFn: () => authenticatedFetch(`/api/clients/${selectedClientId}/credits`).then((r) => r.json()),
     enabled: !!selectedClientId,
   });
 
   const createClientMut = useMutation({
     mutationFn: (data: { name: string; email: string; tier: string }) =>
-      fetch("/api/clients", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then((r) => r.json()),
+      authenticatedFetch("/api/clients", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).then((r) => r.json()),
     onSuccess: (client: Client) => {
       queryClient.invalidateQueries({ queryKey: ["/api/clients"] });
       setSelectedClientId(client.id);
@@ -92,7 +93,7 @@ export default function AICredits() {
 
   const purchaseMut = useMutation({
     mutationFn: (data: { amount: number; description: string }) =>
-      fetch(`/api/clients/${selectedClientId}/credits/purchase`, {
+      authenticatedFetch(`/api/clients/${selectedClientId}/credits/purchase`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

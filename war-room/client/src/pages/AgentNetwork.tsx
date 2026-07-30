@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
+import { authenticatedFetch } from "@/lib/queryClient";
 
 interface Agent {
   id: string;
@@ -414,7 +415,7 @@ function AgentMailSection() {
 
   useEffect(() => {
     // Fetch AgentMail messages from SQLite cache (synced by Perplexity Computer)
-    fetch("/api/messages?source=agentmail")
+    authenticatedFetch("/api/messages?source=agentmail")
       .then((r) => r.json())
       .then((data: any[]) => {
         if (Array.isArray(data)) {

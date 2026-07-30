@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, authenticatedFetch } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 import type { ContentItem } from "@shared/schema";
 import {
@@ -131,7 +131,7 @@ export default function GenerateContent() {
 
     try {
       const API_BASE = "__PORT_5000__".startsWith("__") ? "" : "__PORT_5000__";
-      const response = await fetch(`${API_BASE}/api/generate/caption`, {
+      const response = await authenticatedFetch(`${API_BASE}/api/generate/caption`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
