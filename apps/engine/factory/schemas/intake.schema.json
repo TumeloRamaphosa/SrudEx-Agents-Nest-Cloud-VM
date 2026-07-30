@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Dark Factory Client Intake",
+  "type": "object",
+  "required": ["clientName", "serviceId", "request", "approvalContact"],
+  "properties": {
+    "clientName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "serviceId": {
+      "type": "string",
+      "enum": [
+        "seo-audit",
+        "landing-page",
+        "lead-list",
+        "competitor-analysis",
+        "mvp-scope",
+        "small-code-fix",
+        "custom"
+      ]
+    },
+    "request": {
+      "type": "string",
+      "minLength": 10
+    },
+    "sourceUrl": {
+      "type": "string"
+    },
+    "githubRepo": {
+      "type": "string"
+    },
+    "budgetUsd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "dueDate": {
+      "type": "string"
+    },
+    "approvalContact": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deliverableFormat": {
+      "type": "string",
+      "default": "markdown report and linked files"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,10 @@
+.env
+.env.local
+.DS_Store
+node_modules/
+factory/inbox/live-*.json
+factory/projects/*/workspace/
+factory/projects/*/.env
+factory/projects/*/deliverables/
+factory/projects/*/logs/
+!factory/inbox/.gitkeep

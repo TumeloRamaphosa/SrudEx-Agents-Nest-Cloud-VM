@@ -1,0 +1,14 @@
+---
+description: Dark Factory operating rules for client work, sandboxes, and automation.
+alwaysApply: true
+---
+
+# Dark Factory Rules
+
+- Treat Linear as the work ledger. Every client request needs a Linear issue or a dry-run issue payload before work starts.
+- Keep money, deployment, auto-accept, and client delivery behind explicit operator approval.
+- Use one isolated project sandbox per client/project. Do not share secrets or workspace mounts across projects.
+- Prefer local models first: Ollama for quick local work, Mesh-LLM for multi-machine heavy models, hosted models only when needed.
+- Never commit secrets. Use `.env.local`, Docker secrets, or machine keychains.
+- Report progress in Linear-style stages: intake, scope, approved, sandbox-created, building, review-ready, delivered.
+- When automation lacks credentials, generate a dry-run payload and explain exactly what would run live.

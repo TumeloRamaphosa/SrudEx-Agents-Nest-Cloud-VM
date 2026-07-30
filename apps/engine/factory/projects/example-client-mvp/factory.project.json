@@ -1,0 +1,9 @@
+{
+  "slug": "example-client-mvp",
+  "createdAt": "2026-04-29T12:03:03.764Z",
+  "status": "created",
+  "modelEndpoints": {
+    "ollama": "http://localhost:11434",
+    "meshLlm": "http://localhost:9337/v1"
+  }
+}

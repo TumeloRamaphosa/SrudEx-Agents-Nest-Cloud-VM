@@ -1,0 +1,11 @@
+{
+  "clientName": "Example Client",
+  "serviceId": "mvp-scope",
+  "request": "Create a Base44-style superagent MVP plan for a client-facing automation service.",
+  "sourceUrl": "https://app.base44.com/superagent",
+  "budgetUsd": 250,
+  "dueDate": "today",
+  "approvalContact": "Tumelo",
+  "deliverableFormat": "Linear issue, GitHub repo, sandbox, and markdown scope",
+  "notes": "Dry-run example for validating the factory flow."
+}

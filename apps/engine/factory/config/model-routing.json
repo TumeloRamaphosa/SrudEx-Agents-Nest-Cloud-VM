@@ -1,0 +1,62 @@
+{
+  "generatedAt": "2026-04-29T14:46:16.417Z",
+  "endpoints": {
+    "ollama": {
+      "baseUrl": "http://localhost:11434",
+      "type": "ollama"
+    },
+    "meshLlm": {
+      "baseUrl": "http://localhost:9337/v1",
+      "type": "openai-compatible"
+    }
+  },
+  "routes": {
+    "intake": {
+      "endpoint": "ollama",
+      "model": "gemma4:e4b",
+      "fallback": "phi4-mini:latest"
+    },
+    "planning": {
+      "endpoint": "ollama",
+      "model": "deepseek-v4-pro:cloud",
+      "fallback": "nous-hermes2:latest"
+    },
+    "code": {
+      "endpoint": "meshLlm",
+      "model": "deepseek-r4-local",
+      "fallbackEndpoint": "ollama",
+      "fallback": "deepseek-v4-pro:cloud"
+    },
+    "review": {
+      "endpoint": "ollama",
+      "model": "deepseek-v4-pro:cloud",
+      "fallback": "hermes3:latest"
+    },
+    "summary": {
+      "endpoint": "ollama",
+      "model": "gemma4:e4b",
+      "fallback": "llama3.2:3b"
+    }
+  },
+  "observed": {
+    "ollamaModels": [
+      "qwen3.5:latest",
+      "gemma4:e4b",
+      "deepseek-v4-pro:cloud",
+      "nous-hermes2:latest",
+      "gemma4:latest",
+      "hermes3:latest",
+      "phi4-mini:latest",
+      "gemma2:2b",
+      "llama3.2:3b",
+      "kimi-k2.5:cloud",
+      "minimax-m2:cloud"
+    ],
+    "meshStatus": "mesh-llm is not running or has no active status",
+    "meshModels": "📦 No installed models found\n   HF cache: /Users/tumeloramaphosa/.cache/huggingface/hub"
+  },
+  "notes": [
+    "Run this script after adding/removing local models.",
+    "Use Mesh-LLM for large GPU-hosted models and Ollama as the local fallback."
+  ]
+}
