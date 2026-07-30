@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     linearIssueId: null,
     githubRepo: null,
     reviewRound: 0,
-    maxReviews: service.tier === "custom" ? 99 : service.tier === "quick-fix" ? 1 : service.tier === "micro-build" ? 2 : 3,
+    maxReviews: service.tier === "custom" ? 99 : 3,
     agentNotes: "",
     clientAccessTokenHash: hashClientAccessToken(accessToken),
     processedPaymentIds: [],

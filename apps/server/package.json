@@ -1,0 +1,13 @@
+{
+  "name": "war-room-server-tests",
+  "private": true,
+  "scripts": {
+    "test": "jest --forceExit"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "@types/jest": "^29.5.14",
+    "typescript": "^5.6.3"
+  }
+}

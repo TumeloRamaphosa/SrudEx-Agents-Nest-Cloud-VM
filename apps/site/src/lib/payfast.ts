@@ -13,7 +13,7 @@
  *  - PAYFAST_PASSPHRASE        (optional; set the same value in the PayFast dashboard)
  *  - PAYFAST_ENV               ("sandbox" | "live", default "sandbox")
  *  - PAYFAST_RETURN_URL / PAYFAST_CANCEL_URL / PAYFAST_NOTIFY_URL (optional overrides)
- *  - USD_TO_ZAR                (conversion rate for USD-quoted prices, default 18.5)
+ *  - USD_TO_ZAR                (conversion rate for USD-quoted prices; required in production, fallback 18.5 in dev)
  */
 
 import { createHash, timingSafeEqual } from "crypto";

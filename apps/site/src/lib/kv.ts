@@ -9,11 +9,13 @@ export function kvConfigured(): boolean {
 }
 
 function assertDurableStorage(): void {
-  if (process.env.VERCEL_ENV === "production" && !kvConfigured()) {
-    throw new Error("KV_REST_API_URL and KV_REST_API_TOKEN are required in production");
+  if (
+    (process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production") &&
+    !kvConfigured()
+  ) {
+    throw new Error("KV is required in production. Set KV_REST_API_URL and KV_REST_API_TOKEN.");
   }
 }
-
 // In-memory fallback (local dev only — not durable on serverless).
 const memory = new Map<string, string>();
 
