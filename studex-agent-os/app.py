@@ -10,6 +10,8 @@ from datetime import datetime
 from flask import Flask, render_template, jsonify, request
 import psutil
 
+from agents.finance import FinanceAgent
+
 app = Flask(__name__)
 
 # Base path
@@ -23,6 +25,7 @@ AGENTS = {
     "ops": {"name": "Ops", "status": "green", "last_task": None, "uptime": time.time()},
     "comms": {"name": "Comms", "status": "green", "last_task": None, "uptime": time.time()},
     "deals": {"name": "Deals", "status": "green", "last_task": None, "uptime": time.time()},
+    "finance": {"name": "Finance", "status": "green", "last_task": None, "uptime": time.time()},
 }
 
 # Task history per agent
@@ -117,20 +120,33 @@ def agent_task(name):
     AGENTS[name]["last_task"] = task
     AGENTS[name]["status"] = "active"
     
+    # Execute the task if a runner is available; finance is wired live
+    result = None
+    if name == "finance":
+        try:
+            result = FinanceAgent().run(task)
+        except Exception as e:
+            return jsonify({"error": f"Finance agent failed: {str(e)}"}), 500
+    
     # Add to history
     TASK_HISTORY[name].append({
         "task": task,
         "timestamp": datetime.now().isoformat(),
-        "status": "completed"
+        "status": "completed",
+        "result": result
     })
     
     log(f"ADAM SMASHER: Task assigned to {name}: {task}")
     
-    return jsonify({
+    response = {
         "status": "accepted",
         "agent": AGENTS[name]["name"],
         "task": task
-    })
+    }
+    if result is not None:
+        response["result"] = result
+    
+    return jsonify(response)
 
 @app.route("/api/agent/<name>/history", methods=["GET"])
 def agent_history(name):
