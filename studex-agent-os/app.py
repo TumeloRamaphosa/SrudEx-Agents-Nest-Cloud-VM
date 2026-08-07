@@ -6,13 +6,22 @@ Port 5000 | ADAM SMASHER Dashboard
 import json
 import os
 import time
+import uuid
 from datetime import datetime
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, Response
 import psutil
 
 from agents.finance import FinanceAgent
 
 app = Flask(__name__)
+
+@app.after_request
+def after_request(response):
+    """Add CORS headers so the API can be used from other local demos (e.g. Hermes WebUI)."""
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response
 
 # Base path
 BASE_PATH = "/workspace/studex-agent-os"
@@ -168,6 +177,109 @@ def get_pipeline():
 def health():
     """Health check endpoint"""
     return "OK"
+
+
+# ── OpenAI-compatible chat endpoints (used by external UI clients like Hermes WebUI) ──
+
+def _openai_chat_id():
+    return f"chatcmpl-{uuid.uuid4().hex[:12]}"
+
+
+def _last_user_message(messages):
+    """Extract the last user message from an OpenAI-style messages list."""
+    for msg in reversed(messages or []):
+        if msg.get("role") == "user":
+            return msg.get("content") or ""
+    return "pnl summary"
+
+
+def _format_finance_result(result):
+    """Turn a FinanceAgent result dict into a friendly Markdown string."""
+    if isinstance(result, dict) and "error" in result:
+        return f"Sorry, I couldn't process that: {result['error']}"
+    return json.dumps(result, indent=2, ensure_ascii=False)
+
+
+@app.route("/v1/models", methods=["GET", "OPTIONS"])
+def openai_models():
+    """Return the single finance-agent model exposed by this OS."""
+    return jsonify({
+        "object": "list",
+        "data": [
+            {
+                "id": "finance-agent",
+                "object": "model",
+                "created": int(time.time()),
+                "owned_by": "studex-agent-os",
+            }
+        ],
+    })
+
+
+@app.route("/v1/chat/completions", methods=["POST", "OPTIONS"])
+def openai_chat_completions():
+    """Run the Finance agent from an OpenAI-compatible chat request."""
+    body = request.get_json(force=True, silent=True) or {}
+    messages = body.get("messages", [])
+    task = _last_user_message(messages)
+    model = body.get("model", "finance-agent")
+    stream = bool(body.get("stream", False))
+
+    try:
+        result = FinanceAgent().run(task)
+        content = _format_finance_result(result)
+    except Exception as exc:
+        content = f"Finance agent failed: {str(exc)}"
+
+    if stream:
+        def generate():
+            chat_id = _openai_chat_id()
+            created = int(time.time())
+            # First chunk with assistant role
+            chunk = {
+                "id": chat_id,
+                "object": "chat.completion.chunk",
+                "created": created,
+                "model": model,
+                "choices": [
+                    {
+                        "index": 0,
+                        "delta": {"role": "assistant", "content": ""},
+                        "finish_reason": None,
+                    }
+                ],
+            }
+            yield f"data: {json.dumps(chunk)}\n\n"
+            # Content chunk
+            chunk["choices"][0]["delta"] = {"content": content}
+            yield f"data: {json.dumps(chunk)}\n\n"
+            # End marker
+            chunk["choices"][0]["delta"] = {}
+            chunk["choices"][0]["finish_reason"] = "stop"
+            yield f"data: {json.dumps(chunk)}\n\n"
+            yield "data: [DONE]\n\n"
+
+        return Response(
+            generate(),
+            mimetype="text/event-stream",
+            headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
+        )
+
+    return jsonify({
+        "id": _openai_chat_id(),
+        "object": "chat.completion",
+        "created": int(time.time()),
+        "model": model,
+        "choices": [
+            {
+                "index": 0,
+                "message": {"role": "assistant", "content": content},
+                "finish_reason": "stop",
+            }
+        ],
+        "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+    })
+
 
 if __name__ == "__main__":
     log("=" * 60)
