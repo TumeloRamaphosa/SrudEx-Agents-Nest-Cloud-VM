@@ -1,0 +1,39 @@
+{
+  "sources": [
+    {
+      "repo": "https://github.com/DietrichGebert/ponytail",
+      "include": ["^skills/ponytail"],
+      "exclude": ["\\.openclaw"]
+    },
+    {
+      "repo": "https://github.com/cloudflare/computer",
+      "include": ["^\\.agents/skills/"],
+      "exclude": []
+    },
+    {
+      "repo": "https://github.com/garrytan/gstack",
+      "include": ["^"],
+      "exclude": ["openclaw", "browser-skills", "ios-"]
+    },
+    {
+      "repo": "https://github.com/garrytan/gbrain",
+      "include": ["^skills/"],
+      "exclude": ["test/fixtures", "examples/", "recipes/", "docs/"]
+    },
+    {
+      "repo": "https://github.com/Weizhena/Deep-Research-skills",
+      "include": ["^skills/research-en/"],
+      "exclude": []
+    },
+    {
+      "repo": "https://github.com/eugeniughelbur/obsidian-second-brain",
+      "include": ["^SKILL.md$"],
+      "exclude": []
+    },
+    {
+      "repo": "https://github.com/TencentCloud/TencentDB-Agent-Memory",
+      "include": ["^MemoryCore/SKILL.md$"],
+      "exclude": []
+    }
+  ]
+}
