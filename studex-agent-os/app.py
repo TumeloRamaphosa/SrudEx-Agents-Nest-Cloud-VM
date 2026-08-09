@@ -8,6 +8,7 @@ import os
 import time
 import uuid
 from datetime import datetime
+from pathlib import Path
 from flask import Flask, render_template, jsonify, request, Response
 import psutil
 import requests
@@ -25,8 +26,8 @@ def after_request(response):
     return response
 
 # Base path
-BASE_PATH = "/workspace/studex-agent-os"
-MEMORY_PATH = f"{BASE_PATH}/memory"
+BASE_DIR = Path(__file__).resolve().parent
+MEMORY_PATH = BASE_DIR / "memory"
 
 # Agent state storage
 AGENTS = {
@@ -67,13 +68,13 @@ def get_vm_metrics():
 
 def get_market_data():
     """Get cached market data or defaults"""
-    market_file = f"{MEMORY_PATH}/market-data.json"
+    market_file = MEMORY_PATH / "market-data.json"
     defaults = {
         "usdzar": 18.75,
         "brent": 82.50,
         "gold": 2340.00
     }
-    if os.path.exists(market_file):
+    if market_file.exists():
         try:
             with open(market_file) as f:
                 data = json.load(f)

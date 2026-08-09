@@ -1,0 +1,25 @@
+{
+  "last_updated": "2026-08-09T18:25:44.575002",
+  "revenue": 125000,
+  "cogs": 72000,
+  "products": [
+    {
+      "sku": "WAGYU-PATTY-1KG",
+      "name": "Wagyu Burger Patties 1kg",
+      "price": 650,
+      "cost": 380
+    },
+    {
+      "sku": "TOMAHAWK-1.2KG",
+      "name": "Tomahawk Steak 1.2kg",
+      "price": 1200,
+      "cost": 700
+    },
+    {
+      "sku": "BOEREWORS-500G",
+      "name": "Premium Boerewors 500g",
+      "price": 180,
+      "cost": 95
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+services:
+  studex-agent-os:
+    build:
+      context: ./studex-agent-os
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - GROK_API_KEY=${GROK_API_KEY:-}
+      - GROK_BASE_URL=${GROK_BASE_URL:-https://api.x.ai/v1}
+      - QUINN_API_KEY=${QUINN_API_KEY:-}
+      - QUINN_BASE_URL=${QUINN_BASE_URL:-}
+      - LOCAL_LLAMA_API_KEY=${LOCAL_LLAMA_API_KEY:-}
+      - LOCAL_LLAMA_BASE_URL=${LOCAL_LLAMA_BASE_URL:-http://host.docker.internal:9090/v1}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  hermes-webui:
+    image: ghcr.io/nesquena/hermes-webui:latest
+    ports:
+      - "8787:8787"
+    environment:
+      - HERMES_WEBUI_PORT=8787
+      - HERMES_WEBUI_HOST=0.0.0.0
+      - HERMES_WEBUI_AGENT_DIR=/shim
+      - STUDEX_API_BASE=http://studex-agent-os:5000/v1
+    volumes:
+      - ./studex-agent-os/clients/hermes_agent_shim:/shim:ro
+      - hermes-state:/root/.hermes
+    depends_on:
+      studex-agent-os:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  hermes-state:
