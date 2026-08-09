@@ -18,6 +18,8 @@ build/
 # Cache
 .cache/
 .temp/
+__pycache__/
+*.pyc
 tmp/
 
 # Credentials (never commit)
