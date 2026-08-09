@@ -31,6 +31,8 @@ robusca-brain/.git/
 robusca-brain/.github/
 etb-cashclaw/.git/
 skills/
+!.devin/skills/
+!.agents/skills/
 node_modules/
 *.log
 .env
