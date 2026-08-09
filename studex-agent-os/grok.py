@@ -1,8 +1,9 @@
 """
 StudEx Agent OS - Grok (xAI) client
 
-Thin wrapper over the xAI OpenAI-compatible Chat Completions API.
-Knows nothing about StudEx agents; see orchestrator.py for that.
+Thin wrapper over the xAI Responses API (/v1/responses), which is where custom
+function calling and the server-side web_search tool live. Knows nothing about
+StudEx agents; see orchestrator.py for that.
 """
 
 import json
@@ -13,7 +14,7 @@ import requests
 
 DEFAULT_BASE_URL = "https://api.x.ai/v1"
 DEFAULT_MODEL = "grok-4.5"
-DEFAULT_TIMEOUT = 120
+DEFAULT_TIMEOUT = 240
 
 
 class GrokError(RuntimeError):
@@ -21,7 +22,7 @@ class GrokError(RuntimeError):
 
 
 class GrokClient:
-    """Minimal streaming client for the xAI chat completions API."""
+    """Minimal streaming client for the xAI Responses API."""
 
     def __init__(
         self,
@@ -51,41 +52,31 @@ class GrokClient:
 
     def _payload(
         self,
-        messages: List[Dict[str, Any]],
+        input_items: List[Dict[str, Any]],
         tools: Optional[List[Dict[str, Any]]],
         stream: bool,
-        live_search: bool,
+        instructions: Optional[str],
         temperature: float,
     ) -> Dict[str, Any]:
         payload: Dict[str, Any] = {
             "model": self.model,
-            "messages": messages,
+            "input": input_items,
             "stream": stream,
             "temperature": temperature,
         }
+        if instructions:
+            payload["instructions"] = instructions
         if tools:
             payload["tools"] = tools
-            payload["tool_choice"] = "auto"
-        if live_search:
-            # Let Grok decide when to pull realtime web/X data (prices, news, FX).
-            payload["search_parameters"] = {"mode": "auto", "return_citations": True}
         return payload
 
-    def stream(
-        self,
-        messages: List[Dict[str, Any]],
-        tools: Optional[List[Dict[str, Any]]] = None,
-        live_search: bool = True,
-        temperature: float = 0.3,
-    ) -> Iterator[Dict[str, Any]]:
-        """Yield raw SSE `chunk` dicts from the xAI streaming API."""
-        payload = self._payload(messages, tools, True, live_search, temperature)
+    def _post(self, payload: Dict[str, Any], stream: bool) -> requests.Response:
         try:
             response = requests.post(
-                f"{self.base_url}/chat/completions",
+                f"{self.base_url}/responses",
                 headers=self._headers(),
                 json=payload,
-                stream=True,
+                stream=stream,
                 timeout=self.timeout,
             )
         except requests.RequestException as exc:
@@ -93,7 +84,19 @@ class GrokClient:
 
         if response.status_code >= 400:
             raise GrokError(f"xAI API error {response.status_code}: {response.text[:500]}")
+        return response
 
+    def stream(
+        self,
+        input_items: List[Dict[str, Any]],
+        tools: Optional[List[Dict[str, Any]]] = None,
+        instructions: Optional[str] = None,
+        temperature: float = 0.3,
+    ) -> Iterator[Dict[str, Any]]:
+        """Yield raw Responses API SSE events (`response.output_text.delta`, etc.)."""
+        response = self._post(
+            self._payload(input_items, tools, True, instructions, temperature), stream=True
+        )
         for raw_line in response.iter_lines(decode_unicode=True):
             if not raw_line or not raw_line.startswith("data:"):
                 continue
@@ -107,42 +110,25 @@ class GrokClient:
 
     def complete(
         self,
-        messages: List[Dict[str, Any]],
+        input_items: List[Dict[str, Any]],
         tools: Optional[List[Dict[str, Any]]] = None,
-        live_search: bool = False,
+        instructions: Optional[str] = None,
         temperature: float = 0.3,
-    ) -> Dict[str, Any]:
-        """Non-streaming completion; returns the assistant message dict."""
-        payload = self._payload(messages, tools, False, live_search, temperature)
-        try:
-            response = requests.post(
-                f"{self.base_url}/chat/completions",
-                headers=self._headers(),
-                json=payload,
-                timeout=self.timeout,
-            )
-        except requests.RequestException as exc:
-            raise GrokError(f"Could not reach the xAI API: {exc}") from exc
-
-        if response.status_code >= 400:
-            raise GrokError(f"xAI API error {response.status_code}: {response.text[:500]}")
-        body = response.json()
-        return body["choices"][0]["message"]
-
-
-def merge_tool_call_deltas(
-    accumulator: Dict[int, Dict[str, Any]], deltas: List[Dict[str, Any]]
-) -> None:
-    """Merge streamed `tool_calls` deltas into an index-keyed accumulator."""
-    for delta in deltas:
-        index = delta.get("index", 0)
-        slot = accumulator.setdefault(
-            index, {"id": "", "type": "function", "function": {"name": "", "arguments": ""}}
+    ) -> str:
+        """Non-streaming completion; returns the assistant's text."""
+        response = self._post(
+            self._payload(input_items, tools, False, instructions, temperature), stream=False
         )
-        if delta.get("id"):
-            slot["id"] = delta["id"]
-        function = delta.get("function") or {}
-        if function.get("name"):
-            slot["function"]["name"] += function["name"]
-        if function.get("arguments"):
-            slot["function"]["arguments"] += function["arguments"]
+        return output_text(response.json().get("output") or [])
+
+
+def output_text(output_items: List[Dict[str, Any]]) -> str:
+    """Concatenate the text of every assistant message in a Responses output list."""
+    chunks: List[str] = []
+    for item in output_items:
+        if item.get("type") != "message":
+            continue
+        for part in item.get("content") or []:
+            if part.get("type") == "output_text" and part.get("text"):
+                chunks.append(part["text"])
+    return "".join(chunks)

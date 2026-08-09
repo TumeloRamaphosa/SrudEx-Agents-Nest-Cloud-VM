@@ -3,575 +3,575 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StudEx Agent OS - ADAM SMASHER</title>
+    <title>StudEx Agent OS · ADAM SMASHER</title>
+    <link rel="icon" href="/static/img/studex-logo-gold.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #f7f4ef;
+            --surface: #ffffff;
+            --surface-2: #fbf9f6;
+            --ink: #1c1814;
+            --ink-2: #4a4239;
+            --muted: #8b8378;
+            --line: #e8e1d6;
+            --gold: #b08d3f;
+            --gold-soft: #f3ead6;
+            --green: #2f7d5d;
+            --amber: #b5761f;
+            --red: #b4453a;
+            --radius: 18px;
+            --shadow: 0 1px 2px rgba(28, 24, 20, .04), 0 12px 32px -18px rgba(28, 24, 20, .18);
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0e17;
-            color: #e0e6ed;
-            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
         }
-        .header {
-            background: linear-gradient(135deg, #0f1923 0%, #1a2332 100%);
-            padding: 20px 40px;
-            border-bottom: 1px solid #1e3a5f;
+        .wrap { max-width: 1280px; margin: 0 auto; padding: 0 28px; }
+        h1, h2, h3, .display { font-family: 'Fraunces', Georgia, serif; font-weight: 700; letter-spacing: -.01em; }
+        .eyebrow {
+            font-size: 11px; font-weight: 600; letter-spacing: .16em;
+            text-transform: uppercase; color: var(--muted);
         }
-        .header h1 {
-            color: #00d4ff;
-            font-size: 28px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
+
+        /* ---------- top bar ---------- */
+        .topbar {
+            position: sticky; top: 0; z-index: 20;
+            background: rgba(247, 244, 239, .82);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
         }
-        .header p {
-            color: #6b7c93;
-            font-size: 14px;
-            margin-top: 5px;
+        .topbar-in { display: flex; align-items: center; gap: 16px; height: 68px; }
+        .brand { display: flex; align-items: center; gap: 12px; margin-right: auto; }
+        .brand img { width: 38px; height: 38px; }
+        .brand-name { font-size: 17px; line-height: 1.1; }
+        .brand-sub { font-size: 11px; color: var(--muted); }
+        .pill {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: 999px; padding: 7px 13px;
+            font-size: 12px; color: var(--ink-2); white-space: nowrap;
         }
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            padding: 20px 40px;
-            max-width: 1600px;
-            margin: 0 auto;
+        .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+        .pill.mono { font-variant-numeric: tabular-nums; }
+        .nav-link { font-size: 13px; color: var(--muted); text-decoration: none; }
+        .nav-link:hover { color: var(--gold); }
+
+        /* ---------- hero ---------- */
+        .hero {
+            position: relative; margin: 28px 0 22px;
+            border-radius: 26px; overflow: hidden;
+            min-height: 300px; display: flex; align-items: flex-end;
+            box-shadow: var(--shadow);
         }
-        .panel {
-            background: #111827;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #1e3a5f;
+        .hero img.bg {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            object-fit: cover; object-position: 65% 50%;
         }
-        .panel h2 {
-            color: #00d4ff;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #1e3a5f;
+        .hero::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(100deg, rgba(20,16,12,.92) 0%, rgba(20,16,12,.72) 42%, rgba(20,16,12,.12) 78%);
         }
-        .agent-card {
-            background: #0f1923;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.3s;
+        .hero-in { position: relative; z-index: 2; padding: 34px 38px; color: #fff; max-width: 640px; }
+        .hero-in .eyebrow { color: rgba(255,255,255,.66); }
+        .hero h1 { font-size: 40px; line-height: 1.05; margin: 10px 0 10px; }
+        .hero h1 span { color: #e8c579; }
+        .hero p { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,.78); }
+        .hero-cta { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .btn {
+            border: 0; cursor: pointer; font: inherit; font-size: 13px; font-weight: 600;
+            padding: 11px 20px; border-radius: 999px;
+            background: linear-gradient(140deg, #d8b25f, #a97f2c); color: #1c1814;
+            transition: transform .15s ease, box-shadow .15s ease, opacity .15s;
         }
-        .agent-card:hover {
-            background: #1a2332;
-            transform: translateX(5px);
+        .btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 20px -8px rgba(176,141,63,.7); }
+        .btn:disabled { opacity: .45; cursor: not-allowed; }
+        .btn-ghost { background: rgba(255,255,255,.1); color: #fff; border: 1px solid rgba(255,255,255,.28); }
+        .btn-ghost:hover { background: rgba(255,255,255,.18); box-shadow: none; }
+
+        /* ---------- kpi strip ---------- */
+        .kpis {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+            background: var(--line); border: 1px solid var(--line);
+            border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow);
         }
-        .agent-info h3 {
-            color: #fff;
-            font-size: 16px;
+        .kpi { background: var(--surface); padding: 18px 20px; }
+        .kpi .k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+        .kpi .v { font-family: 'Fraunces', serif; font-size: 26px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+        .kpi .s { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+        /* ---------- layout ---------- */
+        .flow { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 22px; margin: 22px 0; }
+        .card {
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: var(--radius); box-shadow: var(--shadow);
         }
-        .agent-info p {
-            color: #6b7c93;
-            font-size: 12px;
-            margin-top: 4px;
+        .card-head {
+            display: flex; align-items: center; gap: 12px;
+            padding: 18px 22px; border-bottom: 1px solid var(--line);
         }
-        .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        .status-green { background: #00ff88; box-shadow: 0 0 10px #00ff88; }
-        .status-amber { background: #ffaa00; box-shadow: 0 0 10px #ffaa00; }
-        .status-red { background: #ff4444; box-shadow: 0 0 10px #ff4444; }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        .metric {
-            margin-bottom: 20px;
-        }
-        .metric-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 12px;
-            color: #6b7c93;
-        }
-        .metric-bar {
-            height: 8px;
-            background: #1e3a5f;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-        .metric-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.5s ease;
-        }
-        .metric-cpu .metric-fill { background: linear-gradient(90deg, #00d4ff, #00ff88); }
-        .metric-ram .metric-fill { background: linear-gradient(90deg, #ffaa00, #ff6b6b); }
-        .metric-disk .metric-fill { background: linear-gradient(90deg, #8b5cf6, #ec4899); }
-        .market-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background: #0f1923;
-            border-radius: 8px;
-            margin-bottom: 10px;
-        }
-        .market-symbol {
-            color: #00d4ff;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        .market-value {
-            color: #fff;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        .bottom-section {
-            grid-column: 1 / -1;
-            background: #111827;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #1e3a5f;
-        }
-        .bottom-section h2 {
-            color: #00d4ff;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-        }
-        .pipeline-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-        }
-        .deal-card {
-            background: #0f1923;
-            border-radius: 8px;
-            padding: 15px;
-            border-left: 3px solid #00d4ff;
-        }
-        .deal-name {
-            color: #fff;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .deal-stage {
-            color: #00d4ff;
-            font-size: 12px;
-            margin: 5px 0;
-        }
-        .deal-value {
-            color: #00ff88;
-            font-size: 16px;
-            font-weight: bold;
-        }
-        .deal-prob {
-            color: #6b7c93;
-            font-size: 11px;
-        }
-        .uptime {
-            color: #6b7c93;
-            font-size: 12px;
-            margin-top: 8px;
-        }
-        .task-input {
-            grid-column: 1 / -1;
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .task-input select, .task-input input {
-            background: #0f1923;
-            border: 1px solid #1e3a5f;
-            color: #fff;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        .task-input select { flex: 0 0 150px; }
-        .task-input input { flex: 1; }
-        .task-input button {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            border: none;
-            color: #fff;
-            padding: 10px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .task-input button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
-        }
-        .timestamp {
-            text-align: center;
-            color: #6b7c93;
-            font-size: 11px;
-            margin-top: 10px;
-        }
-        .chat-section {
-            grid-column: 1 / -1;
-            background: #111827;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #1e3a5f;
-            display: flex;
-            flex-direction: column;
-        }
-        .chat-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #1e3a5f;
-        }
-        .chat-head h2 {
-            color: #00d4ff;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 0;
-            border: none;
-            padding: 0;
-        }
-        .chat-model {
-            color: #6b7c93;
-            font-size: 11px;
-            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        }
+        .card-head h2 { font-size: 16px; margin-right: auto; }
+        .card-body { padding: 20px 22px; }
+        .section-title { display: flex; align-items: baseline; gap: 12px; margin: 34px 0 14px; }
+        .section-title h2 { font-size: 22px; }
+        .section-title p { font-size: 13px; color: var(--muted); margin-left: auto; }
+
+        /* ---------- chat ---------- */
+        .chat { display: flex; flex-direction: column; min-height: 620px; }
         .chat-log {
-            height: 340px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding-right: 6px;
+            flex: 1; overflow-y: auto; max-height: 520px;
+            display: flex; flex-direction: column; gap: 14px;
+            padding: 22px; background: var(--surface-2);
         }
-        .msg {
-            max-width: 80%;
-            padding: 12px 15px;
-            border-radius: 10px;
-            font-size: 14px;
-            line-height: 1.55;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
+        .chat-empty { color: var(--muted); font-size: 13px; text-align: center; margin: auto; max-width: 340px; line-height: 1.7; }
+        .chat-empty img { width: 64px; opacity: .85; margin-bottom: 12px; }
+        .msg { max-width: 86%; padding: 13px 16px; border-radius: 14px; font-size: 14px; line-height: 1.62; }
         .msg-user {
-            align-self: flex-end;
-            background: linear-gradient(135deg, #0b3f57, #0f5c7a);
-            color: #eaf6ff;
+            align-self: flex-end; background: var(--ink); color: #f7f4ef;
+            border-bottom-right-radius: 5px; white-space: pre-wrap;
         }
         .msg-assistant {
-            align-self: flex-start;
-            background: #0f1923;
-            border-left: 3px solid #00d4ff;
-            color: #e0e6ed;
+            align-self: flex-start; background: var(--surface);
+            border: 1px solid var(--line); border-bottom-left-radius: 5px; color: var(--ink-2);
         }
-        .msg-error {
-            align-self: flex-start;
-            background: #2a1216;
-            border-left: 3px solid #ff4444;
-            color: #ffb3b3;
-        }
+        .msg-assistant.speaking { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+        .msg-error { align-self: flex-start; background: #fdf1ef; border: 1px solid #f2d3cd; color: #8d3227; font-size: 13px; }
+        .md h3 { font-size: 15px; margin: 12px 0 6px; color: var(--ink); }
+        .md p { margin: 7px 0; }
+        .md ul { margin: 7px 0 7px 18px; }
+        .md strong { color: var(--ink); }
+        .md a { color: var(--gold); }
+        .md code { background: var(--surface-2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; font-size: 12px; }
+        .md table { border-collapse: collapse; margin: 10px 0; font-size: 13px; width: 100%; }
+        .md th, .md td { border-bottom: 1px solid var(--line); padding: 7px 10px; text-align: left; }
+        .md th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
         .trace {
-            align-self: flex-start;
-            max-width: 80%;
-            background: #0d1420;
-            border: 1px dashed #1e3a5f;
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-            font-size: 11px;
-            color: #8b9dc3;
+            align-self: flex-start; display: flex; align-items: center; gap: 9px;
+            background: var(--gold-soft); border: 1px solid #e6d5ae; border-radius: 999px;
+            padding: 6px 14px; font-size: 12px; color: #6f5a25;
         }
-        .trace b { color: #00ff88; font-weight: 600; }
-        .trace-fail b { color: #ff8080; }
-        .citations {
-            align-self: flex-start;
-            font-size: 11px;
-            color: #6b7c93;
+        .trace .spark { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: blink 1.1s infinite; }
+        .trace.done .spark { background: var(--green); animation: none; }
+        .trace.fail { background: #fdf1ef; border-color: #f2d3cd; color: #8d3227; }
+        .trace.fail .spark { background: var(--red); animation: none; }
+        @keyframes blink { 0%, 100% { opacity: 1 } 50% { opacity: .25 } }
+        .citations { align-self: flex-start; font-size: 12px; color: var(--muted); }
+        .citations a { color: var(--gold); margin-right: 8px; }
+        .chat-foot { padding: 16px 22px 20px; border-top: 1px solid var(--line); }
+        .composer { display: flex; align-items: center; gap: 10px; }
+        .composer input {
+            flex: 1; font: inherit; font-size: 14px; color: var(--ink);
+            background: var(--surface-2); border: 1px solid var(--line);
+            border-radius: 999px; padding: 13px 18px; outline: none;
+            transition: border-color .15s, box-shadow .15s;
         }
-        .citations a { color: #00d4ff; }
-        .chat-input {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
+        .composer input:focus { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+        .icon-btn {
+            width: 42px; height: 42px; flex: 0 0 42px; border-radius: 50%;
+            border: 1px solid var(--line); background: var(--surface);
+            cursor: pointer; font-size: 16px; line-height: 1;
+            display: grid; place-items: center; color: var(--ink-2);
+            transition: all .15s;
         }
-        .chat-input input {
-            flex: 1;
-            background: #0f1923;
-            border: 1px solid #1e3a5f;
-            color: #fff;
-            padding: 12px 15px;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        .chat-input button {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            border: none;
-            color: #fff;
-            padding: 12px 25px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .chat-input button:hover:not(:disabled) {
-            transform: scale(1.03);
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
-        }
-        .chat-input button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .chat-hints {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
-        }
+        .icon-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+        .icon-btn.on { background: var(--gold-soft); border-color: var(--gold); color: #6f5a25; }
+        .icon-btn.rec { background: #fdf1ef; border-color: #e9b6ad; color: var(--red); animation: blink 1.1s infinite; }
+        .icon-btn:disabled { opacity: .4; cursor: not-allowed; }
+        .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
         .chip {
-            background: #0f1923;
-            border: 1px solid #1e3a5f;
-            color: #8b9dc3;
-            border-radius: 999px;
-            padding: 5px 12px;
-            font-size: 11px;
-            cursor: pointer;
+            background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-2);
+            border-radius: 999px; padding: 7px 14px; font-size: 12px; cursor: pointer; transition: all .15s;
         }
-        .chip:hover { border-color: #00d4ff; color: #00d4ff; }
-        @media (max-width: 1100px) {
-            .container { grid-template-columns: 1fr; }
+        .chip:hover { border-color: var(--gold); color: var(--gold); background: var(--surface); }
+        .voice-note { font-size: 11px; color: var(--muted); margin-top: 10px; }
+
+        /* ---------- rail ---------- */
+        .rail { display: flex; flex-direction: column; gap: 22px; }
+        .agent-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 13px 0; border-bottom: 1px solid var(--line);
+        }
+        .agent-row:last-child { border-bottom: 0; padding-bottom: 0; }
+        .agent-badge {
+            width: 34px; height: 34px; border-radius: 10px; flex: 0 0 34px;
+            display: grid; place-items: center;
+            background: var(--gold-soft); color: #6f5a25;
+            font-size: 12px; font-weight: 600;
+        }
+        .agent-meta { min-width: 0; margin-right: auto; }
+        .agent-meta h3 { font-family: 'Inter'; font-size: 13.5px; font-weight: 600; }
+        .agent-meta p {
+            font-size: 12px; color: var(--muted); margin-top: 2px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 210px;
+        }
+        .state { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+        .state .dot { width: 7px; height: 7px; border-radius: 50%; }
+        .dot-green { background: var(--green); }
+        .dot-amber { background: var(--amber); }
+        .dot-red { background: var(--red); }
+        .meter { margin-bottom: 16px; }
+        .meter:last-child { margin-bottom: 0; }
+        .meter-top { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 7px; }
+        .meter-top b { color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 600; }
+        .meter-bar { height: 6px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+        .meter-fill { height: 100%; background: linear-gradient(90deg, #d8b25f, #a97f2c); transition: width .5s ease; }
+        .quote { display: flex; align-items: baseline; justify-content: space-between; padding: 11px 0; border-bottom: 1px solid var(--line); }
+        .quote:last-child { border-bottom: 0; padding-bottom: 0; }
+        .quote .sym { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+        .quote .val { font-family: 'Fraunces', serif; font-size: 19px; font-variant-numeric: tabular-nums; }
+        .dispatch { display: flex; gap: 8px; }
+        .dispatch select, .dispatch input {
+            font: inherit; font-size: 13px; background: var(--surface-2);
+            border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; color: var(--ink); outline: none;
+        }
+        .dispatch select { flex: 0 0 108px; }
+        .dispatch input { flex: 1; min-width: 0; }
+        .dispatch input:focus, .dispatch select:focus { border-color: var(--gold); }
+
+        /* ---------- pipeline + gallery ---------- */
+        .deals { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 18px; }
+        .deal {
+            background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+            overflow: hidden; box-shadow: var(--shadow); transition: transform .18s ease, box-shadow .18s ease;
+        }
+        .deal:hover { transform: translateY(-3px); box-shadow: 0 18px 38px -20px rgba(28,24,20,.32); }
+        .deal-img { position: relative; height: 132px; }
+        .deal-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .deal-stage {
+            position: absolute; left: 12px; bottom: 12px;
+            background: rgba(255,255,255,.94); border-radius: 999px; padding: 5px 11px;
+            font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #6f5a25;
+        }
+        .deal-body { padding: 16px 18px 18px; }
+        .deal-body h3 { font-family: 'Inter'; font-size: 14px; font-weight: 600; }
+        .deal-val { font-family: 'Fraunces', serif; font-size: 21px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+        .deal-prob { display: flex; align-items: center; gap: 9px; margin-top: 10px; font-size: 12px; color: var(--muted); }
+        .prob-bar { flex: 1; height: 5px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+        .prob-fill { height: 100%; background: linear-gradient(90deg, #d8b25f, #a97f2c); }
+        .gallery { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+        .tile { position: relative; border-radius: var(--radius); overflow: hidden; aspect-ratio: 4 / 3; box-shadow: var(--shadow); }
+        .tile img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; display: block; }
+        .tile:hover img { transform: scale(1.05); }
+        .tile figcaption {
+            position: absolute; inset: auto 0 0 0; padding: 14px 16px; color: #fff; font-size: 13px; font-weight: 500;
+            background: linear-gradient(transparent, rgba(20,16,12,.85));
+        }
+        footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 22px 0 40px; }
+        .footer-in { display: flex; align-items: center; gap: 14px; font-size: 12px; color: var(--muted); }
+        .footer-in img { width: 26px; opacity: .8; }
+        .footer-in span:last-child { margin-left: auto; }
+
+        @media (max-width: 1080px) {
+            .flow { grid-template-columns: 1fr; }
+            .kpis { grid-template-columns: repeat(2, 1fr); }
+            .gallery { grid-template-columns: repeat(2, 1fr); }
+            .hero h1 { font-size: 30px; }
+        }
+        @media (max-width: 620px) {
+            .wrap { padding: 0 16px; }
+            .kpis { grid-template-columns: 1fr; }
+            .gallery { grid-template-columns: 1fr; }
+            .topbar-in { height: auto; padding: 12px 0; flex-wrap: wrap; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>ADAM SMASHER</h1>
-        <p>StudEx Agent OS v1.0 | Orgo.ai Ubuntu VM</p>
-    </div>
-    
-    <div class="container">
-        <!-- Left Panel: Agents -->
-        <div class="panel">
-            <h2>Agent Fleet</h2>
-            <div id="agents"></div>
+    <header class="topbar">
+        <div class="wrap topbar-in">
+            <div class="brand">
+                <img src="/static/img/studex-logo-gold.png" alt="StudEx Meat">
+                <div>
+                    <div class="brand-name">StudEx Agent OS</div>
+                    <div class="brand-sub">ADAM SMASHER · autonomous operations</div>
+                </div>
+            </div>
+            <a class="nav-link" href="#fleet">Fleet</a>
+            <a class="nav-link" href="#pipeline">Pipeline</a>
+            <span class="pill mono" id="chat-model"><span class="dot"></span> checking Grok…</span>
         </div>
-        
-        <!-- Center Panel: VM Metrics -->
-        <div class="panel">
-            <h2>VM Health</h2>
-            <div class="metric metric-cpu">
-                <div class="metric-label">
-                    <span>CPU</span>
-                    <span id="cpu-value">0%</span>
-                </div>
-                <div class="metric-bar">
-                    <div class="metric-fill" id="cpu-bar" style="width: 0%"></div>
-                </div>
-            </div>
-            <div class="metric metric-ram">
-                <div class="metric-label">
-                    <span>RAM</span>
-                    <span id="ram-value">0%</span>
-                </div>
-                <div class="metric-bar">
-                    <div class="metric-fill" id="ram-bar" style="width: 0%"></div>
+    </header>
+
+    <main class="wrap">
+        <!-- hero -->
+        <section class="hero">
+            <img class="bg" src="/static/img/tomahawk-hero.jpg" alt="StudEx dry-aged tomahawk">
+            <div class="hero-in">
+                <div class="eyebrow">Our Universe · Command</div>
+                <h1>The business, run by <span>agents</span>.</h1>
+                <p>Five specialists on one VM — research, markets, ops, comms and deals — with ADAM SMASHER
+                   as the voice in front of them. Ask out loud, get grounded answers from live state, and
+                   nothing leaves the building without your approval.</p>
+                <div class="hero-cta">
+                    <button class="btn" onclick="focusChat()">Talk to ADAM SMASHER</button>
+                    <a class="btn btn-ghost" href="#pipeline" style="text-decoration:none;display:inline-flex;align-items:center;">See the pipeline</a>
                 </div>
             </div>
-            <div class="metric metric-disk">
-                <div class="metric-label">
-                    <span>Disk</span>
-                    <span id="disk-value">0%</span>
+        </section>
+
+        <!-- kpis -->
+        <section class="kpis">
+            <div class="kpi">
+                <div class="k">Weighted pipeline</div>
+                <div class="v" id="kpi-weighted">—</div>
+                <div class="s" id="kpi-gross">gross —</div>
+            </div>
+            <div class="kpi">
+                <div class="k">Live deals</div>
+                <div class="v" id="kpi-deals">—</div>
+                <div class="s">across four stages</div>
+            </div>
+            <div class="kpi">
+                <div class="k">USD/ZAR</div>
+                <div class="v" id="kpi-fx">—</div>
+                <div class="s" id="kpi-commodities">brent — · gold —</div>
+            </div>
+            <div class="kpi">
+                <div class="k">VM load</div>
+                <div class="v" id="kpi-cpu">—</div>
+                <div class="s" id="kpi-vm">ram — · disk —</div>
+            </div>
+        </section>
+
+        <!-- chat + rail -->
+        <div class="flow">
+            <section class="card chat" id="chat">
+                <div class="card-head">
+                    <h2>Ask ADAM SMASHER</h2>
+                    <span class="pill" id="voice-state"><span class="dot"></span> voice ready</span>
                 </div>
-                <div class="metric-bar">
-                    <div class="metric-fill" id="disk-bar" style="width: 0%"></div>
+                <div class="chat-log" id="chat-log">
+                    <div class="chat-empty" id="chat-empty">
+                        <img src="/static/img/studex-logo-gold.png" alt="">
+                        Ask about the pipeline, VM health or live markets — or hit the mic and just talk.
+                        Every business number comes from a tool call you can see.
+                    </div>
                 </div>
-            </div>
-            <div class="uptime">System Uptime: <span id="sys-uptime">--</span></div>
-        </div>
-        
-        <!-- Right Panel: Market Data -->
-        <div class="panel">
-            <h2>Market Data</h2>
-            <div class="market-item">
-                <span class="market-symbol">USD/ZAR</span>
-                <span class="market-value" id="usdzar">--</span>
-            </div>
-            <div class="market-item">
-                <span class="market-symbol">BRENT</span>
-                <span class="market-value" id="brent">--</span>
-            </div>
-            <div class="market-item">
-                <span class="market-symbol">GOLD</span>
-                <span class="market-value" id="gold">--</span>
-            </div>
-        </div>
-        
-        <!-- Task Input -->
-        <div class="task-input" style="grid-column: 1 / -1;">
-            <select id="agent-select">
-                <option value="research">Research</option>
-                <option value="markets">Markets</option>
-                <option value="ops">Ops</option>
-                <option value="comms">Comms</option>
-                <option value="deals">Deals</option>
-            </select>
-            <input type="text" id="task-input" placeholder="Enter task for agent...">
-            <button onclick="sendTask()">EXECUTE</button>
-        </div>
-        
-        <!-- Chat: ADAM SMASHER (Grok) -->
-        <div class="chat-section">
-            <div class="chat-head">
-                <h2>Ask ADAM SMASHER</h2>
-                <span class="chat-model" id="chat-model">checking Grok…</span>
-            </div>
-            <div class="chat-log" id="chat-log"></div>
-            <div class="chat-input">
-                <input type="text" id="chat-text" placeholder="e.g. What is our weighted pipeline, and is the VM healthy?" autocomplete="off">
-                <button id="chat-send" onclick="sendChat()">SEND</button>
-            </div>
-            <div class="chat-hints">
-                <span class="chip" onclick="useHint(this)">Summarise the pipeline by stage and flag the biggest risk</span>
-                <span class="chip" onclick="useHint(this)">Is the VM healthy? Anything I should act on?</span>
-                <span class="chip" onclick="useHint(this)">Ask research to do due diligence on NTechLab Kenya</span>
-                <span class="chip" onclick="useHint(this)">Draft a follow-up to Uvelka on the wheat deal</span>
+                <div class="chat-foot">
+                    <div class="composer">
+                        <button class="icon-btn" id="mic-btn" onclick="toggleMic()" title="Speak your question">🎙</button>
+                        <input type="text" id="chat-text" placeholder="What is our weighted pipeline, and is the VM healthy?" autocomplete="off">
+                        <button class="icon-btn" id="speak-btn" onclick="toggleSpeak()" title="Read answers aloud">🔊</button>
+                        <button class="btn" id="chat-send" onclick="sendChat()">Send</button>
+                    </div>
+                    <div class="chips">
+                        <span class="chip" onclick="useHint(this)">Summarise the pipeline by stage and flag the biggest risk</span>
+                        <span class="chip" onclick="useHint(this)">Is the VM healthy? Anything I should act on?</span>
+                        <span class="chip" onclick="useHint(this)">Check USD/ZAR live and compare to our cached rate</span>
+                        <span class="chip" onclick="useHint(this)">Ask research to do due diligence on NTechLab Kenya</span>
+                    </div>
+                    <div class="voice-note" id="voice-note"></div>
+                </div>
+            </section>
+
+            <div class="rail">
+                <section class="card" id="fleet">
+                    <div class="card-head">
+                        <h2>Agent fleet</h2>
+                        <span class="eyebrow" id="fleet-count">—</span>
+                    </div>
+                    <div class="card-body" id="agents"></div>
+                </section>
+
+                <section class="card">
+                    <div class="card-head"><h2>Dispatch work</h2></div>
+                    <div class="card-body">
+                        <div class="dispatch">
+                            <select id="agent-select">
+                                <option value="research">Research</option>
+                                <option value="markets">Markets</option>
+                                <option value="ops">Ops</option>
+                                <option value="comms">Comms</option>
+                                <option value="deals">Deals</option>
+                            </select>
+                            <input type="text" id="task-input" placeholder="Task for the agent…">
+                            <button class="btn" onclick="sendTask()">Go</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="card-head"><h2>VM health</h2><span class="eyebrow" id="sys-uptime">—</span></div>
+                    <div class="card-body">
+                        <div class="meter">
+                            <div class="meter-top"><span>CPU</span><b id="cpu-value">—</b></div>
+                            <div class="meter-bar"><div class="meter-fill" id="cpu-bar" style="width:0%"></div></div>
+                        </div>
+                        <div class="meter">
+                            <div class="meter-top"><span>Memory</span><b id="ram-value">—</b></div>
+                            <div class="meter-bar"><div class="meter-fill" id="ram-bar" style="width:0%"></div></div>
+                        </div>
+                        <div class="meter">
+                            <div class="meter-top"><span>Disk</span><b id="disk-value">—</b></div>
+                            <div class="meter-bar"><div class="meter-fill" id="disk-bar" style="width:0%"></div></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="card-head"><h2>Markets</h2><span class="eyebrow">cached</span></div>
+                    <div class="card-body">
+                        <div class="quote"><span class="sym">USD/ZAR</span><span class="val" id="usdzar">—</span></div>
+                        <div class="quote"><span class="sym">Brent</span><span class="val" id="brent">—</span></div>
+                        <div class="quote"><span class="sym">Gold</span><span class="val" id="gold">—</span></div>
+                    </div>
+                </section>
             </div>
         </div>
 
-        <!-- Bottom: Pipeline -->
-        <div class="bottom-section">
-            <h2>Deal Pipeline | Total Value: R <span id="pipeline-value">0</span></h2>
-            <div class="pipeline-grid" id="pipeline"></div>
+        <!-- pipeline -->
+        <section id="pipeline">
+            <div class="section-title">
+                <h2>Deal pipeline</h2>
+                <p>Gross R <span id="pipeline-value">—</span></p>
+            </div>
+            <div class="deals" id="deals"></div>
+        </section>
+
+        <!-- gallery -->
+        <section>
+            <div class="section-title">
+                <h2>What we sell</h2>
+                <p>The product behind the numbers</p>
+            </div>
+            <div class="gallery">
+                <figure class="tile"><img src="/static/img/wagyu-patties.jpg" alt="Wagyu patties"><figcaption>Wagyu patties</figcaption></figure>
+                <figure class="tile"><img src="/static/img/ankole-scarcity.jpg" alt="Ankole"><figcaption>Ankole — scarcity play</figcaption></figure>
+                <figure class="tile"><img src="/static/img/braai-lifestyle.jpg" alt="Braai lifestyle"><figcaption>Braai culture</figcaption></figure>
+                <figure class="tile"><img src="/static/img/hwende-box.jpg" alt="Hwende box"><figcaption>Hwende box</figcaption></figure>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="wrap footer-in">
+            <img src="/static/img/studex-logo-black.png" alt="StudEx">
+            <span>StudEx Agent OS · Grok drafts and reads state; humans approve anything that leaves the building.</span>
+            <span>Updated <span id="last-update">—</span></span>
         </div>
-    </div>
-    
-    <div class="timestamp">Last updated: <span id="last-update">--</span></div>
+    </footer>
 
     <script>
         const API_BASE = '';
-        
+        const DEAL_IMAGES = [
+            '/static/img/wagyu-patties.jpg',
+            '/static/img/ankole-scarcity.jpg',
+            '/static/img/braai-lifestyle.jpg',
+            '/static/img/hwende-box.jpg',
+        ];
+        const money = n => Number(n).toLocaleString('en-ZA', { maximumFractionDigits: 0 });
+        const compact = n => n >= 1e6 ? 'R' + (n / 1e6).toFixed(2) + 'm' : 'R' + money(n);
+        const humanUptime = s => {
+            if (!s && s !== 0) return '—';
+            const days = Math.floor(s / 86400), hours = Math.floor(s % 86400 / 3600);
+            return days ? `${days}d ${hours}h` : `${hours}h ${Math.floor(s % 3600 / 60)}m`;
+        };
+
+        /* ---------- live state ---------- */
+
         async function fetchStatus() {
             try {
                 const res = await fetch(`${API_BASE}/api/status`);
-                const data = await res.json();
-                updateDashboard(data);
+                render(await res.json());
             } catch (e) {
                 console.error('Status fetch error:', e);
             }
         }
-        
-        function updateDashboard(data) {
-            // Update agents
-            const agentsDiv = document.getElementById('agents');
-            agentsDiv.innerHTML = data.agents.map(agent => `
-                <div class="agent-card">
-                    <div class="agent-info">
-                        <h3>${agent.name}</h3>
-                        <p>${agent.last_task || 'Idle'}</p>
-                        <div class="uptime">Uptime: ${Math.floor(agent.uptime)}s</div>
+
+        function render(data) {
+            document.getElementById('agents').innerHTML = data.agents.map(agent => `
+                <div class="agent-row">
+                    <div class="agent-badge">${agent.name.slice(0, 2).toUpperCase()}</div>
+                    <div class="agent-meta">
+                        <h3>${escapeHtml(agent.name)}</h3>
+                        <p>${escapeHtml(agent.last_task || 'Idle — awaiting dispatch')}</p>
                     </div>
-                    <div class="status-dot status-${agent.status}"></div>
-                </div>
-            `).join('');
-            
-            // Update VM metrics
-            document.getElementById('cpu-value').textContent = data.vm.cpu.toFixed(1) + '%';
-            document.getElementById('cpu-bar').style.width = data.vm.cpu + '%';
-            document.getElementById('ram-value').textContent = data.vm.ram.toFixed(1) + '%';
-            document.getElementById('ram-bar').style.width = data.vm.ram + '%';
-            document.getElementById('disk-value').textContent = data.vm.disk.toFixed(1) + '%';
-            document.getElementById('disk-bar').style.width = data.vm.disk + '%';
-            
-            // Update market data
+                    <span class="state"><span class="dot dot-${agent.status === 'active' ? 'amber' : 'green'}"></span>${escapeHtml(agent.status)}</span>
+                </div>`).join('');
+            document.getElementById('fleet-count').textContent = `${data.agents.length} agents`;
+
+            document.getElementById('sys-uptime').textContent = 'up ' + humanUptime(data.vm.uptime);
+            setMeter('cpu', data.vm.cpu);
+            setMeter('ram', data.vm.ram);
+            setMeter('disk', data.vm.disk);
+
             document.getElementById('usdzar').textContent = data.market.usdzar.toFixed(2);
             document.getElementById('brent').textContent = '$' + data.market.brent.toFixed(2);
             document.getElementById('gold').textContent = '$' + data.market.gold.toFixed(2);
-            
-            // Update pipeline
-            document.getElementById('pipeline-value').textContent = data.pipeline.total_value.toLocaleString();
-            
-            // Update timestamp
+
+            document.getElementById('kpi-weighted').textContent = compact(data.pipeline.weighted_value);
+            document.getElementById('kpi-gross').textContent = 'gross ' + compact(data.pipeline.total_value);
+            document.getElementById('kpi-deals').textContent = data.pipeline.deals;
+            document.getElementById('kpi-fx').textContent = data.market.usdzar.toFixed(2);
+            document.getElementById('kpi-commodities').textContent =
+                `brent $${data.market.brent.toFixed(0)} · gold $${data.market.gold.toFixed(0)}`;
+            document.getElementById('kpi-cpu').textContent = data.vm.cpu.toFixed(0) + '%';
+            document.getElementById('kpi-vm').textContent =
+                `ram ${data.vm.ram.toFixed(0)}% · disk ${data.vm.disk.toFixed(0)}%`;
+            document.getElementById('pipeline-value').textContent = money(data.pipeline.total_value);
             document.getElementById('last-update').textContent = new Date().toLocaleTimeString();
         }
-        
+
+        function setMeter(key, value) {
+            document.getElementById(`${key}-value`).textContent = value.toFixed(1) + '%';
+            document.getElementById(`${key}-bar`).style.width = Math.min(value, 100) + '%';
+        }
+
         async function fetchPipeline() {
             try {
                 const res = await fetch(`${API_BASE}/api/pipeline`);
                 const data = await res.json();
-                const pipelineDiv = document.getElementById('pipeline');
-                pipelineDiv.innerHTML = data.deals.map(deal => `
-                    <div class="deal-card">
-                        <div class="deal-name">${deal.name}</div>
-                        <div class="deal-stage">${deal.stage}</div>
-                        <div class="deal-value">R ${deal.value.toLocaleString()}</div>
-                        <div class="deal-prob">${deal.probability}% probability</div>
-                    </div>
-                `).join('');
+                document.getElementById('deals').innerHTML = data.deals.map((deal, i) => `
+                    <article class="deal">
+                        <div class="deal-img">
+                            <img src="${DEAL_IMAGES[i % DEAL_IMAGES.length]}" alt="">
+                            <span class="deal-stage">${escapeHtml(deal.stage)}</span>
+                        </div>
+                        <div class="deal-body">
+                            <h3>${escapeHtml(deal.name)}</h3>
+                            <div class="deal-val">R ${money(deal.value)}</div>
+                            <div class="deal-prob">
+                                <div class="prob-bar"><div class="prob-fill" style="width:${deal.probability}%"></div></div>
+                                ${deal.probability}%
+                            </div>
+                        </div>
+                    </article>`).join('');
             } catch (e) {
                 console.error('Pipeline fetch error:', e);
             }
         }
-        
+
         async function sendTask() {
             const agent = document.getElementById('agent-select').value;
-            const task = document.getElementById('task-input').value;
-            if (!task) return;
-            
+            const input = document.getElementById('task-input');
+            if (!input.value.trim()) return;
             try {
                 await fetch(`${API_BASE}/api/agent/${agent}/task`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ task: task })
+                    body: JSON.stringify({ task: input.value.trim() })
                 });
-                document.getElementById('task-input').value = '';
-                // Refresh status after task
-                setTimeout(fetchStatus, 500);
+                input.value = '';
+                setTimeout(fetchStatus, 400);
             } catch (e) {
                 console.error('Task submission error:', e);
             }
         }
-        
-        // Initial load
+
         fetchStatus();
         fetchPipeline();
-        
-        // Poll every 5 seconds
         setInterval(fetchStatus, 5000);
         setInterval(fetchPipeline, 30000);
-        
-        // Enter key to submit task
-        document.getElementById('task-input').addEventListener('keypress', (e) => {
+        document.getElementById('task-input').addEventListener('keypress', e => {
             if (e.key === 'Enter') sendTask();
         });
 
-        /* ---------- ADAM SMASHER chat (Grok) ---------- */
-
-        const chatHistory = [];
-        const chatLog = document.getElementById('chat-log');
-        const chatText = document.getElementById('chat-text');
-        const chatSend = document.getElementById('chat-send');
-        let chatBusy = false;
-
-        function addBubble(cls, text) {
-            const el = document.createElement('div');
-            el.className = cls;
-            el.textContent = text;
-            chatLog.appendChild(el);
-            chatLog.scrollTop = chatLog.scrollHeight;
-            return el;
-        }
-
-        function addTrace(name, args) {
-            const el = addBubble('trace', '');
-            el.innerHTML = `<b>${name}</b>(${escapeHtml(args || '')}) …`;
-            return el;
-        }
+        /* ---------- markdown (escaped first, so safe to inject) ---------- */
 
         function escapeHtml(s) {
             return String(s).replace(/[&<>"']/g, c => ({
@@ -579,33 +579,128 @@
             })[c]);
         }
 
-        function addCitations(urls) {
+        function renderMarkdown(src) {
+            const lines = escapeHtml(src).split('\n');
+            const out = [];
+            let list = null, table = null;
+
+            const flush = () => {
+                if (list) { out.push(`<ul>${list.join('')}</ul>`); list = null; }
+                if (table) {
+                    const [head, ...body] = table;
+                    out.push(`<table><thead><tr>${head.map(c => `<th>${c}</th>`).join('')}</tr></thead>` +
+                             `<tbody>${body.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`);
+                    table = null;
+                }
+            };
+
+            for (const raw of lines) {
+                const line = raw.trim();
+                if (/^\|(.+)\|$/.test(line)) {
+                    const cells = line.slice(1, -1).split('|').map(c => inline(c.trim()));
+                    if (cells.every(c => /^[-:\s]*$/.test(c))) continue;   // separator row
+                    (table = table || []).push(cells);
+                    continue;
+                }
+                if (table) flush();
+                if (!line) { flush(); continue; }
+                if (/^[-*]\s+/.test(line)) {
+                    (list = list || []).push(`<li>${inline(line.replace(/^[-*]\s+/, ''))}</li>`);
+                    continue;
+                }
+                flush();
+                const heading = line.match(/^(#{1,6})\s+(.*)$/);
+                out.push(heading ? `<h3>${inline(heading[2])}</h3>` : `<p>${inline(line)}</p>`);
+            }
+            flush();
+            return out.join('');
+        }
+
+        function inline(s) {
+            return s
+                .replace(/\[\[?(\d+)\]?\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">[$1]</a>')
+                .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>');
+        }
+
+        /* ---------- chat ---------- */
+
+        const chatHistory = [];
+        const chatLog = document.getElementById('chat-log');
+        const chatText = document.getElementById('chat-text');
+        const chatSend = document.getElementById('chat-send');
+        let chatBusy = false;
+
+        function clearEmptyState() {
+            const empty = document.getElementById('chat-empty');
+            if (empty) empty.remove();
+        }
+
+        function addNode(cls) {
+            clearEmptyState();
             const el = document.createElement('div');
-            el.className = 'citations';
-            el.innerHTML = 'Sources: ' + urls.slice(0, 6).map(u =>
-                `<a href="${escapeHtml(u)}" target="_blank" rel="noreferrer">${escapeHtml(new URL(u).hostname)}</a>`
-            ).join(' · ');
+            el.className = cls;
             chatLog.appendChild(el);
             chatLog.scrollTop = chatLog.scrollHeight;
+            return el;
+        }
+
+        function addBubble(cls, text) {
+            const el = addNode(cls);
+            el.textContent = text;
+            return el;
+        }
+
+        function addTrace(name, args) {
+            const el = addNode('trace');
+            const label = name === 'web_search' ? searchLabel(args) : `${name}()`;
+            el.innerHTML = `<span class="spark"></span>${escapeHtml(label)}`;
+            return el;
+        }
+
+        function searchLabel(args) {
+            try {
+                const a = JSON.parse(args || '{}');
+                if (a.query) return `searching the web · “${a.query}”`;
+                if (a.url) return `reading ${new URL(a.url).hostname}`;
+            } catch (e) { /* fall through */ }
+            return 'searching the web';
+        }
+
+        function addCitations(urls) {
+            const el = addNode('citations');
+            el.innerHTML = 'Sources: ' + urls.slice(0, 6).map(u =>
+                `<a href="${escapeHtml(u)}" target="_blank" rel="noreferrer">${escapeHtml(new URL(u).hostname.replace(/^www\./, ''))}</a>`
+            ).join('');
         }
 
         function useHint(chip) {
-            chatText.value = chip.textContent;
+            chatText.value = chip.textContent.trim();
+            chatText.focus();
+        }
+
+        function focusChat() {
+            document.getElementById('chat').scrollIntoView({ block: 'center' });
             chatText.focus();
         }
 
         async function checkChatConfig() {
+            const label = document.getElementById('chat-model');
             try {
-                const res = await fetch(`${API_BASE}/api/chat/config`);
-                const cfg = await res.json();
-                const label = document.getElementById('chat-model');
-                label.textContent = cfg.configured
-                    ? `${cfg.model} · live search on`
-                    : 'XAI_API_KEY not set — chat disabled';
+                const cfg = await (await fetch(`${API_BASE}/api/chat/config`)).json();
+                label.innerHTML = cfg.configured
+                    ? `<span class="dot"></span> ${escapeHtml(cfg.model)} · web search on`
+                    : `<span class="dot" style="background:var(--red)"></span> XAI_API_KEY not set`;
                 chatSend.disabled = !cfg.configured;
                 chatText.disabled = !cfg.configured;
+                document.getElementById('mic-btn').disabled = !cfg.configured;
+                if (!cfg.configured) {
+                    document.getElementById('voice-note').textContent =
+                        'Set XAI_API_KEY in the VM environment to enable the agent chat.';
+                }
             } catch (e) {
-                document.getElementById('chat-model').textContent = 'Grok status unknown';
+                label.innerHTML = '<span class="dot" style="background:var(--amber)"></span> Grok status unknown';
             }
         }
 
@@ -619,9 +714,7 @@
             addBubble('msg msg-user', text);
             chatHistory.push({ role: 'user', content: text });
 
-            let bubble = null;
-            let answer = '';
-            let pendingTrace = null;
+            let bubble = null, answer = '', pendingTrace = null;
 
             try {
                 const res = await fetch(`${API_BASE}/api/chat`, {
@@ -653,9 +746,9 @@
                         const ev = JSON.parse(line.slice(6));
 
                         if (ev.type === 'token') {
-                            if (!bubble) bubble = addBubble('msg msg-assistant', '');
+                            if (!bubble) { bubble = addNode('msg msg-assistant md'); answer = ''; }
                             answer += ev.text;
-                            bubble.textContent = answer;
+                            bubble.innerHTML = renderMarkdown(answer);
                             chatLog.scrollTop = chatLog.scrollHeight;
                         } else if (ev.type === 'tool_call') {
                             pendingTrace = addTrace(ev.name, ev.arguments);
@@ -663,21 +756,28 @@
                         } else if (ev.type === 'tool_result') {
                             const failed = ev.outcome && ev.outcome.error;
                             const target = pendingTrace || addTrace(ev.name, '');
-                            target.className = failed ? 'trace trace-fail' : 'trace';
-                            target.innerHTML = `<b>${ev.name}</b> → ${escapeHtml(failed ? ev.outcome.error : 'ok')}`;
+                            target.className = failed ? 'trace fail' : 'trace done';
+                            target.innerHTML = `<span class="spark"></span>${escapeHtml(
+                                failed ? `${ev.name} — ${ev.outcome.error}` : `${ev.name} · read live state`)}`;
                             pendingTrace = null;
                         } else if (ev.type === 'citations') {
                             addCitations(ev.citations || []);
                         } else if (ev.type === 'error') {
                             addBubble('msg msg-error', ev.message);
+                        } else if (ev.type === 'done') {
+                            if (ev.content && !answer.trim()) {
+                                bubble = addNode('msg msg-assistant md');
+                                answer = ev.content;
+                                bubble.innerHTML = renderMarkdown(answer);
+                            }
                         }
                     }
                 }
 
                 if (answer.trim()) {
                     chatHistory.push({ role: 'assistant', content: answer });
+                    if (speakOn) speak(answer, bubble);
                 }
-                // Agent state may have changed if Grok dispatched work.
                 fetchStatus();
             } catch (e) {
                 addBubble('msg msg-error', `Chat error: ${e.message}`);
@@ -688,11 +788,94 @@
             }
         }
 
-        chatText.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendChat();
-        });
-
+        chatText.addEventListener('keypress', e => { if (e.key === 'Enter') sendChat(); });
         checkChatConfig();
+
+        /* ---------- voice: speak answers, listen for questions ---------- */
+
+        const speakBtn = document.getElementById('speak-btn');
+        const micBtn = document.getElementById('mic-btn');
+        const voiceState = document.getElementById('voice-state');
+        const voiceNote = document.getElementById('voice-note');
+        const canSpeak = 'speechSynthesis' in window;
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let speakOn = false, recogniser = null, listening = false;
+
+        if (!canSpeak) { speakBtn.disabled = true; speakBtn.title = 'This browser cannot speak'; }
+        if (!SpeechRecognition) { micBtn.disabled = true; micBtn.title = 'This browser cannot listen'; }
+        if (!canSpeak && !SpeechRecognition) {
+            voiceState.innerHTML = '<span class="dot" style="background:var(--muted)"></span> voice unsupported';
+        }
+
+        function toggleSpeak() {
+            speakOn = !speakOn;
+            speakBtn.classList.toggle('on', speakOn);
+            speakBtn.title = speakOn ? 'Stop reading answers aloud' : 'Read answers aloud';
+            if (!speakOn && canSpeak) window.speechSynthesis.cancel();
+            voiceNote.textContent = speakOn ? 'ADAM SMASHER will read answers aloud.' : '';
+        }
+
+        function speakableText(markdown) {
+            return markdown
+                .replace(/\[\[?\d+\]?\]\([^)]+\)/g, '')
+                .replace(/\|/g, ', ')
+                .replace(/[*#`>_-]+/g, ' ')
+                .replace(/https?:\/\/\S+/g, '')
+                .replace(/\s{2,}/g, ' ')
+                .slice(0, 1200);
+        }
+
+        function speak(markdown, bubble) {
+            if (!canSpeak) return;
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(speakableText(markdown));
+            utterance.rate = 1.03;
+            utterance.pitch = 0.95;
+            const voice = window.speechSynthesis.getVoices()
+                .find(v => /en-ZA|en-GB/.test(v.lang)) || null;
+            if (voice) utterance.voice = voice;
+            if (bubble) {
+                bubble.classList.add('speaking');
+                utterance.onend = () => bubble.classList.remove('speaking');
+            }
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function toggleMic() {
+            if (!SpeechRecognition) return;
+            if (listening) { recogniser.stop(); return; }
+
+            recogniser = new SpeechRecognition();
+            recogniser.lang = 'en-ZA';
+            recogniser.interimResults = true;
+            recogniser.continuous = false;
+
+            recogniser.onstart = () => {
+                listening = true;
+                micBtn.classList.add('rec');
+                voiceState.innerHTML = '<span class="dot" style="background:var(--red)"></span> listening';
+            };
+            recogniser.onresult = event => {
+                const transcript = Array.from(event.results).map(r => r[0].transcript).join(' ').trim();
+                chatText.value = transcript;
+                if (event.results[event.results.length - 1].isFinal) {
+                    recogniser.stop();
+                    if (!speakOn) toggleSpeak();      // spoken question, spoken answer
+                    sendChat();
+                }
+            };
+            recogniser.onerror = event => {
+                voiceNote.textContent = event.error === 'not-allowed'
+                    ? 'Microphone blocked — allow mic access for this page to talk to ADAM SMASHER.'
+                    : `Microphone error: ${event.error}`;
+            };
+            recogniser.onend = () => {
+                listening = false;
+                micBtn.classList.remove('rec');
+                voiceState.innerHTML = '<span class="dot"></span> voice ready';
+            };
+            recogniser.start();
+        }
     </script>
 </body>
 </html>

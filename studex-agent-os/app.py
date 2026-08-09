@@ -59,11 +59,12 @@ def log(msg):
     print(f"[{timestamp}] {msg}")
 
 def get_vm_metrics():
-    """Get VM CPU, RAM, Disk usage"""
+    """Get VM CPU, RAM, Disk usage and how long the box has been up"""
     return {
         "cpu": psutil.cpu_percent(interval=0.1),
         "ram": psutil.virtual_memory().percent,
-        "disk": psutil.disk_usage('/').percent
+        "disk": psutil.disk_usage('/').percent,
+        "uptime": round(time.time() - psutil.boot_time())
     }
 
 def get_market_data():

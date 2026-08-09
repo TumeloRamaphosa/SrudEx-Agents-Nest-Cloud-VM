@@ -12,7 +12,7 @@ the building must be approved by a human, per the NEVER-auto-post rule.
 import json
 from typing import Any, Callable, Dict, Iterator, List, Optional
 
-from grok import GrokClient, GrokError, merge_tool_call_deltas
+from grok import GrokClient, GrokError, output_text
 
 MAX_TOOL_ROUNDS = 6
 
@@ -40,77 +40,69 @@ Operating rules:
 TOOL_SPECS: List[Dict[str, Any]] = [
     {
         "type": "function",
-        "function": {
-            "name": "get_status",
-            "description": "Live snapshot of the agent fleet, VM health (CPU/RAM/disk), pipeline totals and cached market data.",
-            "parameters": {"type": "object", "properties": {}},
-        },
+        "name": "get_status",
+        "description": "Live snapshot of the agent fleet, VM health (CPU/RAM/disk), pipeline totals and cached market data.",
+        "parameters": {"type": "object", "properties": {}},
     },
     {
         "type": "function",
-        "function": {
-            "name": "get_pipeline",
-            "description": "Full deal pipeline: each deal name, value in ZAR, stage and win probability.",
-            "parameters": {"type": "object", "properties": {}},
-        },
+        "name": "get_pipeline",
+        "description": "Full deal pipeline: each deal name, value in ZAR, stage and win probability.",
+        "parameters": {"type": "object", "properties": {}},
     },
     {
         "type": "function",
-        "function": {
-            "name": "get_agent_history",
-            "description": "Recent tasks handled by one agent, most recent last.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "agent": {
-                        "type": "string",
-                        "description": "Agent key: research, markets, ops, comms or deals.",
-                    },
-                    "limit": {"type": "integer", "description": "How many entries (default 10)."},
+        "name": "get_agent_history",
+        "description": "Recent tasks handled by one agent, most recent last.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "agent": {
+                    "type": "string",
+                    "description": "Agent key: research, markets, ops, comms or deals.",
                 },
-                "required": ["agent"],
+                "limit": {"type": "integer", "description": "How many entries (default 10)."},
             },
+            "required": ["agent"],
         },
     },
     {
         "type": "function",
-        "function": {
-            "name": "read_agent_memory",
-            "description": "Read an agent's persistent memory file (markdown or JSON) from the VM.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "agent": {
-                        "type": "string",
-                        "description": "Agent key: research, markets, ops, comms or deals.",
-                    }
-                },
-                "required": ["agent"],
+        "name": "read_agent_memory",
+        "description": "Read an agent's persistent memory file (markdown or JSON) from the VM.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "agent": {
+                    "type": "string",
+                    "description": "Agent key: research, markets, ops, comms or deals.",
+                }
             },
+            "required": ["agent"],
         },
     },
     {
         "type": "function",
-        "function": {
-            "name": "assign_task",
-            "description": "Dispatch a concrete task to one agent. Use only when the user asks for work to be done.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "agent": {
-                        "type": "string",
-                        "description": "Agent key: research, markets, ops, comms or deals.",
-                    },
-                    "task": {
-                        "type": "string",
-                        "description": "Self-contained instruction, including any deal or counterparty name.",
-                    },
+        "name": "assign_task",
+        "description": "Dispatch a concrete task to one agent. Use only when the user asks for work to be done.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "agent": {
+                    "type": "string",
+                    "description": "Agent key: research, markets, ops, comms or deals.",
                 },
-                "required": ["agent", "task"],
+                "task": {
+                    "type": "string",
+                    "description": "Self-contained instruction, including any deal or counterparty name.",
+                },
             },
+            "required": ["agent", "task"],
         },
     },
 ]
+
+WEB_SEARCH_TOOL: Dict[str, Any] = {"type": "web_search"}
 
 
 class Orchestrator:
@@ -150,51 +142,73 @@ class Orchestrator:
 
         Event types: `token`, `tool_call`, `tool_result`, `citations`, `done`, `error`.
         """
-        messages: List[Dict[str, Any]] = [{"role": "system", "content": self.system_prompt}]
-        messages.extend(history)
+        items: List[Dict[str, Any]] = list(history)
+        tools = list(TOOL_SPECS) + ([WEB_SEARCH_TOOL] if live_search else [])
 
         for _ in range(MAX_TOOL_ROUNDS):
             content = ""
-            tool_calls: Dict[int, Dict[str, Any]] = {}
+            output: List[Dict[str, Any]] = []
+            citations: List[str] = []
             try:
-                for chunk in self.client.stream(
-                    messages, tools=TOOL_SPECS, live_search=live_search
+                for event in self.client.stream(
+                    items, tools=tools, instructions=self.system_prompt
                 ):
-                    choices = chunk.get("choices") or []
-                    if not choices:
-                        continue
-                    delta = choices[0].get("delta") or {}
-                    if delta.get("content"):
-                        content += delta["content"]
-                        yield {"type": "token", "text": delta["content"]}
-                    if delta.get("tool_calls"):
-                        merge_tool_call_deltas(tool_calls, delta["tool_calls"])
-                    if chunk.get("citations"):
-                        yield {"type": "citations", "citations": chunk["citations"]}
+                    kind = event.get("type")
+                    if kind == "response.output_text.delta":
+                        delta = event.get("delta") or ""
+                        content += delta
+                        yield {"type": "token", "text": delta}
+                    elif kind == "response.output_text.annotation.added":
+                        url = (event.get("annotation") or {}).get("url")
+                        if url and url not in citations:
+                            citations.append(url)
+                    elif kind == "response.output_item.done":
+                        item = event.get("item") or {}
+                        if item.get("type") == "web_search_call":
+                            action = item.get("action") or {}
+                            yield {
+                                "type": "tool_call",
+                                "name": "web_search",
+                                "arguments": json.dumps(
+                                    {
+                                        key: action[key]
+                                        for key in ("type", "query", "url")
+                                        if key in action
+                                    }
+                                ),
+                            }
+                    elif kind in ("error", "response.failed"):
+                        message = json.dumps(event.get("error") or event)[:500]
+                        yield {"type": "error", "message": f"xAI stream error: {message}"}
+                        return
+                    elif kind == "response.completed":
+                        output = (event.get("response") or {}).get("output") or []
             except GrokError as exc:
                 yield {"type": "error", "message": str(exc)}
                 return
 
-            if not tool_calls:
-                yield {"type": "done", "content": content}
+            if citations:
+                yield {"type": "citations", "citations": citations}
+
+            calls = [item for item in output if item.get("type") == "function_call"]
+            if not calls:
+                yield {"type": "done", "content": content or output_text(output)}
                 return
 
-            ordered = [tool_calls[i] for i in sorted(tool_calls)]
-            messages.append(
-                {"role": "assistant", "content": content or None, "tool_calls": ordered}
-            )
+            # Replay the model's own turn (reasoning + calls) before the results.
+            items.extend(output)
 
-            for call in ordered:
-                name = call["function"]["name"]
-                arguments = call["function"]["arguments"]
+            for call in calls:
+                name = call.get("name", "")
+                arguments = call.get("arguments") or "{}"
                 yield {"type": "tool_call", "name": name, "arguments": arguments}
                 outcome = self._run_tool(name, arguments)
                 yield {"type": "tool_result", "name": name, "outcome": outcome}
-                messages.append(
+                items.append(
                     {
-                        "role": "tool",
-                        "tool_call_id": call["id"],
-                        "content": json.dumps(outcome, default=str)[:20000],
+                        "type": "function_call_output",
+                        "call_id": call.get("call_id"),
+                        "output": json.dumps(outcome, default=str)[:20000],
                     }
                 )
 

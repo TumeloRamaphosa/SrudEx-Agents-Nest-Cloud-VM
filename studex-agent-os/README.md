@@ -81,9 +81,9 @@ Without `XAI_API_KEY` everything else still works; the chat panel simply reports
 
 ## Grok agent interface
 
-`Ask ADAM SMASHER` on the dashboard talks to Grok (xAI, OpenAI-compatible
-`/v1/chat/completions`) with function calling, so answers are grounded in live VM
-state rather than guessed:
+`Ask ADAM SMASHER` on the dashboard talks to Grok through the xAI Responses API
+(`/v1/responses`) with function calling, so answers are grounded in live VM state
+rather than guessed:
 
 | Tool | What Grok can do |
 |------|------------------|
@@ -93,9 +93,10 @@ state rather than guessed:
 | `read_agent_memory` | Read an agent's persistent memory file |
 | `assign_task` | Dispatch a task to Research/Markets/Ops/Comms/Deals |
 
-Live web/X search is enabled in `auto` mode, so questions about FX or commodity
-news return citations. Tool calls stream to the UI as a trace, so you can see
-exactly what the model read before it answered.
+xAI's server-side `web_search` tool is attached too, so questions about FX or
+commodity news are answered from the live web with citations. Searches and
+function calls both stream to the UI as a trace, so you can see exactly what the
+model read before it answered.
 
 **Guardrail:** Grok can draft anything but sends nothing. `assign_task` only
 queues work; outbound email/social still goes through the existing approval bot.
