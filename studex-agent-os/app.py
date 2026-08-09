@@ -10,6 +10,7 @@ import uuid
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request, Response
 import psutil
+import requests
 
 from agents.finance import FinanceAgent
 
@@ -202,27 +203,40 @@ def _format_finance_result(result):
 
 @app.route("/v1/models", methods=["GET", "OPTIONS"])
 def openai_models():
-    """Return the single finance-agent model exposed by this OS."""
-    return jsonify({
-        "object": "list",
-        "data": [
-            {
-                "id": "finance-agent",
-                "object": "model",
-                "created": int(time.time()),
-                "owned_by": "studex-agent-os",
-            }
-        ],
-    })
+    """Expose finance-agent, configured remote providers, and any reachable local server."""
+    models = [_model_entry("finance-agent", "studex-agent-os")]
+
+    if GROK_API_KEY:
+        models.extend([
+            _model_entry("grok-2-latest", "xai"),
+            _model_entry("grok-2-vision-latest", "xai"),
+            _model_entry("grok-3-mini", "xai"),
+        ])
+    if QUINN_BASE_URL and QUINN_API_KEY:
+        models.append(_model_entry("quinn/default", "quinn"))
+    if LOCAL_LLAMA_BASE_URL:
+        try:
+            local_models = _discover_local_models()
+            models.extend(local_models or [_model_entry("local/<model>", "local-llama")])
+        except Exception:
+            models.append(_model_entry("local/<model>", "local-llama"))
+
+    return jsonify({"object": "list", "data": models})
 
 
 @app.route("/v1/chat/completions", methods=["POST", "OPTIONS"])
 def openai_chat_completions():
-    """Run the Finance agent from an OpenAI-compatible chat request."""
+    """Route OpenAI-compatible chat requests to finance agent, Grok, Quinn, or local llama."""
     body = request.get_json(force=True, silent=True) or {}
+    model = body.get("model", "finance-agent")
+    base_url, api_key, effective_model, is_local = _resolve_provider(model)
+
+    if not is_local:
+        body["model"] = effective_model
+        return _proxy_chat(base_url, api_key, body)
+
     messages = body.get("messages", [])
     task = _last_user_message(messages)
-    model = body.get("model", "finance-agent")
     stream = bool(body.get("stream", False))
 
     try:
@@ -279,6 +293,126 @@ def openai_chat_completions():
         ],
         "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
     })
+
+
+# ── Multi-provider routing for Grok, Quinn, and local llama-server ──
+
+# Provider config (keys are NOT committed; use .env or env vars)
+GROK_API_KEY = os.getenv("GROK_API_KEY", "")
+GROK_BASE_URL = os.getenv("GROK_BASE_URL", "https://api.x.ai/v1").rstrip("/")
+
+QUINN_API_KEY = os.getenv("QUINN_API_KEY", "")
+QUINN_BASE_URL = os.getenv("QUINN_BASE_URL", "").rstrip("/")
+
+LOCAL_LLAMA_API_KEY = os.getenv("LOCAL_LLAMA_API_KEY", "")
+LOCAL_LLAMA_BASE_URL = os.getenv("LOCAL_LLAMA_BASE_URL", "http://localhost:9090/v1").rstrip("/")
+
+
+def _resolve_provider(model):
+    """Return (base_url, api_key, effective_model, is_local) for a model name."""
+    model = (model or "").strip()
+    if not model or model == "finance-agent" or model.startswith("studex-"):
+        return None, None, model, True
+
+    if model.startswith("xai/"):
+        model = model[4:]
+    if model.startswith("grok-"):
+        return GROK_BASE_URL, GROK_API_KEY, model, False
+
+    if model.startswith("quinn/"):
+        return QUINN_BASE_URL, QUINN_API_KEY, model[6:], False
+    if model.startswith("qwen/"):
+        return QUINN_BASE_URL, QUINN_API_KEY, model[5:], False
+
+    if model.startswith("local/") or model.startswith("llama/"):
+        return LOCAL_LLAMA_BASE_URL, LOCAL_LLAMA_API_KEY, model.split("/", 1)[1], False
+
+    # Default: treat unknown models as local finance tasks (backward compat)
+    return None, None, model, True
+
+
+def _auth_header():
+    """Return a non-dummy Authorization header from the request, if any."""
+    auth = request.headers.get("Authorization", "")
+    if auth and auth.lower().startswith("bearer "):
+        token = auth[7:].strip()
+        if token and token.lower() != "dummy":
+            return auth
+    return None
+
+
+def _proxy_chat(base_url, api_key, body):
+    """Forward an OpenAI chat request to base_url and return Flask response."""
+    if not base_url:
+        raise ValueError("Provider base URL is not configured")
+
+    headers = {"Content-Type": "application/json"}
+    # Prefer configured key, then request header, never a dummy token.
+    key = (api_key or "").strip()
+    if not key:
+        auth = _auth_header()
+        if auth:
+            key = auth[7:].strip()
+    if key:
+        headers["Authorization"] = f"Bearer {key}"
+
+    url = f"{base_url}/chat/completions"
+    stream = bool(body.get("stream"))
+
+    try:
+        resp = requests.post(url, json=body, headers=headers, stream=stream, timeout=120)
+    except Exception as exc:
+        return jsonify({"error": f"Provider unreachable: {exc}"}), 502
+
+    if not stream:
+        try:
+            data = resp.json()
+        except Exception:
+            data = {"error": resp.text[:500]}
+        return jsonify(data), resp.status_code
+
+    def generate():
+        for chunk in resp.iter_content(chunk_size=1024):
+            if chunk:
+                yield chunk
+
+    return Response(
+        generate(),
+        status=resp.status_code,
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
+    )
+
+
+def _discover_local_models():
+    """Fetch /v1/models from the configured local llama-server, if reachable."""
+    base = LOCAL_LLAMA_BASE_URL
+    if not base:
+        return []
+    try:
+        headers = {}
+        key = (LOCAL_LLAMA_API_KEY or "").strip()
+        if key:
+            headers["Authorization"] = f"Bearer {key}"
+        r = requests.get(f"{base}/models", headers=headers, timeout=3)
+        if r.status_code == 200:
+            data = r.json()
+            models = data.get("data", []) if isinstance(data, dict) else data
+            for m in models:
+                m["owned_by"] = m.get("owned_by", "local-llama")
+            return models
+    except Exception:
+        pass
+    return []
+
+
+def _model_entry(model_id, owned_by="studex-agent-os"):
+    return {
+        "id": model_id,
+        "object": "model",
+        "created": int(time.time()),
+        "owned_by": owned_by,
+    }
 
 
 if __name__ == "__main__":

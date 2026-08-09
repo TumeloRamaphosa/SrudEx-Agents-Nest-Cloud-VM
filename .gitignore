@@ -19,6 +19,8 @@ build/
 .cache/
 .temp/
 tmp/
+__pycache__/
+*.pyc
 
 # Credentials (never commit)
 *.pem
