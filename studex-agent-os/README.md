@@ -46,7 +46,11 @@ StudEx Agent OS is a unified multi-agent platform built on the Orgo.ai Ubuntu VM
 
 ```bash
 # Install dependencies
-./install.sh
+pip3 install -r requirements.txt   # or ./install.sh
+
+# Wire up Grok (xAI) so the console can chat and dispatch work
+export XAI_API_KEY=xai-...          # key from https://console.x.ai
+export GROK_MODEL=grok-4.5          # optional, this is the default
 
 # Run the Agent OS
 python3 app.py
@@ -54,6 +58,9 @@ python3 app.py
 # Access dashboard
 open http://localhost:5000
 ```
+
+Without `XAI_API_KEY` everything else still works; the chat panel simply reports
+`XAI_API_KEY not set` and stays disabled.
 
 ## Web Console
 
@@ -69,6 +76,36 @@ open http://localhost:5000
 | `/api/agent/<name>/task` | POST | Submit task to named agent |
 | `/api/agent/<name>/history` | GET | Get agent task history |
 | `/api/pipeline` | GET | Deal pipeline data |
+| `/api/chat` | POST | Grok-powered ADAM SMASHER chat, streamed as SSE |
+| `/api/chat/config` | GET | Whether Grok is configured, and which model |
+
+## Grok agent interface
+
+`Ask ADAM SMASHER` on the dashboard talks to Grok (xAI, OpenAI-compatible
+`/v1/chat/completions`) with function calling, so answers are grounded in live VM
+state rather than guessed:
+
+| Tool | What Grok can do |
+|------|------------------|
+| `get_status` | Agent fleet, CPU/RAM/disk, pipeline totals, market levels |
+| `get_pipeline` | Every deal with value, stage and win probability |
+| `get_agent_history` | Recent tasks handled by one agent |
+| `read_agent_memory` | Read an agent's persistent memory file |
+| `assign_task` | Dispatch a task to Research/Markets/Ops/Comms/Deals |
+
+Live web/X search is enabled in `auto` mode, so questions about FX or commodity
+news return citations. Tool calls stream to the UI as a trace, so you can see
+exactly what the model read before it answered.
+
+**Guardrail:** Grok can draft anything but sends nothing. `assign_task` only
+queues work; outbound email/social still goes through the existing approval bot.
+
+| Env var | Default | Purpose |
+|---------|---------|---------|
+| `XAI_API_KEY` | — | xAI API key (`GROK_API_KEY` also accepted) |
+| `GROK_MODEL` | `grok-4.5` | Model id |
+| `GROK_BASE_URL` | `https://api.x.ai/v1` | Override for a proxy/gateway |
+| `STUDEX_BASE_PATH` | this directory | Where `memory/` lives on the VM |
 
 ## For Tumelo Ramaphosa
 

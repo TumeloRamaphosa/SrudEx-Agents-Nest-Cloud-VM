@@ -215,6 +215,138 @@
             font-size: 11px;
             margin-top: 10px;
         }
+        .chat-section {
+            grid-column: 1 / -1;
+            background: #111827;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #1e3a5f;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #1e3a5f;
+        }
+        .chat-head h2 {
+            color: #00d4ff;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0;
+            border: none;
+            padding: 0;
+        }
+        .chat-model {
+            color: #6b7c93;
+            font-size: 11px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+        .chat-log {
+            height: 340px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 6px;
+        }
+        .msg {
+            max-width: 80%;
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.55;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .msg-user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #0b3f57, #0f5c7a);
+            color: #eaf6ff;
+        }
+        .msg-assistant {
+            align-self: flex-start;
+            background: #0f1923;
+            border-left: 3px solid #00d4ff;
+            color: #e0e6ed;
+        }
+        .msg-error {
+            align-self: flex-start;
+            background: #2a1216;
+            border-left: 3px solid #ff4444;
+            color: #ffb3b3;
+        }
+        .trace {
+            align-self: flex-start;
+            max-width: 80%;
+            background: #0d1420;
+            border: 1px dashed #1e3a5f;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 11px;
+            color: #8b9dc3;
+        }
+        .trace b { color: #00ff88; font-weight: 600; }
+        .trace-fail b { color: #ff8080; }
+        .citations {
+            align-self: flex-start;
+            font-size: 11px;
+            color: #6b7c93;
+        }
+        .citations a { color: #00d4ff; }
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .chat-input input {
+            flex: 1;
+            background: #0f1923;
+            border: 1px solid #1e3a5f;
+            color: #fff;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .chat-input button {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            border: none;
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .chat-input button:hover:not(:disabled) {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+        }
+        .chat-input button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .chat-hints {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .chip {
+            background: #0f1923;
+            border: 1px solid #1e3a5f;
+            color: #8b9dc3;
+            border-radius: 999px;
+            padding: 5px 12px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .chip:hover { border-color: #00d4ff; color: #00d4ff; }
+        @media (max-width: 1100px) {
+            .container { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -293,6 +425,25 @@
             <button onclick="sendTask()">EXECUTE</button>
         </div>
         
+        <!-- Chat: ADAM SMASHER (Grok) -->
+        <div class="chat-section">
+            <div class="chat-head">
+                <h2>Ask ADAM SMASHER</h2>
+                <span class="chat-model" id="chat-model">checking Grok…</span>
+            </div>
+            <div class="chat-log" id="chat-log"></div>
+            <div class="chat-input">
+                <input type="text" id="chat-text" placeholder="e.g. What is our weighted pipeline, and is the VM healthy?" autocomplete="off">
+                <button id="chat-send" onclick="sendChat()">SEND</button>
+            </div>
+            <div class="chat-hints">
+                <span class="chip" onclick="useHint(this)">Summarise the pipeline by stage and flag the biggest risk</span>
+                <span class="chip" onclick="useHint(this)">Is the VM healthy? Anything I should act on?</span>
+                <span class="chip" onclick="useHint(this)">Ask research to do due diligence on NTechLab Kenya</span>
+                <span class="chip" onclick="useHint(this)">Draft a follow-up to Uvelka on the wheat deal</span>
+            </div>
+        </div>
+
         <!-- Bottom: Pipeline -->
         <div class="bottom-section">
             <h2>Deal Pipeline | Total Value: R <span id="pipeline-value">0</span></h2>
@@ -398,6 +549,150 @@
         document.getElementById('task-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendTask();
         });
+
+        /* ---------- ADAM SMASHER chat (Grok) ---------- */
+
+        const chatHistory = [];
+        const chatLog = document.getElementById('chat-log');
+        const chatText = document.getElementById('chat-text');
+        const chatSend = document.getElementById('chat-send');
+        let chatBusy = false;
+
+        function addBubble(cls, text) {
+            const el = document.createElement('div');
+            el.className = cls;
+            el.textContent = text;
+            chatLog.appendChild(el);
+            chatLog.scrollTop = chatLog.scrollHeight;
+            return el;
+        }
+
+        function addTrace(name, args) {
+            const el = addBubble('trace', '');
+            el.innerHTML = `<b>${name}</b>(${escapeHtml(args || '')}) …`;
+            return el;
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[c]);
+        }
+
+        function addCitations(urls) {
+            const el = document.createElement('div');
+            el.className = 'citations';
+            el.innerHTML = 'Sources: ' + urls.slice(0, 6).map(u =>
+                `<a href="${escapeHtml(u)}" target="_blank" rel="noreferrer">${escapeHtml(new URL(u).hostname)}</a>`
+            ).join(' · ');
+            chatLog.appendChild(el);
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }
+
+        function useHint(chip) {
+            chatText.value = chip.textContent;
+            chatText.focus();
+        }
+
+        async function checkChatConfig() {
+            try {
+                const res = await fetch(`${API_BASE}/api/chat/config`);
+                const cfg = await res.json();
+                const label = document.getElementById('chat-model');
+                label.textContent = cfg.configured
+                    ? `${cfg.model} · live search on`
+                    : 'XAI_API_KEY not set — chat disabled';
+                chatSend.disabled = !cfg.configured;
+                chatText.disabled = !cfg.configured;
+            } catch (e) {
+                document.getElementById('chat-model').textContent = 'Grok status unknown';
+            }
+        }
+
+        async function sendChat() {
+            const text = chatText.value.trim();
+            if (!text || chatBusy) return;
+
+            chatBusy = true;
+            chatSend.disabled = true;
+            chatText.value = '';
+            addBubble('msg msg-user', text);
+            chatHistory.push({ role: 'user', content: text });
+
+            let bubble = null;
+            let answer = '';
+            let pendingTrace = null;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ messages: chatHistory })
+                });
+
+                if (!res.ok || !res.body) {
+                    const err = await res.json().catch(() => ({}));
+                    addBubble('msg msg-error', err.detail || err.error || `Chat failed (${res.status})`);
+                    return;
+                }
+
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    buffer += decoder.decode(value, { stream: true });
+                    const parts = buffer.split('\n\n');
+                    buffer = parts.pop();
+
+                    for (const part of parts) {
+                        const line = part.split('\n').find(l => l.startsWith('data: '));
+                        if (!line) continue;
+                        const ev = JSON.parse(line.slice(6));
+
+                        if (ev.type === 'token') {
+                            if (!bubble) bubble = addBubble('msg msg-assistant', '');
+                            answer += ev.text;
+                            bubble.textContent = answer;
+                            chatLog.scrollTop = chatLog.scrollHeight;
+                        } else if (ev.type === 'tool_call') {
+                            pendingTrace = addTrace(ev.name, ev.arguments);
+                            bubble = null;
+                        } else if (ev.type === 'tool_result') {
+                            const failed = ev.outcome && ev.outcome.error;
+                            const target = pendingTrace || addTrace(ev.name, '');
+                            target.className = failed ? 'trace trace-fail' : 'trace';
+                            target.innerHTML = `<b>${ev.name}</b> → ${escapeHtml(failed ? ev.outcome.error : 'ok')}`;
+                            pendingTrace = null;
+                        } else if (ev.type === 'citations') {
+                            addCitations(ev.citations || []);
+                        } else if (ev.type === 'error') {
+                            addBubble('msg msg-error', ev.message);
+                        }
+                    }
+                }
+
+                if (answer.trim()) {
+                    chatHistory.push({ role: 'assistant', content: answer });
+                }
+                // Agent state may have changed if Grok dispatched work.
+                fetchStatus();
+            } catch (e) {
+                addBubble('msg msg-error', `Chat error: ${e.message}`);
+            } finally {
+                chatBusy = false;
+                chatSend.disabled = false;
+                chatText.focus();
+            }
+        }
+
+        chatText.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendChat();
+        });
+
+        checkChatConfig();
     </script>
 </body>
 </html>
