@@ -22,6 +22,9 @@ tmp/
 __pycache__/
 *.pyc
 
+# Runtime agent memory (templates are kept; JSON files are generated)
+studex-agent-os/memory/*.json
+
 # Credentials (never commit)
 *.pem
 *.key
