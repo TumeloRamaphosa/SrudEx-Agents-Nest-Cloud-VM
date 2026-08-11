@@ -1,4 +1,4 @@
-# Hermes WebUI + local/remote model integration plan
+# phone and homies — Hermes WebUI + local/remote model integration plan
 
 ## Goal
 
