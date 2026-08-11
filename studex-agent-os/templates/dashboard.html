@@ -288,10 +288,12 @@
                 <option value="ops">Ops</option>
                 <option value="comms">Comms</option>
                 <option value="deals">Deals</option>
+                <option value="finance">Finance</option>
             </select>
             <input type="text" id="task-input" placeholder="Enter task for agent...">
             <button onclick="sendTask()">EXECUTE</button>
         </div>
+        <pre id="task-result" style="grid-column: 1 / -1; background: #0f1923; border: 1px solid #1e3a5f; padding: 15px; border-radius: 8px; color: #00ff88; font-family: Menlo, monospace; font-size: 12px; min-height: 60px; display: none;"></pre>
         
         <!-- Bottom: Pipeline -->
         <div class="bottom-section">
@@ -373,14 +375,23 @@
             if (!task) return;
             
             try {
-                await fetch(`${API_BASE}/api/agent/${agent}/task`, {
+                const res = await fetch(`${API_BASE}/api/agent/${agent}/task`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ task: task })
                 });
+                const data = await res.json();
                 document.getElementById('task-input').value = '';
                 // Refresh status after task
                 setTimeout(fetchStatus, 500);
+
+                const resultBox = document.getElementById('task-result');
+                if (data.result) {
+                    resultBox.textContent = JSON.stringify(data.result, null, 2);
+                    resultBox.style.display = 'block';
+                } else {
+                    resultBox.style.display = 'none';
+                }
             } catch (e) {
                 console.error('Task submission error:', e);
             }
