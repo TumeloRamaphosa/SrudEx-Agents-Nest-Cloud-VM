@@ -11,6 +11,8 @@ This inventory describes what is **actually present in the tree today**. It is n
 
 | Path | Present | Role | Maturity |
 |------|---------|------|----------|
+| [`AGENT-JOIN.md`](../AGENT-JOIN.md) | Yes | Studex fleet join protocol | See [`mcp-bridge/`](../mcp-bridge/) — pack filesystem is **not** Nest Git SoT; Nest SoT for Claudio remains [`cto/`](../cto/HOME.md) |
+| [`mcp-bridge/`](../mcp-bridge/) | Yes | Studex OS MCP bridge (thin join slice) | Python MCP server + config examples |
 | [`cto/`](../cto/HOME.md) | Yes | Claudio-CTO control plane — HOME, Systems, Automations, Skills, Drive, Reports | **Mirrored from local vault** (2026-09-03 audit) |
 | [`studex-agent-os/`](../studex-agent-os/README.md) | Yes | Python Flask Agent OS (research, markets, ops, comms, deals) | Code + docs |
 | [`war-room/`](../war-room/WAR_ROOM_SPEC.md) | Yes | Express + React mission control UI | Substantial codebase |
