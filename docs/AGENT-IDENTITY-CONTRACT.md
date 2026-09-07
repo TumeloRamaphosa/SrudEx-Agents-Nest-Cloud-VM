@@ -70,8 +70,57 @@ Grok Agent OS seat  ←canonical→  Nest gateway seat  ←aliases→  OpenClaw 
 | Coffee | `855c7539-65e9-4806-9879-7e5f31a3e362` | `coffee` | coffee | — |
 | Cryptopia | `42dcd341-91ff-4d60-ad1f-fc63819c1888` | `cryptopia` | markets | — |
 | Bohlale | `eac5c2f8-6316-4cae-aef6-b2a9e98adfe4` | `bohlale` | client | — |
+| Katjana | *(Base44 registry)* | `katjana` | sales | — |
 
 Unmapped OpenClaw identities stay in pool `openclaw-unassigned` until audited (bring-up P10).
+
+### Katjana (Base44 seat — expanded seed)
+
+Not a Grok Agent OS UUID seat today. Canonical record for Nest registration and fleet join docs.
+
+| Field | Value |
+|-------|-------|
+| `os_name` | Katjana |
+| `os_agent_id` | Base44 registry (**no Grok UUID yet**) |
+| `nest_seat` | `katjana` |
+| `lane` | `sales` |
+| `source` | `base44` |
+| WhatsApp | +1 (703) 457-1882 — public agent line |
+| Join path | [`AGENT-JOIN.md`](../AGENT-JOIN.md) + [`mcp-bridge/`](../mcp-bridge/) |
+| `openclaw_aliases` | — *(map `~/.openclaw/workspace/agents/katjana.md` when verified on Mac)* |
+| `status` | `standby` until Nest register + bridge wired |
+
+**Permissions** — fail-closed (same fleet default): `can_draft=true`; `can_publish`, `can_spend`, `can_deploy`, `can_message_external` = `false` until Agent Lord grants. External WhatsApp replies that qualify as `client_send` require approval per routing rules.
+
+Example register payload:
+
+```json
+{
+  "os_name": "Katjana",
+  "os_agent_id": "base44-registry",
+  "nest_seat": "katjana",
+  "source": "base44",
+  "capabilities": ["sales", "client-draft", "mcp-bridge"],
+  "rooms": [],
+  "lane": "sales",
+  "permissions": {
+    "can_draft": true,
+    "can_publish": false,
+    "can_spend": false,
+    "can_deploy": false,
+    "can_message_external": false
+  },
+  "audit": {
+    "human_gates": ["publish", "spend", "shopify", "credentials", "client_send"],
+    "approval_required_for": ["publish", "spend", "deploy", "client_send"]
+  },
+  "openclaw_aliases": [],
+  "channels": {
+    "whatsapp_public": "+1-703-457-1882"
+  },
+  "status": "standby"
+}
+```
 
 ## Squad routing (`POST /api/tasks`)
 
