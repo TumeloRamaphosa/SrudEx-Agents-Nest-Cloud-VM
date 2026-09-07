@@ -36,7 +36,9 @@ Executable cron jobs live under **`skunk-works/cron/`** on the Mac (not in Nest 
 | OpenClaw agents | **278** | Too many configured identities |
 | Agency workspaces | **270** | Operational complexity |
 | Sessions | **399** | Stale session cleanup needed |
+| Nested git repos in `.openclaw` | **43** | Orphan repos; sync and auth drift |
 | `~/.openclaw` disk | **~5.9 GB** | Contributes to volume pressure |
+| Internal Data volume | **97% used** (~31 Gi free) | Backup and session writes at risk |
 
 **Not the same as Grok Bot seats** (~7 named Company OS / Stud-Bot roles) — see [`grok-bot-seats.md`](grok-bot-seats.md).
 
@@ -84,7 +86,7 @@ Status: **open** — see checklist §7 and [`nest-topology.md`](nest-topology.md
 | # | Risk | Severity | Mitigation |
 |---|------|----------|------------|
 | R1 | **OrbStack stopped but ports still active** | High | Repair OrbStack; verify nothing listens on stale bindings |
-| R2 | **Data volume nearly full** | High | Prune `.openclaw` sessions; archive Drive `90-Archive` |
+| R2 | **Data volume nearly full** (97% used; ~31 Gi free) | High | Prune `.openclaw` sessions; archive Drive `90-Archive` |
 | R3 | **Too many configured agent identities** (278) | Medium | Identity audit; retire unused agents |
 | R4 | **Gitea auth failure** | High | Fix credentials locally; unblock agent-sync push |
 | R5 | **Obsidian automation split** | Medium | Consolidate triggers; one schedule doc (this vault) |

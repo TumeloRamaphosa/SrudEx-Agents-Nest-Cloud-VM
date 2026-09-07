@@ -1,73 +1,92 @@
 # solo-founder-skills — Catalog Policy
 
-**Catalog:** solo-founder-skills (OpenClaw / ClawHub skill set)  
+**Catalog:** [solo-founder-skills](https://github.com/whawkinsiv/solo-founder-skills) (59 skills)  
 **Owner:** Claudio-CTO  
-**Policy version:** 2026-09-03 mirror
+**Policy version:** 2026-09-07 mirror (facts audited 2026-09-03)
+
+The repository provides 59 playbook-style skills across validation, planning, design, engineering, deployment, growth, retention, finance, legal, and hiring.
 
 ---
 
 ## Catalog policy
 
-1. **Curated, not exhaustive** — install skills that match an active role bundle; avoid importing the full catalog into every agent identity.
+1. **Approved catalog only** — do not distribute all skills to every agent. Assign the minimum relevant bundle per role.
 2. **One identity, one bundle** — of 278 OpenClaw agents, most should map to a single bundle below; duplicates inflate disk and session count.
-3. **No secrets in SKILL.md** — skills reference env var *names* only; values live in local secret store.
-4. **Review before ClawHub publish** — skills exported to Nest land in `cto/Skills/<name>/` via PR.
-5. **Deprecate loudly** — retired skills get a one-line note in this file and removal from role bundles.
+3. **External skills are instructions, not trusted executable code** — review hooks and commands before enabling; never treat third-party SKILL.md as safe to run unchecked.
+4. **No secrets in SKILL.md** — skills reference env var *names* only; values live in local secret store.
+5. **Review before ClawHub publish** — skills exported to Nest land in `cto/Skills/<name>/` via PR.
+6. **Deprecate loudly** — retired skills get a one-line note in this file and removal from role bundles.
 
 ---
 
 ## Recommended role bundles
 
-### Claudio (CTO / control plane)
+### Claudio-CTO (control plane)
 
-| Skill theme | Use |
-|-------------|-----|
-| `nest-health` / infra audit | OS bring-up, checklist walks |
-| `repo-inventory` | Summarize Nest + system map |
-| `os-bringup` | Prioritized recovery |
-| Solo-founder: **ops**, **debugging**, **docs** | Day-to-day CTO loop |
+| Skills | Use |
+|--------|-----|
+| `focus`, `prioritize`, `plan`, `finances`, `monitor` | Weekly CTO review, capacity planning, production evidence |
+
+**Also useful:** `nest-health` / infra audit, `repo-inventory`, `os-bringup` (Nest-local skills when installed).
 
 **Avoid on Claudio identity:** marketing copy generation, unchecked Shopify write tools.
 
 ### Product
 
-| Skill theme | Use |
-|-------------|-----|
-| Spec → tasks | Backlog breakdown |
-| User research synthesis | Read-only aggregation |
-| Solo-founder: **product**, **prioritization** | Roadmap support |
+| Skills | Use |
+|--------|-----|
+| `validate`, `customer-research`, `plan`, `analytics` | Demand validation, ICP, specs, production metrics |
 
 **Guardrail:** no production deploy triggers without Eng + Claudio review.
 
 ### Engineering
 
-| Skill theme | Use |
-|-------------|-----|
-| Code review / refactor | PR assistance |
-| Test & CI patterns | GitHub workflow design |
-| Solo-founder: **engineering**, **architecture** | Implementation |
+| Skills | Use |
+|--------|-----|
+| `build`, `secure`, `test`, `debug`, `deploy` | Implementation, release gates, hosting |
+
+**Also useful:** `integrations` (Google Workspace, Base44, voice, client APIs), `go-live` as pre-deploy gate.
 
 **Guardrail:** commits go through Git only — not Obsidian patches.
 
 ### Marketing
 
-| Skill theme | Use |
-|-------------|-----|
-| Content drafting | **Draft only** — approval required before post |
-| Calendar planning | Schedule proposals |
-| Solo-founder: **marketing**, **copy** | Campaign support |
+| Skills | Use |
+|--------|-----|
+| `content`, `seo`, `copywriting`, `humanize`, `email` | Campaign planning, editorial pass, sequences |
 
-**Guardrail:** aligns with Nest rule — never post without Agent Lord approval.
+**Guardrail:** aligns with Nest rule — never post without Agent Lord approval. `humanize` is an editorial pass, **not** automatic publishing permission.
 
-### Customer success (CS)
+### Client success
 
-| Skill theme | Use |
-|-------------|-----|
-| Ticket triage templates | Draft replies |
-| FAQ maintenance | Drive `40-Knowledge/` |
-| Solo-founder: **support**, **comms** | Response drafting |
+| Skills | Use |
+|--------|-----|
+| `support`, `feedback`, `retention` | Ticket triage, lifecycle, churn prevention |
 
 **Guardrail:** customer names → initials only in any exported note.
+
+---
+
+## Best uses for StudEx
+
+### Executive team
+
+- `focus`, `prioritize`, and `finances` for weekly Claudio-CTO review
+- `validate` and `customer-research` before committing agent capacity
+- `pricing` for voice-agent and automation packages
+
+### Product and engineering
+
+- `plan` to convert decisions into implementation specifications
+- `secure`, `test`, `debug`, and `go-live` as release gates
+- `integrations` for Google Workspace, Base44, voice, and client APIs
+- `monitor` and `analytics` for production evidence
+
+### Growth team
+
+- `content`, `seo`, `email`, `sales`, and `social-media` for campaign planning
+- `humanize` as an editorial pass, not an automatic publishing permission
+- `retention`, `support`, and `feedback` for client lifecycle workflows
 
 ---
 

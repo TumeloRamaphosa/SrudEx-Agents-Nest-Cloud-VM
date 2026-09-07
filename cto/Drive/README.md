@@ -2,19 +2,21 @@
 
 Human ↔ agent **exchange** — not the Git SoT for code or Claudio decisions.
 
+**Folder:** https://drive.google.com/drive/folders/1a7jcTmgaNs66aoedht-lI1u4vNQPwaNu
+
 ## Contract
 
-Full folder proposal: [`exchange-folder-contract.md`](exchange-folder-contract.md)
+Full layout, current inventory, and manifest rules: [`exchange-folder-contract.md`](exchange-folder-contract.md)
 
 ```
-00-Inbox → 10-Working → 20-Review → 30-Published → 40-Knowledge / 90-Archive
+00-Inbox → 10-Clients / 20-Research → 30-Deliverables → 90-Archive
 ```
 
-**Inbox until reviewed.** No credentials in any folder.
+**Inbox until reviewed.** No credentials in any folder. Drive is **not** live OpenClaw/Hermes state.
 
 ## Git mirror rule
 
-Only promote **`30-Published`** and above to Nest Git. Exclude `00-Inbox` from rsync — see [`../HOME.md`](../HOME.md).
+Only promote **`30-Deliverables`** and approved research summaries to Nest Git. Exclude `00-Inbox` from rsync — see [`../HOME.md`](../HOME.md).
 
 ## Do not commit
 

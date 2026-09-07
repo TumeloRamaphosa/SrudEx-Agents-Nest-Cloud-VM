@@ -1,45 +1,78 @@
 # Drive — Exchange Folder Contract
 
 **Purpose:** Human ↔ agent file exchange without polluting Git or Obsidian decision docs.  
+**Folder:** https://drive.google.com/drive/folders/1a7jcTmgaNs66aoedht-lI1u4vNQPwaNu  
+**Connected identity (audit):** `tumelor001@gmail.com`  
 **Rule:** No credentials in any folder. **Inbox until reviewed.**
+
+**Hard rule:** Google Drive is **not** the live OpenClaw or Hermes state directory. Databases, sessions, locks, and credentials remain **outside** Drive.
 
 ---
 
-## Folder layout
+## Current inventory (2026-09-03 audit)
+
+The shared folder contains **13 top-level subfolders**. Most are empty at audit time.
+
+### Populated
+
+| Path | Contents (audit) |
+|------|------------------|
+| `Linux/` | 9 items — setup notes, USB bundle, dashboard, Arch ISO |
+| `Founder Docs/Founder` | Founder documents |
+| `Coffee/Cafe Noir` | Cafe Noir materials |
+| `Kimi Working/Contet launch` | Content launch work |
+| `Kimi Working/D-Day` | D-Day materials |
+
+### Empty at audit
+
+`Kilo-Stud-LLM-CHIEF`, `Content`, `Linux Chief`, `AntiGravity OS`, `Mac OpenClaw Adam Smasher`, `Soloprenure`, `AUTO`, `SuperAgents`, `Dark`
+
+Physical layout may drift until the proposed contract below is applied on Drive.
+
+---
+
+## Proposed contract layout
 
 ```
 Drive/
-├── 00-Inbox/           ← drop zone; unreviewed; never authoritative
-├── 10-Working/         ← active drafts agents + human edit together
-├── 20-Review/          ← ready for human sign-off
-├── 30-Published/       ← approved artifacts safe to reference
-├── 40-Knowledge/       ← long-lived reference (sanitized)
-├── 50-Exports/         ← Obsidian/PDF/CSV exports (no secrets)
-├── 60-Assets/          ← diagrams, screenshots (no PII)
-├── 70-Legal/           ← contracts summaries — redacted only
-├── 80-Scratch/         ← ephemeral; safe to delete monthly
-└── 90-Archive/         ← cold storage; prune when disk full
+├── 00-Inbox/<agent>/<run-id>/     ← unreviewed uploads; never authoritative
+├── 10-Clients/<client-id>/       ← collaborative client files
+├── 20-Research/<project-id>/     ← Warmwind and research artifacts
+├── 30-Deliverables/<client-id>/  ← approved outputs
+└── 90-Archive/                   ← cold material and installation media
 ```
+
+### Upload manifest (required per agent drop)
+
+Each agent upload under `00-Inbox/` should include a small manifest (JSON or YAML) with:
+
+| Field | Description |
+|-------|-------------|
+| `task_id` | Linked task or ticket |
+| `agent` | Agent identity that produced the upload |
+| `client` | Client ID if applicable |
+| `source` | Origin system (OpenClaw run, human, cron, etc.) |
+| `timestamp` | ISO-8601 upload time |
+| `sensitivity` | `public` / `internal` / `client-confidential` |
+| `obsidian_note` | Related Claudio-CTO note path (if any) |
 
 ---
 
 ## Promotion workflow
 
 ```
-00-Inbox → 10-Working → 20-Review → 30-Published
-                ↓                        ↓
-           80-Scratch              40-Knowledge (if durable)
-                ↓
-           90-Archive (when done)
+00-Inbox → 10-Clients or 20-Research → 30-Deliverables
+                ↓                              ↓
+           90-Archive (cold / superseded / install media)
 ```
 
 | Transition | Who | Criteria |
 |------------|-----|----------|
 | → `00-Inbox` | Anyone / any agent | Raw drop; may be wrong or duplicate |
-| → `10-Working` | Claudio or human | Triage complete; work started |
-| → `20-Review` | Agent | Draft complete; needs human eyes |
-| → `30-Published` | **Human only** | Approved for operational use |
-| → `90-Archive` | Claudio | Superseded or disk pressure (see R2) |
+| → `10-Clients` | Claudio or human | Triage complete; client-scoped collaboration |
+| → `20-Research` | Claudio or human | Research / Warmwind artifacts; not client-deliverable yet |
+| → `30-Deliverables` | **Human only** | Approved for client or operational use |
+| → `90-Archive` | Claudio | Superseded, cold storage, or disk pressure (see below) |
 
 ---
 
@@ -48,28 +81,23 @@ Drive/
 | Folder | Git in Nest? | Retention |
 |--------|--------------|-----------|
 | `00-Inbox` | **No** — exclude from rsync to Nest | Clear weekly |
-| `10-Working` | Selective PRs only | Until promoted or scrapped |
-| `20-Review` | No | Until approved |
-| `30-Published` | Yes — sanitized | Long-lived |
-| `40-Knowledge` | Yes | Long-lived |
-| `50-Exports` | Yes — scrub first | Medium |
-| `60-Assets` | Yes — prefer LFS for large | Long-lived |
-| `70-Legal` | Redacted summaries only | Legal retention policy |
-| `80-Scratch` | No | ≤ 30 days |
+| `10-Clients` | Selective PRs only — sanitized | Until project complete |
+| `20-Research` | Selective PRs only | Until promoted or archived |
+| `30-Deliverables` | Yes — sanitized | Long-lived |
 | `90-Archive` | Optional | Until volume recovery |
 
 ---
 
 ## Proposal status
 
-This contract is a **proposal mirrored from Claudio-CTO** — physical folders may not all exist on disk yet. Create on Mac first; mirror only `30-Published` and above to Nest Git.
+This contract is a **proposal mirrored from Claudio-CTO** — physical folders on Drive may not match yet. Create or remap on Drive first; mirror only `30-Deliverables` and approved research summaries to Nest Git.
 
 ---
 
 ## Disk pressure (2026-09-03)
 
-Data volume nearly full — prioritize:
+Internal Data volume **97% used** (~31 Gi available) — prioritize:
 
-1. Move stale `80-Scratch` → `90-Archive` or delete
-2. Prune large exports in `50-Exports`
+1. Move stale inbox and scratch material → `90-Archive` or delete
+2. Prune large exports and duplicate install media in `90-Archive`
 3. Do **not** archive `.openclaw` into Drive — handle in OpenClaw session cleanup instead
