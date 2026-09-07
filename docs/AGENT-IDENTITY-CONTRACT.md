@@ -27,10 +27,10 @@ Grok Agent OS seat  ←canonical→  Nest gateway seat  ←aliases→  OpenClaw 
   "os_agent_id": "uuid",
   "os_name": "string",
   "nest_seat": "kebab-id",
-  "source": "grok-os | openclaw | hermes | nest-vm | human",
+  "source": "grok-os | openclaw | hermes | nest-vm | human | base44",
   "capabilities": ["string"],
   "rooms": ["company-os", "fleet-command", "verticals", "coffee-buzz"],
-  "lane": "infra | product | delivery | content | coffee | client | markets | research",
+  "lane": "infra | product | delivery | content | coffee | client | markets | research | sales",
   "permissions": {
     "can_draft": true,
     "can_publish": false,
