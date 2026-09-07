@@ -4,11 +4,12 @@ Architecture notes, service maps, and environment topology for the CTO layer.
 
 | Document | Description |
 |----------|-------------|
-| [`nest-topology.md`](nest-topology.md) | How Nest components connect |
-| [`mac-local-stack.md`](mac-local-stack.md) | OpenClaw, Hermes, ClawX — local vs repo |
-| [`git-remotes.md`](git-remotes.md) | GitHub, Gitea, legacy repo names |
+| [`current-system-map.md`](current-system-map.md) | **Authoritative audit** — 2026-09-03 local stack + risks |
+| [`nest-topology.md`](nest-topology.md) | Nest repo components |
+| [`mac-local-stack.md`](mac-local-stack.md) | OpenClaw / Hermes / ClawX ↔ Nest |
+| [`git-remotes.md`](git-remotes.md) | GitHub, Gitea, legacy names |
 
-Add new system docs as markdown with frontmatter:
+New system docs use frontmatter:
 
 ```yaml
 ---

@@ -2,22 +2,21 @@
 
 Scheduled jobs, webhooks, and deploy hooks for the CTO / Nest layer.
 
-## Current state
+## Documents
+
+| File | Purpose |
+|------|---------|
+| [`schedule.md`](schedule.md) | Mac `skunk-works/cron/` job registry + status |
+| [`guardrails.md`](guardrails.md) | SoT boundaries, fail-closed rules, observability |
+
+## Nest repo jobs (when VM booted)
 
 | Automation | Location | Status |
 |------------|----------|--------|
 | Docker Compose stack | `docker/docker-compose.yml` | Defined — requires `.env` on host |
-| Nest CLI | `studex-nest-cli/` | Bash scripts — install via `./install.sh` |
-| Shopify hourly agent | `agents/shopify-agent/` | Code present — needs Shopify creds in `.env` |
-| Content pipeline | `agents/content-pipeline/` | Code present — needs approval hook |
-| AgentMail → OpenClaw | Obsidian ops doc | **Design only — not verified in repo** |
+| Boot wrapper | `scripts/boot-nest.sh` | Checks `.env` + War Room health |
+| Nest CLI | `studex-nest-cli/` | Bash — `nest-status`, `nest-pull` |
+| Shopify agent | `agents/shopify-agent/` | Needs Shopify creds in `.env` |
+| Content pipeline | `agents/content-pipeline/` | Needs approval hook |
 
-## Conventions
-
-- One markdown file per automation: `YYYY-MM-<name>.md`
-- Include: trigger, owner agent, rollback, secrets required (names only — never values)
-- Cron on VM should log to `memory/` daily notes or `cto/Reports/`
-
-## Placeholder
-
-Add first automation spec when Mac vault export lands here.
+Mac cron executables are **not** in this repo — see [`schedule.md`](schedule.md).

@@ -8,6 +8,10 @@ CTO status reports, incident write-ups, and audit trails.
 YYYY-MM-DD-<topic>.md
 ```
 
+| Report | Date | Status |
+|--------|------|--------|
+| [`2026-09-03-status.md`](2026-09-03-status.md) | 2026-09-03 | 🔴 degraded |
+
 Use [`TEMPLATE-weekly-status.md`](TEMPLATE-weekly-status.md) for recurring summaries.
 
 ## Rules

@@ -8,9 +8,10 @@
 
 | Doc | Purpose |
 |-----|---------|
-| [`cto/HOME.md`](cto/HOME.md) | Claudio CTO vault — daily entry point |
+| [`cto/HOME.md`](cto/HOME.md) | Claudio-CTO control plane — SoT rules, daily loop |
+| [`cto/Reports/2026-09-03-status.md`](cto/Reports/2026-09-03-status.md) | Latest audited status (**degraded**) |
 | [`docs/INVENTORY.md`](docs/INVENTORY.md) | What is actually in this repo today |
-| [`docs/OS-BRINGUP-CHECKLIST.md`](docs/OS-BRINGUP-CHECKLIST.md) | Honest bring-up status (Tailscale, OpenClaw, Git, Grok seats) |
+| [`docs/OS-BRINGUP-CHECKLIST.md`](docs/OS-BRINGUP-CHECKLIST.md) | Prioritized recovery — honest 🔴 status |
 | [`scripts/boot-nest.sh`](scripts/boot-nest.sh) | Boot Docker stack on a host |
 
 ---

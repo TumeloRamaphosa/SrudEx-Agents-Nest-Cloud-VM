@@ -1,6 +1,9 @@
 # Mac Local Stack — OpenClaw, Hermes, ClawX
 
-**Status:** documented intent only. This repo does **not** contain OpenClaw, Hermes, or ClawX install configs.
+**Authoritative audit:** [`current-system-map.md`](current-system-map.md) (2026-09-03)  
+**Status:** degraded locally — OrbStack stopped, Gitea auth failing, Hermes/WhatsApp/Ollama issues
+
+This repo does **not** contain OpenClaw, Hermes, or ClawX install configs — only documentation.
 
 ## What exists where
 

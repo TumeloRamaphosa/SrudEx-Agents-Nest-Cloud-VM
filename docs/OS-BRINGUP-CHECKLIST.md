@@ -1,134 +1,165 @@
 # OS Bring-Up Checklist
 
-**Owner:** Claudio (CTO layer)  
+**Owner:** Claudio-CTO  
 **Repo:** The-Nexus-Agents-NEst  
-**Last updated:** 2026-09-07
+**Last updated:** 2026-09-07 (mirrored from local vault audit 2026-09-03)  
+**Overall status:** 🔴 **degraded** — do not treat this stack as production-ready
 
-Use this checklist to bring the **Agent OS / Nest layer** online. Status values are honest defaults for a fresh clone — update cells after you verify on your host.
+**Legend:** ✅ verified | 🟡 partial | 🔴 failing / degraded | ❌ not done | ❓ unknown
 
-**Legend:** ✅ verified | 🟡 partial / stale doc | ❌ not done | ❓ unknown
+Point-in-time detail: [`cto/Reports/2026-09-03-status.md`](../cto/Reports/2026-09-03-status.md)
 
 ---
 
-## 0. Prerequisites
+## Priority queue (work in this order)
+
+| P | Item | Status | Blocker / note |
+|---|------|--------|----------------|
+| **P0** | Rotate exposed gateway credential | 🔴 | **Before** Tailscale or public exposure — R6 |
+| **P1** | Nest repo bootstrap (cto vault + docs) | 🟡 | PR #19 — structure mirrored; runtime separate |
+| **P2** | Fix Gitea auth | 🔴 | Agent sync 30m cron push failing |
+| **P3** | Repair OrbStack | 🔴 | Stopped but ports still active — Buzz/Katya down |
+| **P4** | Free disk space | 🔴 | Volume nearly full; ~5.9GB `.openclaw` + sessions |
+| **P5** | Tailscale reconnect (Mac1 registry) | 🔴 | Private registry access |
+| **P6** | WhatsApp / Hermes channel | 🔴 | Hourly poll reports disconnected |
+| **P7** | Restore Ollama for Hermes | 🔴 | Local inference degraded |
+| **P8** | Install Claudio 6h status cron | ❌ | Not installed in `skunk-works/cron/` |
+| **P9** | Fix daily backup cron | 🔴 | Broken — fix after disk stable |
+| **P10** | OpenClaw identity audit (278 → target <30) | ❌ | Too many configured identities |
+
+---
+
+## 0. Nest repo bootstrap
 
 | # | Step | Status | Notes |
 |---|------|--------|-------|
-| 0.1 | Clone repo | ❓ | `git clone https://github.com/TumeloRamaphosa/The-Nexus-Agents-NEst.git ~/nest` |
-| 0.2 | Copy secrets template | ❓ | `cp .env.example .env` — fill locally, never commit |
-| 0.3 | Docker + Compose installed | ❓ | Required for `docker/docker-compose.yml` |
-| 0.4 | Node 22+ (for agents / War Room dev) | ❓ | Compose uses `node:22-alpine` images |
-| 0.5 | Python 3 + Flask deps (optional Agent OS) | ❓ | `studex-agent-os/install.sh` |
+| 0.1 | Clone `The-Nexus-Agents-NEst` | 🟡 | GitHub canonical |
+| 0.2 | `cto/` vault mirrored | 🟡 | HOME, Systems, Automations, Skills, Drive, Reports |
+| 0.3 | `cp .env.example .env` locally | ❓ | Never commit |
+| 0.4 | `./scripts/boot-nest.sh` on VM | ❓ | War Room + docker agents |
+| 0.5 | Populate `robusca-brain/` | ❌ | Empty — brain sync hourly cannot land here yet |
 
 ---
 
-## 1. Tailscale & network
+## 1. Security & credentials
 
 | # | Step | Status | Notes |
 |---|------|--------|-------|
-| 1.1 | Tailscale on Mac | ❓ | Not configured in repo |
-| 1.2 | Tailscale on VM | ❓ | WAR_ROOM_SPEC mentions VPN — no config here |
-| 1.3 | Mac ↔ VM reachability | ❓ | Test: `curl http://<vm>:5000/api/health` |
-| 1.4 | Private container registry over Tailscale | ❓ | **Unknown** — document URL in `cto/Systems/` when known |
+| 1.1 | No secrets in Obsidian / Drive / Git | 🟡 | Policy in `cto/HOME.md` — enforce on sync |
+| 1.2 | Gateway credential rotation | 🔴 | Required before remote exposure |
+| 1.3 | Gitea credentials valid locally | 🔴 | Auth failure blocks sync |
+| 1.4 | `.env` only on hosts | 🟡 | Nest `.env.example` has names only |
 
 ---
 
-## 2. Git remotes (GitHub / Gitea)
+## 2. Tailscale & Mac1 registry
 
 | # | Step | Status | Notes |
 |---|------|--------|-------|
-| 2.1 | GitHub origin | 🟡 | This repo; some nested docs still cite legacy name |
-| 2.2 | Gitea mirror | ❌ | Not in repo |
-| 2.3 | `nest-pull` / deploy user | 🟡 | `studex-nest-cli/nest-pull` expects `~/nest` |
-| 2.4 | GitHub Actions CI | ❌ | No workflows directory |
+| 2.1 | Tailscale on Mac (Mac1) | 🔴 | Reconnect needed for registry |
+| 2.2 | Tailscale on VM | ❓ | WAR_ROOM_SPEC mentions VPN — not verified |
+| 2.3 | Mac1 private container registry | 🔴 | Blocked until Tailscale up |
+| 2.4 | Mac ↔ VM `curl :5000/api/health` | ❓ | VM fleet cron 3h — unverified |
 
 ---
 
-## 3. OpenClaw map (Mac local)
+## 3. Gitea & Git remotes
 
 | # | Step | Status | Notes |
 |---|------|--------|-------|
-| 3.1 | OpenClaw installed on Mac | ❓ | Outside repo |
-| 3.2 | Skills directory in Nest | ❌ | Root `skills/` missing — use `cto/Skills/` scaffold |
-| 3.3 | ClawX gateway documented | ❌ | See `cto/Systems/mac-local-stack.md` |
-| 3.4 | OpenClaw → VM task queue | ❌ | No automation in repo |
-| 3.5 | AgentMail webhook → OpenClaw | 🟡 | Described in Obsidian ops doc — re-validate |
+| 3.1 | GitHub origin (Nest) | 🟡 | Some nested docs still cite legacy repo name |
+| 3.2 | Gitea push from agent sync (30m) | 🔴 | **Failing** — fix auth |
+| 3.3 | Brain sync hourly → git | 🟡 | Target repo empty |
+| 3.4 | GitHub Actions CI | ❌ | No workflows |
 
 ---
 
-## 4. Hermes / Agent OS
+## 4. Mac local runtime (OpenClaw stack)
 
 | # | Step | Status | Notes |
 |---|------|--------|-------|
-| 4.1 | Hermes persona / email documented | 🟡 | `hermes@agent.studexmeat.com`, War Room CTO line |
-| 4.2 | `studex-agent-os` install | ❓ | `./install.sh && python3 app.py` |
-| 4.3 | Hermes MC URL in Agent OS README | 🟡 | External URL cited — may be stale |
-| 4.4 | Claudio vault ↔ Hermes alias | 🟡 | Intentional split until merged — see `cto/HOME.md` |
-| 4.5 | Port conflict War Room vs Agent OS | ❓ | Both default :5000 — run one primary |
+| 4.1 | ClawX + OpenClaw | 🟡 | 278 agents, 270 workspaces, 399 sessions |
+| 4.2 | OpenClaw Dench | 🟡 | Separate instance |
+| 4.3 | PicoClaw | 🟡 | Present |
+| 4.4 | OrbStack → Buzz/Katya | 🔴 | OrbStack **stopped**, ports active |
+| 4.5 | `skunk-works/cron/` jobs documented | 🟡 | See `cto/Automations/schedule.md` |
+| 4.6 | Obsidian automation split resolved | ❌ | Consolidate to one schedule doc |
+| 4.7 | OpenClaw → Nest task queue | ❌ | Not wired in repo |
 
 ---
 
-## 5. Grok Bot seats
+## 5. Hermes & channels
 
 | # | Step | Status | Notes |
 |---|------|--------|-------|
-| 5.1 | Grok bot identities defined | ❓ | **Not referenced in repo** |
-| 5.2 | Seat allocation / API access | ❓ | Document in `cto/Systems/` when confirmed |
-| 5.3 | War Room / Discord integration | 🟡 | Discord bot code in `agents/discord-bot/` — needs tokens |
+| 5.1 | Hermes heartbeat (15m) | 🟡 | Runs — agent still degraded |
+| 5.2 | Ollama backend | 🔴 | Degraded |
+| 5.3 | WhatsApp on Hermes | 🔴 | Disconnected — hourly poll fails |
+| 5.4 | AgentMail / CTO line | 🟡 | Documented in War Room — live status unknown |
+| 5.5 | Claudio vs Hermes roles | 🟡 | Claudio = control plane; Hermes = runtime |
 
 ---
 
-## 6. Always-on Nest stack (VM)
+## 6. Grok Bot seats
 
 | # | Step | Status | Notes |
 |---|------|--------|-------|
-| 6.1 | `scripts/boot-nest.sh` | 🟡 | Added in bootstrap PR — thin wrapper |
-| 6.2 | `docker compose -f docker/docker-compose.yml up -d` | ❓ | Verify agent volume paths on host |
-| 6.3 | War Room health | ❓ | `GET /api/health` on :5000 |
-| 6.4 | Nest CLI installed | ❓ | `studex-nest-cli/install.sh` → `nest-status` |
-| 6.5 | Nginx :80 front door | ❓ | `docker/docker/nginx.conf` — verify upstreams |
-| 6.6 | Shopify agent cron loop | ❓ | Needs Shopify API in `.env` |
-| 6.7 | Approval + content pipeline | ❓ | Needs `APPROVAL_HOOK`, Higgsfield keys |
+| 6.1 | Grok bot identities | ❓ | Not in 2026-09-03 audit — document when confirmed |
+| 6.2 | Seat allocation | ❓ | Add to `cto/Systems/` after verification |
+| 6.3 | Discord bot (Nest) | 🟡 | Code in `agents/discord-bot/` — needs tokens |
 
 ---
 
-## 7. Observability & hygiene
+## 7. VM / Nest always-on stack
 
 | # | Step | Status | Notes |
 |---|------|--------|-------|
-| 7.1 | Daily log in `memory/` | 🟡 | Historical entries exist |
-| 7.2 | CTO weekly report | ❌ | Use `cto/Reports/TEMPLATE-weekly-status.md` |
-| 7.3 | No secrets in git | 🟡 | Audit before push — `.env.example` only |
-| 7.4 | `robusca-brain/` populated | ❌ | Empty — sync from CoS workspace |
+| 7.1 | `docker compose up` | ❓ | `scripts/boot-nest.sh` |
+| 7.2 | War Room `:5000/api/health` | ❓ | Not re-audited 2026-09-03 |
+| 7.3 | Nest CLI `nest-status` | ❓ | `studex-nest-cli/install.sh` |
+| 7.4 | VM fleet cron (3h) | 🟡 | Scheduled — result unverified |
+| 7.5 | Shopify / content agents | ❓ | Need `.env` |
 
 ---
 
-## 8. Boot sequence (recommended order)
+## 8. Observability & backup
+
+| # | Step | Status | Notes |
+|---|------|--------|-------|
+| 8.1 | Claudio 6h auto status | ❌ | Not installed |
+| 8.2 | Daily backup | 🔴 | Broken |
+| 8.3 | CTO reports in `cto/Reports/` | 🟡 | 2026-09-03 snapshot present |
+| 8.4 | Drive exchange contract | 🟡 | Documented — folders may not exist on disk yet |
+
+---
+
+## 9. Boot sequence
+
+### Nest VM (when host is healthy)
 
 ```bash
-cd ~/nest   # or your clone path
-
-# 1. Secrets
-test -f .env || { cp .env.example .env; echo "Edit .env before continuing"; exit 1; }
-
-# 2. Optional: nest CLI
-./studex-nest-cli/install.sh
-
-# 3. Stack
+cd ~/nest
+test -f .env || { cp .env.example .env; echo "Edit .env locally"; exit 1; }
 ./scripts/boot-nest.sh
-
-# 4. Smoke tests
-curl -sf http://localhost:5000/api/health && echo "war-room ok" || echo "war-room FAIL"
-command -v nest-status >/dev/null && nest-status || true
+curl -sf http://localhost:5000/api/health || echo "war-room FAIL"
 ```
+
+### Mac recovery (before VM work)
+
+1. Rotate gateway credential (P0)
+2. Fix Gitea auth → verify agent sync push
+3. Repair OrbStack → confirm Buzz/Katya
+4. Reconnect Tailscale Mac1 → registry
+5. Reconnect WhatsApp on Hermes
+6. Free disk → then fix daily backup
 
 ---
 
-## 9. Sign-off (fill when actually verified)
+## 10. Sign-off
 
-| Environment | Verified by | Date | War Room | Docker agents | Mac OpenClaw |
-|-------------|-------------|------|----------|---------------|--------------|
-| Local dev | | | ❓ | ❓ | ❓ |
-| Orgo VM | | | ❓ | ❓ | ❓ |
+| Environment | Date | Nest boot | Gitea sync | OrbStack | WhatsApp | Tailscale |
+|-------------|------|-----------|------------|----------|----------|-----------|
+| Mac local | 2026-09-03 | n/a | 🔴 | 🔴 | 🔴 | 🔴 |
+| Orgo VM | | ❓ | ❓ | n/a | ❓ | ❓ |
 
-Do not mark ✅ without running the smoke tests on that environment.
+Update this table only after smoke tests — never mark ✅ from docs alone.
