@@ -1,9 +1,13 @@
 # Current System Map
 
-**Audited:** 2026-09-03  
+**Audited:** 2026-09-03 (Mac local stack)  
 **Auditor:** Claudio-CTO / human review  
-**Status:** degraded — multiple subsystems down or failing  
-**Next audit due:** after OrbStack repair + Gitea auth fix
+**Nest mirror updated:** 2026-09-07 — **docs only; not a re-audit**  
+**Status (as of audit):** degraded — multiple subsystems down or failing  
+
+> **Stale until re-verified:** Everything below reflects the **2026-09-03** audit snapshot. Do **not** treat this map as current health without a **fresh Mac pass** (OrbStack, Gitea, Hermes, disk, ports). A newer “all green” status is **not** claimed here.
+
+**Next audit due:** fresh Mac walk after OrbStack repair + Gitea auth fix
 
 ---
 
@@ -34,6 +38,33 @@ Executable cron jobs live under **`skunk-works/cron/`** on the Mac (not in Nest 
 | Sessions | **399** | Stale session cleanup needed |
 | `~/.openclaw` disk | **~5.9 GB** | Contributes to volume pressure |
 
+**Not the same as Grok Bot seats** (~7 named Company OS / Stud-Bot roles) — see [`grok-bot-seats.md`](grok-bot-seats.md).
+
+---
+
+## Port 5000 conflict (open risk — R9)
+
+Two Nest components default to **host port 5000**. Only one can bind at a time on a given machine.
+
+| Consumer | Location | Binds | Health probe |
+|----------|----------|-------|--------------|
+| **War Room** (primary VM stack) | `war-room/` via `docker/docker-compose.yml` | `0.0.0.0:5000` → container :5000 | `GET /api/health` — used by `scripts/boot-nest.sh` |
+| **StudEx Agent OS** (optional Flask app) | `studex-agent-os/app.py` | `0.0.0.0:5000` | `GET /health` (different path) |
+
+**Impact**
+
+- Starting Agent OS while War Room compose is up → **bind failure** or silent override depending on start order.
+- Running Agent OS alone then `./scripts/boot-nest.sh` → health check may hit **wrong process** (`/api/health` vs `/health`).
+- Docs, nest-cli, and agents assume War Room owns `:5000` on the VM (`WAR_ROOM_URL`, discord-bot, shopify-agent).
+
+**Resolution (pick one per host — not automated in repo)**
+
+1. **VM / always-on:** War Room via docker compose only; do not run `studex-agent-os/app.py` on the same host.
+2. **Dev Agent OS:** Run Flask on alternate port (e.g. `5001`) — requires local change to `app.py` or env; not committed here.
+3. **Before boot:** `lsof -i :5000` (Mac/Linux) — confirm expected process.
+
+Status: **open** — see checklist §7 and [`nest-topology.md`](nest-topology.md).
+
 ---
 
 ## Nest / cloud (Git-backed)
@@ -60,6 +91,7 @@ Executable cron jobs live under **`skunk-works/cron/`** on the Mac (not in Nest 
 | R6 | **Exposed gateway credential** | **Critical** | **Rotate before any remote exposure** — do not document value here |
 | R7 | WhatsApp disconnected on Hermes | Medium | Reconnect channel — see bring-up checklist |
 | R8 | Tailscale / Mac1 registry | Medium | Reconnect for private registry access |
+| R9 | **Port 5000: War Room vs Agent OS** | Medium | One primary per host; see section above |
 
 ---
 
@@ -88,6 +120,7 @@ VM (when up)
 
 ## Related docs
 
+- [`grok-bot-seats.md`](grok-bot-seats.md) — Grok seats vs 278 OpenClaw agents
 - [`mac-local-stack.md`](mac-local-stack.md) — OpenClaw / Hermes / ClawX relationship to Nest
 - [`nest-topology.md`](nest-topology.md) — Nest repo component map
 - [`git-remotes.md`](git-remotes.md) — GitHub vs Gitea

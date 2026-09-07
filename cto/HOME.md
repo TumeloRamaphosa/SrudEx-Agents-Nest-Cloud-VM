@@ -3,7 +3,8 @@
 > **Vault:** Claudio-CTO (human-readable control plane for StudEx agents and infrastructure)  
 > **Nest mirror:** [`cto/`](.) in [The-Nexus-Agents-NEst](https://github.com/TumeloRamaphosa/The-Nexus-Agents-NEst)  
 > **Human owner:** Tumelo Ramaphosa  
-> **Last synced:** 2026-09-07 (from local Obsidian vault facts)
+> **Last synced:** 2026-09-07 (Nest mirror of vault facts **audited 2026-09-03**)  
+> **Live audit:** 🔴 **stale** — run a fresh Mac pass before treating status docs as current
 
 Claudio-CTO is the **control plane** — not the runtime. It holds decisions, schedules, reports, and exchange contracts. Code and config live in Git; agents execute on Mac (OpenClaw/Hermes) and VM (Nest docker stack).
 
@@ -22,7 +23,7 @@ Claudio-CTO is the **control plane** — not the runtime. It holds decisions, sc
 
 1. **No credentials** in Obsidian, Drive, or Git — use local secret stores only.
 2. **Inbox until reviewed** — nothing in `00-Inbox` is authoritative until promoted.
-3. **Honest status** — degraded beats green-washed; see [`Reports/2026-09-03-status.md`](Reports/2026-09-03-status.md).
+3. **Honest status** — degraded beats green-washed; see [`Reports/2026-09-03-status.md`](Reports/2026-09-03-status.md) (**2026-09-03 snapshot — not current until re-audited**).
 4. **Stud-Bot product claims** stay in product tracks — this vault is **infra and agent OS** only.
 
 ---
@@ -59,7 +60,8 @@ Claudio-CTO is the **control plane** — not the runtime. It holds decisions, sc
 └─────────────────────────────────────────────────────────────┘
 ```
 
-Latest audited map: [`Systems/current-system-map.md`](Systems/current-system-map.md) (2026-09-03).
+Latest audited map: [`Systems/current-system-map.md`](Systems/current-system-map.md) (**2026-09-03 — stale until Mac re-pass**).  
+Grok seats vs OpenClaw: [`Systems/grok-bot-seats.md`](Systems/grok-bot-seats.md).
 
 ---
 

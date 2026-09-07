@@ -2,8 +2,10 @@
 
 **Owner:** Claudio-CTO  
 **Repo:** The-Nexus-Agents-NEst  
-**Last updated:** 2026-09-07 (mirrored from local vault audit 2026-09-03)  
+**Last updated:** 2026-09-07 (Nest mirror of vault audit **2026-09-03**)  
 **Overall status:** 🔴 **degraded** — do not treat this stack as production-ready
+
+> **Audit staleness:** Checklist status rows inherit the **2026-09-03** Mac audit unless you re-verify locally. This file was edited for Nest bootstrap / Robusca nits on 2026-09-07 — that is **not** a fresh health pass. Run a new Mac walk before upgrading any 🔴 to ✅.
 
 **Legend:** ✅ verified | 🟡 partial | 🔴 failing / degraded | ❌ not done | ❓ unknown
 
@@ -100,13 +102,16 @@ Point-in-time detail: [`cto/Reports/2026-09-03-status.md`](../cto/Reports/2026-0
 
 ---
 
-## 6. Grok Bot seats
+## 6. Grok Bot seats (Company OS / Stud-Bot)
+
+**Not the same as 278 OpenClaw agents** — see [`cto/Systems/grok-bot-seats.md`](../cto/Systems/grok-bot-seats.md).
 
 | # | Step | Status | Notes |
 |---|------|--------|-------|
-| 6.1 | Grok bot identities | ❓ | Not in 2026-09-03 audit — document when confirmed |
-| 6.2 | Seat allocation | ❓ | Add to `cto/Systems/` after verification |
-| 6.3 | Discord bot (Nest) | 🟡 | Code in `agents/discord-bot/` — needs tokens |
+| 6.1 | Grok seat roster documented | 🟡 | ~7 named seats: Cloud Agent Orchestrator, Robusca, Stud-Bot Product, Stud-Bot Delivery, Operating System, Content Chief |
+| 6.2 | Grok vs OpenClaw distinction | 🟡 | Grok = org seats; OpenClaw 278 = Mac runtime identities (R3 sprawl) |
+| 6.3 | Live Grok seat provisioning | ❓ | **Not probed in 2026-09-03 audit** — verify in Company OS / Stud-Bot admin |
+| 6.4 | Discord bot (Nest) | 🟡 | Code in `agents/discord-bot/` — needs tokens; separate from Grok seats |
 
 ---
 
@@ -114,11 +119,26 @@ Point-in-time detail: [`cto/Reports/2026-09-03-status.md`](../cto/Reports/2026-0
 
 | # | Step | Status | Notes |
 |---|------|--------|-------|
+| 7.0 | **Port 5000 conflict resolved per host** | 🔴 open (R9) | War Room (`/api/health`) vs Agent OS (`/health`) — see below |
 | 7.1 | `docker compose up` | ❓ | `scripts/boot-nest.sh` |
 | 7.2 | War Room `:5000/api/health` | ❓ | Not re-audited 2026-09-03 |
 | 7.3 | Nest CLI `nest-status` | ❓ | `studex-nest-cli/install.sh` |
 | 7.4 | VM fleet cron (3h) | 🟡 | Scheduled — result unverified |
 | 7.5 | Shopify / content agents | ❓ | Need `.env` |
+| 7.6 | Agent OS **not** on :5000 alongside War Room | 🔴 | Run War Room OR Agent OS on 5000 — not both |
+
+### Port 5000 — open risk (R9)
+
+| Listener | Source | Endpoint | When to use |
+|----------|--------|----------|-------------|
+| **War Room** | `docker/docker-compose.yml` | `http://localhost:5000/api/health` | VM / always-on primary |
+| **Agent OS** | `studex-agent-os/app.py` | `http://localhost:5000/health` | Dev only — **different path, same port** |
+
+**Impact:** Second process fails to bind, or `boot-nest.sh` talks to the wrong app. **Check:** `lsof -i :5000` before compose up.
+
+**Avoid:** `python3 studex-agent-os/app.py` on a host already running War Room compose.
+
+Detail: [`cto/Systems/current-system-map.md`](../cto/Systems/current-system-map.md) (R9), [`cto/Systems/nest-topology.md`](../cto/Systems/nest-topology.md).
 
 ---
 

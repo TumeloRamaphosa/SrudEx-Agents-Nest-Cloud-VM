@@ -35,8 +35,8 @@ This inventory describes what is **actually present in the tree today**. It is n
 | Agent / persona | Evidence in repo | Live status |
 |-----------------|------------------|-------------|
 | Robusca (CoS) | README, empty `robusca-brain/` | Sync target not populated |
-| Claudio (CTO vault) | `cto/` scaffold | New — docs only |
-| Hermes (CTO persona) | Obsidian roster, Agent OS README, War Room UI | Documented; runtime not in repo |
+| Claudio-CTO (control plane) | `cto/` — decisions, schedules, reports | Mirrored from Obsidian vault |
+| Hermes (CTO runtime) | Mac local + cron | Degraded per 2026-09-03 audit |
 | Charlie / Naledi / board | Obsidian vault, War Room pages | Product/agent UI — separate from Nest boot |
 | Node sub-agents | `agents/*` | Runnable with Docker + `.env` |
 | ADAM SMASHER / Agent OS agents | `studex-agent-os/agents/*.py` | Runnable via `python3 app.py` |
@@ -52,7 +52,9 @@ This inventory describes what is **actually present in the tree today**. It is n
 | Orgo VM | README VM table | Historical — IPs may be stale |
 | AgentMail addresses | README, War Room | Documented |
 | GitHub Actions CI | — | **None** |
-| Tailscale / Gitea | WAR_ROOM_SPEC mention only | **Not configured** |
+| Mac OpenClaw stack | `cto/Systems/current-system-map.md` | 278 agents — degraded |
+| Grok Bot seats (Company OS / Stud-Bot) | `cto/Systems/grok-bot-seats.md` | ~7 named seats — **not** 278 OpenClaw agents |
+| OrbStack / Buzz/Katya | system map | 🔴 stopped, ports active |
 
 ---
 
