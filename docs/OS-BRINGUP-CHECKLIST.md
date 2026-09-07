@@ -106,6 +106,8 @@ Point-in-time detail: [`cto/Reports/2026-09-03-status.md`](../cto/Reports/2026-0
 
 **Not the same as 278 OpenClaw agents** — see [`cto/Systems/grok-bot-seats.md`](../cto/Systems/grok-bot-seats.md).
 
+Identity mapping (OS ↔ Nest ↔ OpenClaw): [`AGENT-IDENTITY-CONTRACT.md`](AGENT-IDENTITY-CONTRACT.md).
+
 | # | Step | Status | Notes |
 |---|------|--------|-------|
 | 6.1 | Grok seat roster documented | 🟡 | ~7 named seats: Cloud Agent Orchestrator, Robusca, Stud-Bot Product, Stud-Bot Delivery, Operating System, Content Chief |
