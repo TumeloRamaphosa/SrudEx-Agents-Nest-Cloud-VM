@@ -220,7 +220,7 @@
 <body>
     <div class="header">
         <h1>ADAM SMASHER</h1>
-        <p>StudEx Agent OS v1.0 | Orgo.ai Ubuntu VM</p>
+        <p>StudEx Agent OS v1.1 | Nest + Mac command room (OpenMausBot · Hermes · Ollama)</p>
     </div>
     
     <div class="container">
@@ -280,6 +280,11 @@
             </div>
         </div>
         
+        <div class="bottom-section" id="command-room-panel">
+            <h2>Mac Command Room</h2>
+            <div class="pipeline-grid" id="command-room"></div>
+        </div>
+
         <!-- Task Input -->
         <div class="task-input" style="grid-column: 1 / -1;">
             <select id="agent-select">
@@ -288,6 +293,9 @@
                 <option value="ops">Ops</option>
                 <option value="comms">Comms</option>
                 <option value="deals">Deals</option>
+                <option value="openmaus">OpenMausBot</option>
+                <option value="hermes">Hermes</option>
+                <option value="ollama">Ollama</option>
             </select>
             <input type="text" id="task-input" placeholder="Enter task for agent...">
             <button onclick="sendTask()">EXECUTE</button>
@@ -344,6 +352,25 @@
             
             // Update pipeline
             document.getElementById('pipeline-value').textContent = data.pipeline.total_value.toLocaleString();
+
+            const room = data.command_room || {};
+            const roomDiv = document.getElementById('command-room');
+            if (roomDiv) {
+                const engines = room.engines || [];
+                const models = (room.ollama_models || []).join(', ') || 'none';
+                roomDiv.innerHTML = engines.map(engine => `
+                    <div class="deal-card" style="border-left-color:${engine.status === 'green' ? '#C9A84C' : '#ff4444'}">
+                        <div class="deal-name">${engine.name}</div>
+                        <div class="deal-stage">${engine.role}</div>
+                        <div class="deal-prob">${engine.detail || ''}${engine.public ? ' · ' + engine.public : ''}</div>
+                    </div>
+                `).join('') + `
+                    <div class="deal-card">
+                        <div class="deal-name">Ollama models</div>
+                        <div class="deal-prob">${models}</div>
+                    </div>
+                `;
+            }
             
             // Update timestamp
             document.getElementById('last-update').textContent = new Date().toLocaleTimeString();

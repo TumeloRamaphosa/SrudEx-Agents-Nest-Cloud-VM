@@ -34,13 +34,27 @@ df -h / /home 2>/dev/null | head -5
 
 echo ""
 echo -e "${BLUE}=== Memory (RAM) ===${NC}"
-free -h
+if command -v free &> /dev/null; then
+    free -h
+else
+    vm_stat 2>/dev/null | head -8 || true
+fi
+
+echo ""
+echo -e "${BLUE}=== Mac command room ===${NC}"
+python3 "$(dirname "$0")/../studex-agent-os/command_room.py" 2>/dev/null \
+  || python3 "$HOME/The-Nexus-Agents-NEst/studex-agent-os/command_room.py" 2>/dev/null \
+  || echo "command_room.py not found"
 
 echo ""
 # Health assessment
 HEALTH="OK"
 DISK_USAGE=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
-RAM_USAGE=$(free | grep Mem | awk '{printf "%.0f", $3/$2 * 100}')
+if command -v free &> /dev/null; then
+    RAM_USAGE=$(free | grep Mem | awk '{printf "%.0f", $3/$2 * 100}')
+else
+    RAM_USAGE=0
+fi
 
 if [ "$DISK_USAGE" -gt 90 ] || [ "$RAM_USAGE" -gt 90 ]; then
     HEALTH="CRITICAL"

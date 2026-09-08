@@ -1,0 +1,23 @@
+{
+  "claude_desktop_or_cursor": {
+    "mcpServers": {
+      "studex-bridge": {
+        "command": "python3",
+        "args": ["/path/to/studex-os-pack/mcp-bridge/studex_mcp_bridge.py"],
+        "env": { "STUDEX_BRIDGE_ROOT": "/path/to/studex-os-pack" }
+      }
+    }
+  },
+  "openclaw_or_generic_mcp_host": {
+    "studex-bridge": {
+      "command": "python3",
+      "args": ["/path/to/studex-os-pack/mcp-bridge/studex_mcp_bridge.py"],
+      "env": { "STUDEX_BRIDGE_ROOT": "/path/to/studex-os-pack" }
+    }
+  },
+  "katjana_direct_api": {
+    "base_url": "https://app.base44.com/api/agents/69ee5456163ccedcfd976e65",
+    "auth": "api_key header — key lives in the Base44 agent editor (Developer/API panel)",
+    "send_message": "POST /conversations/<conversation_id>/messages"
+  }
+}

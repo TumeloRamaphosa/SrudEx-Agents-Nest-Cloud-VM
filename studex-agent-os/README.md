@@ -1,4 +1,4 @@
-# StudEx Agent OS v1.0
+# StudEx Agent OS v1.1
 
 **Agent-Native Operating System for Global Markets Intelligence**
 
@@ -42,30 +42,49 @@ StudEx Agent OS is a unified multi-agent platform built on the Orgo.ai Ubuntu VM
 - **Memory OS**: File-based with JSON/Markdown
 - **Dashboard**: HTML/JS with live API polling
 
+## Mac command room (v1.1)
+
+ADAM SMASHER now folds the Mac command room into the OS roster:
+
+| Engine | Bind / URL |
+|---|---|
+| OpenMausBot | `127.0.0.1:18799` · https://maus.studex-group.com |
+| Ollama | `127.0.0.1:11434` |
+| Hermes ACP | `hermes-acp` · https://hermes.studex-group.com |
+| Claude / Cursor / OpenCode / Antigravity | local CLIs |
+
+`GET /api/command-room` returns live probes. On macOS the dashboard binds **127.0.0.1:5060** (AirPlay owns 5000; 5050 is often taken).
+
 ## Quick Start
 
 ```bash
 # Install dependencies
 ./install.sh
 
-# Run the Agent OS
-python3 app.py
+# Mac (loopback :5060)
+./start.sh
+open http://127.0.0.1:5060
 
-# Access dashboard
-open http://localhost:5000
+# VM (loopback :5000)
+STUDEX_OS_PORT=5000 python3 app.py
 ```
 
 ## Web Console
 
-- **Dashboard**: `http://localhost:5000/`
-- **Health Check**: `http://localhost:5000/health`
-- **API Base**: `http://localhost:5000/api/`
+- **Dashboard (Mac)**: `http://127.0.0.1:5060/`
+- **Dashboard (VM)**: `http://127.0.0.1:5000/`
+- **Health Check**: `/health`
+- **API Base**: `/api/`
+- **Command room**: `/api/command-room`
+- **Register agent**: `POST /api/agents/register`
 
 ## API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/status` | GET | System-wide status (agents, VM, market, pipeline) |
+| `/api/status` | GET | System-wide status (agents, VM, market, pipeline, command room) |
+| `/api/command-room` | GET | Live OpenMausBot / Hermes / Ollama / CLI probes |
+| `/api/agents/register` | POST | Register an external engine with the OS |
 | `/api/agent/<name>/task` | POST | Submit task to named agent |
 | `/api/agent/<name>/history` | GET | Get agent task history |
 | `/api/pipeline` | GET | Deal pipeline data |

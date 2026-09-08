@@ -1,6 +1,6 @@
 """
 StudEx Agent OS - Web Console & API Server
-Port 5000 | ADAM SMASHER Dashboard
+ADAM SMASHER Dashboard + Mac command room (OpenMausBot / Hermes / Ollama)
 """
 
 import json
@@ -10,19 +10,22 @@ from datetime import datetime
 from flask import Flask, render_template, jsonify, request
 import psutil
 
+from command_room import probe_command_room
+
 app = Flask(__name__)
 
-# Base path
-BASE_PATH = "/workspace/studex-agent-os"
-MEMORY_PATH = f"{BASE_PATH}/memory"
+BASE_PATH = os.environ.get("STUDEX_AGENT_OS", os.path.dirname(os.path.abspath(__file__)))
+MEMORY_PATH = os.path.join(BASE_PATH, "memory")
 
-# Agent state storage
 AGENTS = {
     "research": {"name": "Research", "status": "green", "last_task": None, "uptime": time.time()},
     "markets": {"name": "Markets", "status": "green", "last_task": None, "uptime": time.time()},
     "ops": {"name": "Ops", "status": "green", "last_task": None, "uptime": time.time()},
     "comms": {"name": "Comms", "status": "green", "last_task": None, "uptime": time.time()},
     "deals": {"name": "Deals", "status": "green", "last_task": None, "uptime": time.time()},
+    "openmaus": {"name": "OpenMausBot", "status": "amber", "last_task": None, "uptime": time.time()},
+    "hermes": {"name": "Hermes", "status": "amber", "last_task": None, "uptime": time.time()},
+    "ollama": {"name": "Ollama", "status": "amber", "last_task": None, "uptime": time.time()},
 }
 
 # Task history per agent
@@ -75,34 +78,69 @@ def dashboard():
     log("ADAM SMASHER: Dashboard accessed")
     return render_template("dashboard.html")
 
+def sync_command_room_agents():
+    """Fold live command-room probes into the OS agent roster."""
+    room = probe_command_room()
+    by_id = {engine["id"]: engine for engine in room.get("engines", [])}
+    for key in ("openmaus", "hermes", "ollama"):
+        engine = by_id.get(key)
+        if not engine:
+            continue
+        AGENTS[key]["status"] = engine["status"]
+        AGENTS[key]["last_task"] = engine.get("detail")
+    return room
+
+
 @app.route("/api/status")
 def api_status():
     """System-wide status endpoint"""
     vm = get_vm_metrics()
     market = get_market_data()
-    
-    # Calculate total pipeline value
-    total_value = sum(d["value"] * d["probability"] / 100 for d in PIPELINE["deals"])
-    
+    room = sync_command_room_agents()
+
     response = {
         "agents": [
             {
+                "id": agent_id,
                 "name": info["name"],
                 "status": info["status"],
                 "last_task": info["last_task"],
                 "uptime": round(time.time() - info["uptime"], 0)
             }
-            for agent, info in AGENTS.items()
+            for agent_id, info in AGENTS.items()
         ],
         "vm": vm,
         "pipeline": {
             "deals": len(PIPELINE["deals"]),
             "total_value": PIPELINE["total_value"]
         },
-        "market": market
+        "market": market,
+        "command_room": room,
     }
     log("ADAM SMASHER: Status request served")
     return jsonify(response)
+
+
+@app.route("/api/command-room")
+def api_command_room():
+    return jsonify(sync_command_room_agents())
+
+
+@app.route("/api/agents/register", methods=["POST"])
+def register_agent():
+    data = request.get_json() or {}
+    name = (data.get("name") or "").strip().lower().replace(" ", "-")
+    if not name:
+        return jsonify({"error": "name required"}), 400
+    AGENTS[name] = {
+        "name": data.get("name", name),
+        "status": "green",
+        "last_task": data.get("source", "registered"),
+        "uptime": time.time(),
+    }
+    TASK_HISTORY.setdefault(name, [])
+    log(f"ADAM SMASHER: Registered agent {name}")
+    return jsonify({"status": "registered", "id": name})
 
 @app.route("/api/agent/<name>/task", methods=["POST"])
 def agent_task(name):
@@ -154,8 +192,10 @@ def health():
     return "OK"
 
 if __name__ == "__main__":
+    host = os.environ.get("STUDEX_OS_HOST", "127.0.0.1")
+    port = int(os.environ.get("STUDEX_OS_PORT", "5060" if os.uname().sysname == "Darwin" else "5000"))
     log("=" * 60)
-    log("StudEx Agent OS v1.0 - ADAM SMASHER")
+    log("StudEx Agent OS v1.1 - ADAM SMASHER + command room")
     log("=" * 60)
-    log("Starting on port 5000...")
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    log(f"Starting on {host}:{port}  (loopback default; set STUDEX_OS_HOST to change)")
+    app.run(host=host, port=port, debug=False)

@@ -17,6 +17,8 @@ OpenMausBot + Hermes + local Ollama now sit in front of this nest on Tumelo's Ma
 
 Engines wired: Claude Code, Cursor Agent, Codex, Antigravity, OpenCode, Hermes ACP, OpenRouter, Grok API, Ollama local.
 
+StudEx Agent OS now probes that command room (`GET /api/command-room`). On this Mac the dashboard is **http://127.0.0.1:5060**.
+
 Templates, Worker source, and tunnel ingress live in [`integrations/openmaus/`](integrations/openmaus/README.md). **No API keys are in this repo.**
 
 ---
