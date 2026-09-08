@@ -31,3 +31,9 @@ via `bridge/inbox/`. You get a results lane: `results/<your-name>/`.
 
 ## FIRST TASK
 Report who you are + what you specialize in. Then pick up the highest-priority launch-prep item you can execute.
+
+## AGENT MEMORY STACK (recommended)
+- Builder's guide: https://x.com/Av1dlive/status/2097362674078331148
+- Repo: https://github.com/codejunkie99/agentic-stack-desktop
+- Native macOS workspace — one local knowledge graph across Claude Code, Codex, OpenCode, Cursor
+- Shared memory: decisions survive tool switches/sessions
