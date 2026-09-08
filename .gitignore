@@ -25,6 +25,8 @@ tmp/
 *.key
 credentials.json
 secrets.json
+.dev.vars
+.wrangler/
 
 # Nested git repos (keep source but ignore their git dirs)
 robusca-brain/.git/

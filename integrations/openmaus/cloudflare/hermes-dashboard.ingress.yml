@@ -1,0 +1,17 @@
+# Snippet for ~/.cloudflared/hermes-dashboard.yml
+# Tunnel ID stays on the machine. Do not commit credentials-file JSON.
+#
+# tunnel: da2e06a7-6bc3-456b-851f-b084051bcbfe
+# credentials-file: /Users/tumeloramaphosa/.cloudflared/<id>.json
+
+ingress:
+  - hostname: hermes.studex-group.com
+    service: http://localhost:8085
+  - hostname: maus.studex-group.com
+    service: http://127.0.0.1:18799
+    originRequest:
+      connectTimeout: 30s
+      keepAliveTimeout: 90s
+      noHappyEyeballs: true
+      disableChunkedEncoding: false
+  - service: http_status:404

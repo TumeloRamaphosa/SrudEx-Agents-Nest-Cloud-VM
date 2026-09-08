@@ -4,6 +4,21 @@
 > Orchestrated by Robusca (Chief of Staff) | Agent Lord: Tumelo Ramaphosa
 > Backup & sync hub — all agents sync state here for persistence and disaster recovery.
 
+## Mac command room (2026-09-08)
+
+OpenMausBot + Hermes + local Ollama now sit in front of this nest on Tumelo's Mac, published through Cloudflare Tunnel.
+
+| Surface | URL / bind |
+|---|---|
+| OpenMausBot (public hostname) | https://maus.studex-group.com → `127.0.0.1:18799` |
+| Hermes dashboard (existing) | https://hermes.studex-group.com → `localhost:8085` |
+| Ollama | `127.0.0.1:11434` (not public) |
+| Cloud Worker (Workers AI) | scaffolded, not deployed — needs `wrangler login` |
+
+Engines wired: Claude Code, Cursor Agent, Codex, Antigravity, OpenCode, Hermes ACP, OpenRouter, Grok API, Ollama local.
+
+Templates, Worker source, and tunnel ingress live in [`integrations/openmaus/`](integrations/openmaus/README.md). **No API keys are in this repo.**
+
 ---
 
 ## Repository Structure

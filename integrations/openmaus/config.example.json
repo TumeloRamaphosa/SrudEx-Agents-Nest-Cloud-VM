@@ -1,0 +1,62 @@
+{
+  "profile": {
+    "name": "tumelo",
+    "email": "tumelo001@gmail.com"
+  },
+  "openaiCompat": {
+    "key": "",
+    "url": "https://openrouter.ai/api/v1",
+    "model": "inclusionai/ling-3.0-flash-sante:free"
+  },
+  "xai": {
+    "key": ""
+  },
+  "defaultModelSelection": {
+    "instanceId": "openaiCompat",
+    "model": "inclusionai/ling-3.0-flash-sante:free"
+  },
+  "instances": {
+    "grok": { "driver": "grokAgent" },
+    "kimi": { "driver": "kimiAgent" },
+    "droid": { "driver": "droidAgent" },
+    "cursor": { "driver": "cursorAgent" },
+    "claude": { "driver": "claudeAgent" },
+    "codex": { "driver": "codex" },
+    "antigravity": { "driver": "antigravityAgent" },
+    "opencodeGo": { "driver": "opencodeGo" },
+    "computer": { "driver": "boxAgent" },
+    "openaiCompat": { "driver": "openai-compat", "displayName": "OpenRouter" },
+    "qwen": { "driver": "qwenAgent" },
+    "hermes": { "driver": "hermesAgent" },
+    "pi": { "driver": "piAgent" },
+    "ollama": {
+      "driver": "openai-compat",
+      "displayName": "Ollama Local",
+      "environment": { "OLLAMA_LOCAL_KEY": "ollama" },
+      "config": {
+        "url": "http://127.0.0.1:11434/v1",
+        "apiKeyEnv": "OLLAMA_LOCAL_KEY",
+        "model": "qwen2.5:14b"
+      }
+    },
+    "grokApi": {
+      "driver": "grok",
+      "displayName": "Grok API"
+    },
+    "hermesAcp": {
+      "driver": "customAcp",
+      "displayName": "Hermes ACP",
+      "config": { "cli": "hermes-acp" }
+    },
+    "cfWorkers": {
+      "driver": "openai-compat",
+      "displayName": "Cloudflare Workers AI",
+      "environment": { "CF_GATEWAY_TOKEN": "" },
+      "config": {
+        "url": "https://studex-openmaus-gateway.<account>.workers.dev/v1",
+        "apiKeyEnv": "CF_GATEWAY_TOKEN",
+        "model": "@cf/meta/llama-3.1-8b-instruct"
+      }
+    }
+  }
+}
