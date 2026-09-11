@@ -1,10 +1,17 @@
 /**
  * StudEx ADAM SMASHER — Discord Bot
- * Part of: StudEx Agents Nest Cloud VM (Orgo.ai)
- * Repo: github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM
- * 
+ * Part of: StudEx Agents Nest
+ * Repo: github.com/TumeloRamaphosa/The-Nexus-Agents-NEst
+ *
  * Connects to Discord as the command center for StudEx Global Markets.
  * Sends commands to War Room API + Approval Bot webhook.
+ *
+ * TRUTHFULNESS RULE — read before editing:
+ *   Commands must report what is ACTUALLY true, discovered at call time.
+ *   Never hardcode "ONLINE", a price, or a success message. A control
+ *   surface that lies is worse than no control surface: it hides outages
+ *   instead of surfacing them. If a value cannot be verified, label it
+ *   UNVERIFIED and say why. Every claim here must trace to a live probe.
  * 
  * SETUP:
  *   1. discord.com/developers → create app → add Bot
@@ -41,6 +48,42 @@ const client = new Client({
     GatewayIntentBits.GuildMembers,
   ],
 });
+
+// ─── Health probing ─────────────────────────────────────────────────────────
+// Every status claim must come from one of these. No hardcoded "ONLINE".
+
+const PROBE_TIMEOUT_MS = 4000;
+
+/**
+ * Probe an HTTP endpoint. Resolves to a result object — never throws.
+ * `ok` is true only when we actually got a 2xx back.
+ */
+async function probe(name, url) {
+  const started = Date.now();
+  try {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), PROBE_TIMEOUT_MS);
+    const res = await fetch(url, { signal: ctl.signal });
+    clearTimeout(timer);
+    return {
+      name,
+      url,
+      ok: res.ok,
+      detail: `HTTP ${res.status}`,
+      ms: Date.now() - started,
+    };
+  } catch (err) {
+    const reason = err.name === 'AbortError'
+      ? `no response in ${PROBE_TIMEOUT_MS}ms`
+      : err.message;
+    return { name, url, ok: false, detail: reason, ms: Date.now() - started };
+  }
+}
+
+function renderProbe(p) {
+  const mark = p.ok ? 'UP  ' : 'DOWN';
+  return `\`${mark}\` **${p.name}** — ${p.detail} (${p.ms}ms)`;
+}
 
 // ─── ADAM SMASHER — Command Handler ──────────────────────────────────────────
 async function handleCommand(message, args) {
@@ -84,38 +127,52 @@ async function handleCommand(message, args) {
 
     // ── status ──────────────────────────────────────────────────────────────
     case 'status': {
+      const pending = await message.reply('Probing services...');
+
+      const probes = await Promise.all([
+        probe('War Room',     `${WAR_ROOM_URL}/api/health`),
+        probe('Approval Bot', APPROVAL_HOOK.replace(/\/webhook$/, '/health')),
+      ]);
+
+      const down = probes.filter((p) => !p.ok);
+      const headline = down.length === 0
+        ? 'All probed services responding.'
+        : `**${down.length} of ${probes.length} services DOWN.**`;
+
       const reply = [
         '**ADAM SMASHER — System Status**',
+        `_Probed live at ${new Date().toISOString()}_`,
         '',
-        '`VM`     : StudEx Meat — Auto Meat (Orgo.ai) — ONLINE',
-        '`War Room` : Express+React on port 5000 — ONLINE',
-        '`Shopify Agent` : Hourly order check — ACTIVE',
-        '`Content Pipeline` : Approval queue monitor — ACTIVE',
-        '`Approval Bot` : Webhook receiver on :3002 — ACTIVE',
-        '`Discord Bot` : ADAM SMASHER — CONNECTED',
-        '`Agent-Reach` : 4/13 channels live — ACTIVE',
-        '`GitHub` : SrudEx-Agents-Nest-Cloud-VM — SYNCED',
+        ...probes.map(renderProbe),
         '',
-        '`⚡ USD/ZAR` : 18.42 | `RUB/ZAR` : 0.205 | `BRENT` : $78.40',
+        headline,
+        '',
+        '`Discord Bot` — UP (you are reading its reply)',
+        '',
+        '_Not probed here: Shopify Agent, Content Pipeline and Agent-Reach expose',
+        'no health endpoint. Their state is UNKNOWN, not healthy._',
       ].join('\n');
-      return message.reply(reply);
+
+      return pending.edit(reply);
     }
 
     // ── markets ────────────────────────────────────────────────────────────
     case 'markets': {
-      const reply = [
-        '**Market Data — Live**',
+      // No market data feed is wired up yet. Previously this returned
+      // hardcoded prices presented as live — which could drive a real
+      // trading decision off invented numbers. Refuse instead.
+      return message.reply([
+        '**Market Data — UNAVAILABLE**',
         '',
-        '`USD/ZAR`  : 18.42 (+0.3%) — Below alert threshold 18.50',
-        '`RUB/ZAR`  : 0.205 (-0.1%) — Stable',
-        '`BRENT`    : $78.40 (+1.2%) — Rising, watch fuel costs',
-        '`GOLD`     : $2,340 (+0.8%) — Safe haven demand up',
-        '`PLATINUM` : $1,020 (-0.3%) — Minor dip',
-        '`ZAR/RUB`  : 4.878 (+0.2%) — SA-Russia exchange stable',
+        'No market data provider is connected, so I have no prices to give you.',
         '',
-        '_Powered by ADAM SMASHER Markets Agent_',
-      ].join('\n');
-      return message.reply(reply);
+        'This command used to print fixed numbers (USD/ZAR 18.42, BRENT $78.40)',
+        'that were written into the source, not fetched. They were never live and',
+        'are now months stale. Do not trade on anything this command said.',
+        '',
+        'To make this real, wire a provider in `agents/discord-bot/index.js`',
+        'and set `MARKET_API_URL` in `.env`.',
+      ].join('\n'));
     }
 
     // ── research ────────────────────────────────────────────────────────────
@@ -184,20 +241,31 @@ async function handleCommand(message, args) {
 
     // ── agents ────────────────────────────────────────────────────────────
     case 'agents': {
-      const reply = [
-        '**StudEx Boardroom — Agent Status**',
+      // Agent liveness is only observable through the War Room. If that is
+      // down we know nothing — and must say so rather than assert ONLINE.
+      const wr = await probe('War Room', `${WAR_ROOM_URL}/api/health`);
+
+      if (!wr.ok) {
+        return message.reply([
+          '**Agent Status — UNKNOWN**',
+          '',
+          `War Room is unreachable (${wr.detail}), and it is the only source of`,
+          'agent liveness. I cannot tell you which agents are running.',
+          '',
+          '_This command used to list six agents as ONLINE unconditionally,',
+          'including when nothing was running at all._',
+        ].join('\n'));
+      }
+
+      return message.reply([
+        '**Agent Status**',
+        `_Checked ${new Date().toISOString()}_`,
         '',
-        '`ADAM SMASHER` — ONLINE — CEO (Tumelo Ramaphosa)',
-        '`AGENT-RESEARCH` — ONLINE — Intelligence (Agent-Reach 4/13 channels)',
-        '`AGENT-MARKETS` — ONLINE — Deal Pipeline (20 deals, R85M+)',
-        '`AGENT-OPS` — ONLINE — Infrastructure (War Room, agents, Discord)',
-        '`AGENT-COMMS` — ONLINE — Outreach (NVIDIA, Tencent, DeepSeek, ByteDance)',
-        '`AGENT-STRATEGY` — ONLINE — Planning ($1.94M 12-month target)',
+        renderProbe(wr),
         '',
-        'All agents running asynchronously on Orgo.ai VM.',
-        '_3 agents in training: PharmaSyntez VM, Art Engineer VM, NTECHLAB VM_',
-      ].join('\n');
-      return message.reply(reply);
+        `War Room is up. For the live agent roster see ${WAR_ROOM_URL}/agents —`,
+        'this bot does not yet read per-agent state from its API.',
+      ].join('\n'));
     }
 
     // ── vm ─────────────────────────────────────────────────────────────────
@@ -237,11 +305,16 @@ async function handleCommand(message, args) {
 
     // ── sync ──────────────────────────────────────────────────────────────
     case 'sync': {
-      await message.reply('Syncing to GitHub...\n`SrudEx-Agents-Nest-Cloud-VM` updated.');
-      setTimeout(() => {
-        message.channel.send('**GitHub sync complete.**\nRepo: github.com/TumeloRamaphosa/SrudEx-Agents-Nest-Cloud-VM\nAll agents and War Room state committed.');
-      }, 2000);
-      return;
+      // This used to print "sync complete" after a 2s timer without running
+      // anything — a success message for work that never happened.
+      return message.reply([
+        '**Sync — NOT IMPLEMENTED**',
+        '',
+        'This command does not sync anything. It previously reported',
+        '"GitHub sync complete" after a timer, having committed nothing.',
+        '',
+        'Nothing was pushed. Commit from a terminal until this is wired up.',
+      ].join('\n'));
     }
 
     // ── me ─────────────────────────────────────────────────────────────────
