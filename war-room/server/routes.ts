@@ -28,6 +28,33 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
 
+  // Liveness + readiness. Deliberately placed before every other route.
+  //
+  // There was no health route before this. Probes hitting /api/health got a
+  // 200 from the SPA catch-all — index.html, not JSON — so every external
+  // monitor reported the service healthy as long as static files were being
+  // served, even with the storage layer dead. A check that cannot fail is not
+  // a check. This one touches storage and returns 503 when that throws.
+  app.get("/api/health", (_req, res) => {
+    try {
+      const contentCount = storage.getAllContent().length;
+      res.json({
+        status: "ok",
+        service: "war-room",
+        storage: "ok",
+        contentCount,
+        uptimeSeconds: Math.round(process.uptime()),
+      });
+    } catch (err) {
+      res.status(503).json({
+        status: "degraded",
+        service: "war-room",
+        storage: "error",
+        error: err instanceof Error ? err.message : "unknown storage failure",
+      });
+    }
+  });
+
   // GET all content items
   app.get("/api/content", (_req, res) => {
     try {
